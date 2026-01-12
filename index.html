@@ -1,0 +1,146 @@
+
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <!-- Viewport update: user-scalable=no, viewport-fit=cover untuk support notch/poni HP -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#FDFBF7" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Pawon Salam" />
+    
+    <!-- Icons untuk iOS -->
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1046/1046751.png" />
+    
+    <!-- Link Manifest -->
+    <link rel="manifest" href="./manifest.json" />
+
+    <title>Pawon Salam Resto</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              serif: ['"Playfair Display"', 'serif'],
+              sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            },
+            colors: {
+              pawon: {
+                dark: '#26201A',
+                primary: '#3E342D', 
+                accent: '#A85A3C', // The reddish brown for price
+                green: '#6A7E52', // The olive green for badge
+                bg: '#FDFBF7', // The cream background
+                card: '#FFFFFF',
+                gray: '#F2F2F2',
+                textGray: '#8A8A8A'
+              }
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      /* --- NATIVE APP FEEL OVERRIDES --- */
+      
+      html, body {
+        /* Mencegah overscroll/bouncing effect (Rubber banding) */
+        overscroll-behavior-y: none;
+        /* Mencegah pull-to-refresh default browser */
+        overscroll-behavior-x: none;
+        height: 100%;
+        width: 100%;
+      }
+
+      body {
+        /* Mencegah user melakukan seleksi teks (seperti di aplikasi native) */
+        -webkit-user-select: none;
+        user-select: none;
+        /* Menghilangkan highlight biru saat tap di Android/iOS */
+        -webkit-tap-highlight-color: transparent;
+        /* Optimasi touch handling */
+        touch-action: manipulation;
+      }
+
+      /* Kembalikan seleksi teks hanya pada input form agar user bisa edit teks */
+      input, textarea {
+        -webkit-user-select: text;
+        user-select: text;
+      }
+
+      /* Global Custom Thin Scrollbar */
+      ::-webkit-scrollbar {
+        width: 4px;
+        height: 4px;
+      }
+      
+      ::-webkit-scrollbar-track {
+        background: transparent; 
+      }
+       
+      ::-webkit-scrollbar-thumb {
+        background-color: rgba(0, 0, 0, 0.1); 
+        border-radius: 10px; 
+      }
+      
+      ::-webkit-scrollbar-thumb:hover {
+        background-color: rgba(0, 0, 0, 0.2); 
+      }
+
+      /* Firefox */
+      * {
+        scrollbar-width: thin;
+        scrollbar-color: rgba(0, 0, 0, 0.1) transparent;
+      }
+    </style>
+    <script type="importmap">
+{
+  "imports": {
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "react": "https://esm.sh/react@^19.2.3",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "lucide-react": "https://esm.sh/lucide-react@^0.562.0",
+    "zustand/": "https://esm.sh/zustand@^5.0.9/",
+    "zustand": "https://esm.sh/zustand@^5.0.9",
+    "express": "https://esm.sh/express@^5.2.1",
+    "jsonwebtoken": "https://esm.sh/jsonwebtoken@^9.0.3",
+    "@prisma/client": "https://esm.sh/@prisma/client@^7.2.0",
+    "bcryptjs": "https://esm.sh/bcryptjs@^3.0.3",
+    "react-router-dom": "https://esm.sh/react-router-dom@^7.12.0",
+    "cors": "https://esm.sh/cors@^2.8.5",
+    "axios": "https://esm.sh/axios@^1.13.2",
+    "path": "https://esm.sh/path@^0.12.7",
+    "url": "https://esm.sh/url@^0.11.4",
+    "fs": "https://esm.sh/fs@^0.0.1-security",
+    "buffer": "https://esm.sh/buffer@^6.0.3"
+  }
+}
+</script>
+  <link rel="stylesheet" href="/index.css">
+</head>
+  <body class="bg-gray-100 select-none font-sans text-pawon-dark antialiased overflow-hidden"> 
+    <div id="root" class="h-full overflow-y-auto"></div>
+
+    <!-- Script Registrasi Service Worker -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          // FIX: Register Service Worker using a root-relative path to prevent 'Invalid URL' errors.
+          navigator.serviceWorker.register('/sw.js')
+            .then((registration) => {
+              console.log('ServiceWorker registration successful with scope: ', registration.scope);
+            })
+            .catch((err) => {
+              console.log('ServiceWorker registration failed: ', err);
+            });
+        });
+      }
+    </script>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>

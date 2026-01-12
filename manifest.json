@@ -1,0 +1,43 @@
+
+{
+  "name": "Pawon Salam Resto",
+  "short_name": "Pawon Salam",
+  "id": "/?source=pwa",
+  "start_url": "./?source=pwa",
+  "display": "standalone",
+  "background_color": "#FDFBF7",
+  "theme_color": "#FDFBF7",
+  "orientation": "portrait",
+  "categories": ["food", "lifestyle", "shopping"],
+  "description": "Aplikasi buku menu digital resmi Pawon Salam Resto & Catering. Pesan makanan, pantau meja, dan kelola menu dengan mudah.",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/1046/1046751.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/1046/1046751.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=400&q=80",
+      "sizes": "400x800",
+      "type": "image/jpg",
+      "form_factor": "narrow",
+      "label": "Tampilan Menu Digital"
+    },
+    {
+      "src": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80",
+      "sizes": "800x600",
+      "type": "image/jpg",
+      "form_factor": "wide",
+      "label": "Detail Makanan Lezat"
+    }
+  ]
+}
