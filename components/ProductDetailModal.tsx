@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
-import { ChevronLeft, Share2, Minus, Plus, ShoppingBag, Clock, Flame, Star, Heart } from 'lucide-react';
+import { ChevronLeft, Share2, Minus, Plus, Clock, Flame, Star, Heart } from 'lucide-react';
 import { MenuItem } from '../types';
 
 interface ProductDetailModalProps {
@@ -169,10 +169,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ item, on
             className={`flex-1 h-12 rounded-full font-bold text-sm flex items-center justify-center gap-2 transition-all ${isAvailable ? 'bg-pawon-accent text-white shadow-lg shadow-pawon-accent/30 active:scale-[0.98] hover:bg-orange-700' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}
           >
             {isAvailable ? (
-                <>
-                    <ShoppingBag size={18} />
-                    <span>Tambah - Rp {(item.price * quantity).toLocaleString('id-ID')}</span>
-                </>
+                <span className="text-base">Rp {(item.price * quantity).toLocaleString('id-ID')}</span>
             ) : (
                 <span>Stok Habis</span>
             )}
