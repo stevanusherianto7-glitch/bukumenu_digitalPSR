@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Plus, Star, Heart } from 'lucide-react';
+import { Star, Heart } from 'lucide-react';
 import { MenuItem } from '../types';
 
 interface MenuItemCardProps {
@@ -9,16 +9,9 @@ interface MenuItemCardProps {
   onAddToCart?: (item: MenuItem) => void;
 }
 
-export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onClick, onAddToCart }) => {
+export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onClick }) => {
   
   const isAvailable = item.isAvailable !== false; // Treat undefined as true
-
-  const handleAddToCartClick = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Mencegah trigger onClick pada div utama
-    if (onAddToCart && isAvailable) {
-      onAddToCart(item);
-    }
-  };
 
   return (
     <div 
@@ -90,24 +83,15 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onClick, onAdd
           {item.description}
         </p>
 
-        {/* Footer: Price & Add Button */}
+        {/* Footer: Price Only (Button Removed, Label 'Harga' Removed) */}
         <div className="mt-auto flex items-end justify-between">
           <div className="flex flex-col">
-             <span className="text-[9px] text-gray-400 font-medium tracking-wide uppercase mb-0.5">Harga</span>
              <span className="font-bold text-pawon-accent text-[15px] whitespace-nowrap leading-none">
                 <span className="text-xs align-top mr-0.5">Rp</span>{item.price.toLocaleString('id-ID')}
              </span>
           </div>
           
-          {/* Aesthetic Add Button (Squircle) */}
-          <button 
-            onClick={handleAddToCartClick}
-            disabled={!isAvailable}
-            className={`w-9 h-9 rounded-[14px] flex items-center justify-center transition-all shadow-lg relative overflow-hidden ${isAvailable ? 'bg-pawon-dark text-white hover:bg-black group-active:scale-90 shadow-pawon-dark/20' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}
-          >
-            {isAvailable && <div className="absolute inset-0 bg-white/10 opacity-0 hover:opacity-100 transition-opacity"></div>}
-            <Plus size={18} strokeWidth={2.5} />
-          </button>
+          {/* Tombol Plus (+) Dihilangkan sesuai permintaan */}
         </div>
       </div>
     </div>

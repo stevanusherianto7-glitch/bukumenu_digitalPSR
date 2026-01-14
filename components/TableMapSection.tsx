@@ -1,17 +1,35 @@
 
 import React, { useState } from 'react';
-import { MapPin, QrCode, Download } from 'lucide-react';
+import { MapPin, QrCode, Download, Link as LinkIcon, AlertTriangle } from 'lucide-react';
 
 export const TableMapSection: React.FC = () => {
   // Update: Standardize to 9 tables to match WaiterTableSection logic
   const tables = Array.from({ length: 9 }, (_, i) => `A${i + 1}`);
   const [selectedTable, setSelectedTable] = useState<string>('A1');
   
-  const baseUrl = window.location.origin + window.location.pathname;
+  // URL CLEANING LOGIC:
+  // Ensure we don't end up with "https://site.com//?meja=A1" or double slashes
+  const getBaseUrl = () => {
+     const { protocol, host, pathname } = window.location;
+     // Remove 'index.html' or trailing slash if present
+     const cleanPath = pathname.replace(/\/index\.html$/, '').replace(/\/$/, '');
+     return `${protocol}//${host}${cleanPath}`;
+  };
+
+  const baseUrl = getBaseUrl();
   const qrData = `${baseUrl}?meja=${selectedTable}`;
+  
   // QR Server API for generating QR codes dynamically
   const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(qrData)}&color=3E342D&bgcolor=FDFBF7`;
   const downloadName = `QR-Meja-${selectedTable}.png`;
+
+  const copyToClipboard = () => {
+      navigator.clipboard.writeText(qrData).then(() => {
+          alert('Link meja berhasil disalin! Anda bisa mencoba membukanya di browser lain atau mengirimnya ke HP.');
+      });
+  };
+
+  const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 
   return (
     <div className="p-6">
@@ -27,6 +45,16 @@ export const TableMapSection: React.FC = () => {
               </div>
             </div>
         </div>
+        
+        {isLocalhost && (
+            <div className="mb-6 bg-orange-50 p-3 rounded-lg border border-orange-200 flex items-start gap-2">
+                <AlertTriangle size={16} className="text-orange-600 shrink-0 mt-0.5" />
+                <p className="text-xs text-orange-800 leading-snug">
+                    <span className="font-bold">Perhatian (Localhost):</span> QR Code ini mengarah ke <code>localhost</code>. 
+                    Jika di-scan menggunakan HP, pastikan HP & Laptop terhubung ke jaringan yang sama dan gunakan IP Address (contoh: <code>192.168.1.5:3000</code>), bukan localhost.
+                </p>
+            </div>
+        )}
 
         {/* Table Grid */}
         <div className="mb-6">
@@ -72,8 +100,17 @@ export const TableMapSection: React.FC = () => {
               
               <div className="text-center mb-4 w-full">
                 <p className="text-xs text-gray-500 mb-1">Link tujuan (Scan untuk tes):</p>
-                <div className="bg-gray-100 px-3 py-2 rounded-lg text-[10px] text-pawon-accent break-all font-mono border border-gray-200">
-                  {qrData}
+                <div className="flex items-center gap-2">
+                    <div className="flex-1 bg-gray-100 px-3 py-2 rounded-lg text-[10px] text-pawon-accent break-all font-mono border border-gray-200 truncate">
+                      {qrData}
+                    </div>
+                    <button 
+                        onClick={copyToClipboard}
+                        className="p-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-600 transition-colors"
+                        title="Salin Link"
+                    >
+                        <LinkIcon size={16} />
+                    </button>
                 </div>
               </div>
 

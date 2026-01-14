@@ -16,6 +16,7 @@ import { WaiterTableSection } from './components/WaiterTableSection';
 import { TableMapSection } from './components/TableMapSection';
 import { SEED_VERSION } from './seed-version';
 import { InstallPWA } from './components/InstallPWA'; // Import PWA Installer
+import { WelcomeModal } from './components/WelcomeModal'; // Import Welcome Modal
 
 const App: React.FC = () => {
   const searchParams = new URLSearchParams(window.location.search);
@@ -25,6 +26,9 @@ const App: React.FC = () => {
 
   const { addItem, totalItems } = useCartStore();
   const [isCartOpen, setIsCartOpen] = useState(false);
+
+  // State untuk Welcome Modal
+  const [showWelcome, setShowWelcome] = useState(!!tableNumber);
 
   const [isAdminMode, setIsAdminMode] = useState(() => {
     if (urlMode === 'admin') {
@@ -295,6 +299,14 @@ const App: React.FC = () => {
     <div className="min-h-screen bg-pawon-bg flex justify-center">
       {/* PWA Install Prompt Component */}
       <InstallPWA />
+
+      {/* Welcome Modal when Table ID is detected */}
+      {showWelcome && tableNumber && !isAdminMode && (
+        <WelcomeModal 
+          tableNumber={tableNumber} 
+          onDismiss={() => setShowWelcome(false)} 
+        />
+      )}
 
       {selectedItem && (
         <ProductDetailModal 

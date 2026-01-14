@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { CheckCircle2, Clock, Coffee, MapPin, ChevronLeft, Receipt, AlertCircle, Utensils, PlusSquare, Info } from 'lucide-react';
 import { useOrderStore } from '../store/orderStore';
 
-// Data dummy untuk simulasi penambahan order jika needed
+// Data dummy untuk simulasi penambahan order
 const dummyMenuItems = [
     { menuName: 'Beef Burger Premium', price: 55000 },
     { menuName: 'Spaghetti Bolognese', price: 45000 },
@@ -17,7 +17,7 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
   // Safety check: ensure orders is an array
   const safeOrders = Array.isArray(orders) ? orders : [];
 
-  // Generate Tables A1-A9 (Standardized with TableMapSection)
+  // Generate Tables A1-A9
   const tables = Array.from({ length: 9 }, (_, i) => `A${i + 1}`);
 
   const getTableOrders = (tableNum: string) => {
@@ -31,9 +31,11 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
     const randomTable = tables[Math.floor(Math.random() * tables.length)];
     const randomItem = dummyMenuItems[Math.floor(Math.random() * dummyMenuItems.length)];
     const randomQuantity = Math.floor(Math.random() * 2) + 1;
+    // Tambahkan catatan acak untuk testing
+    const randomNote = Math.random() > 0.5 ? "Extra pedas, saus dipisah" : "";
 
-    addOrder(randomTable, [{ ...randomItem, quantity: randomQuantity }]);
-    alert(`Order simulasi untuk ${randomQuantity}x ${randomItem.menuName} di Meja ${randomTable} telah ditambahkan. Cek notifikasi!`);
+    addOrder(randomTable, [{ ...randomItem, quantity: randomQuantity, notes: randomNote }]);
+    alert(`Order simulasi untuk ${randomQuantity}x ${randomItem.menuName} di Meja ${randomTable} telah ditambahkan.`);
   };
 
   // --- Tampilan Detail Meja (Fullscreen) ---
@@ -92,19 +94,31 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
                     <div className="pl-3 space-y-4 mb-4">
                       {order.items.map((item, idx) => (
                         <div key={idx} className="flex justify-between items-start pb-3 border-b border-dashed border-gray-100 last:border-0 last:pb-0">
-                          <div className="flex gap-3">
+                          <div className="flex gap-3 w-full">
                             <div className="w-6 h-6 rounded-md bg-gray-100 text-gray-900 font-bold text-xs flex items-center justify-center mt-0.5 shrink-0 font-sans">{item.quantity}x</div>
-                            <div>
+                            <div className="flex-1">
                               <p className="font-bold text-gray-900 text-base leading-tight">{item.menuName}</p>
-                              {item.notes && (
-                                <div className="flex items-start gap-1 mt-1.5 bg-yellow-50 p-2 rounded-lg border border-yellow-100">
-                                   <AlertCircle size={10} className="text-yellow-600 mt-0.5 shrink-0" />
-                                   <p className="text-xs text-yellow-800 italic leading-snug font-sans">"{item.notes}"</p>
+                              
+                              {/* --- INTEGRASI CATATAN KHUSUS --- */}
+                              {/* Bagian ini memastikan catatan dari modal produk muncul di sini */}
+                              {item.notes && item.notes.trim() !== '' && (
+                                <div className="mt-2 w-full bg-yellow-50 rounded-lg border border-yellow-200 p-2.5 flex items-start gap-2 animate-in fade-in slide-in-from-top-1">
+                                   <AlertCircle size={14} className="text-yellow-600 shrink-0 mt-0.5" />
+                                   <div className="flex-1">
+                                     <p className="text-[10px] font-bold text-yellow-700 uppercase tracking-wide mb-0.5 font-sans">
+                                       Catatan Khusus:
+                                     </p>
+                                     <p className="text-sm text-gray-800 font-medium italic leading-snug break-words font-sans">
+                                       "{item.notes}"
+                                     </p>
+                                   </div>
                                 </div>
                               )}
+                              {/* -------------------------------- */}
+
                             </div>
                           </div>
-                          <p className="text-sm font-bold text-gray-500 shrink-0 font-sans">{(item.price * item.quantity).toLocaleString('id-ID')}</p>
+                          <p className="text-sm font-bold text-gray-500 shrink-0 font-sans pl-2">{(item.price * item.quantity).toLocaleString('id-ID')}</p>
                         </div>
                       ))}
                     </div>
@@ -114,11 +128,11 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
                         <span>Selesaikan Pesanan</span>
                       </button>
                       
-                      {/* Catatan untuk Waiter */}
-                      <div className="mt-3 flex items-start gap-2 bg-yellow-50 p-3 rounded-lg border border-yellow-200">
-                         <Info size={14} className="text-yellow-600 shrink-0 mt-0.5" />
-                         <p className="text-[10px] text-yellow-800 font-medium font-sans italic leading-snug">
-                           Segera lakukan repeat order ke tamu untuk memastikan order/pesanan sudah benar.
+                      {/* Reminder untuk Waiter */}
+                      <div className="mt-3 flex items-start gap-2 bg-blue-50 p-3 rounded-lg border border-blue-100">
+                         <Info size={14} className="text-blue-600 shrink-0 mt-0.5" />
+                         <p className="text-[10px] text-blue-800 font-medium font-sans italic leading-snug">
+                           Perhatikan catatan khusus pelanggan sebelum menyajikan makanan.
                          </p>
                       </div>
                     </div>

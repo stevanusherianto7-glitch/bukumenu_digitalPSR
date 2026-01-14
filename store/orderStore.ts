@@ -1,3 +1,4 @@
+
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { Order, OrderItem } from '../types';
@@ -8,7 +9,7 @@ interface OrderState {
   completeOrder: (orderId: string) => void;
 }
 
-// Data pesanan awal untuk demonstrasi
+// Data pesanan awal untuk demonstrasi (Updated with notes)
 const createDummyOrders = (): Order[] => [
     {
         id: `ord-${Math.random().toString(36).substr(2, 4)}`,
@@ -16,8 +17,18 @@ const createDummyOrders = (): Order[] => [
         status: 'pending',
         timestamp: Date.now() - 120000, // 2 menit lalu
         items: [
-            { menuName: 'Nasi Ayam Lengkuas Semarang', quantity: 2, price: 34000, notes: 'Jangan pedas' },
-            { menuName: 'Es Teler', quantity: 1, price: 20000 },
+            { 
+              menuName: 'Nasi Ayam Lengkuas Semarang', 
+              quantity: 2, 
+              price: 34000, 
+              notes: 'Dada semua ya kak, jangan pake paha. Sambal dipisah.' // Contoh catatan
+            },
+            { 
+              menuName: 'Es Teler', 
+              quantity: 1, 
+              price: 20000,
+              notes: 'Jangan pake nangka, susu dikit aja' // Contoh catatan
+            },
         ]
     },
     {
@@ -36,7 +47,12 @@ const createDummyOrders = (): Order[] => [
         timestamp: Date.now() - 600000, // 10 menit lalu
         items: [
             { menuName: 'Rawon Semarang', quantity: 1, price: 35000 },
-            { menuName: 'Ayam Goreng Penyet Semarang', quantity: 1, price: 34000, notes: 'Sambal dipisah' },
+            { 
+              menuName: 'Ayam Goreng Penyet Semarang', 
+              quantity: 1, 
+              price: 34000, 
+              notes: 'PEDAS BANGET!!!' // Contoh catatan penting
+            },
             { menuName: 'Tahu Gimbal Semarang', quantity: 1, price: 28000 },
         ]
     }
