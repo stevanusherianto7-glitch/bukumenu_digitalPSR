@@ -1,61 +1,19 @@
 
 import React, { useState } from 'react';
-import { MapPin, Phone, ShoppingBag } from 'lucide-react';
+import { MapPin, Phone } from 'lucide-react';
 import { Logo } from './Logo';
-
-// --- Partner Logo Component ---
-interface PartnerLinkProps {
-  href: string;
-  src: string;
-  alt: string;
-  fallbackText: string;
-  imgClassName?: string;
-}
-
-const PartnerLink: React.FC<PartnerLinkProps> = ({ href, src, alt, fallbackText, imgClassName }) => {
-  const [hasError, setHasError] = useState(false);
-
-  return (
-    <a 
-      href={href} 
-      target="_blank" 
-      rel="noreferrer"
-      aria-label={alt}
-      title={alt}
-      className="group inline-flex items-center justify-center w-16 h-11 bg-white rounded-lg shadow-lg opacity-90 hover:opacity-100 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-pawon-accent focus:ring-offset-2 hover:-translate-y-1 p-2"
-    >
-      {!hasError ? (
-        <img 
-          src={src} 
-          alt={alt} 
-          className={`block w-full h-full object-contain transition-transform duration-200 ${imgClassName || ''}`}
-          onError={() => setHasError(true)}
-        />
-      ) : (
-        <span className="text-[8px] font-bold text-pawon-dark px-1 whitespace-nowrap overflow-hidden text-ellipsis">{fallbackText}</span>
-      )}
-    </a>
-  );
-};
 
 interface PromoCarouselProps {
   onSecretAdminTrigger?: () => void;
   tableNumber?: string;
   headerImage?: string;
-  cartItemCount?: number;
-  onCartClick?: () => void;
 }
 
-export const PromoCarousel: React.FC<PromoCarouselProps> = ({ onSecretAdminTrigger, tableNumber, headerImage, cartItemCount = 0, onCartClick }) => {
+export const PromoCarousel: React.FC<PromoCarouselProps> = ({ onSecretAdminTrigger, tableNumber, headerImage }) => {
   const [tapCount, setTapCount] = useState(0);
 
-  const bgImage = headerImage || "https://images.unsplash.com/photo-1572656631137-7935297eff55?auto=format&fit=crop&w=800&q=80";
-
-  const MERCHANT_LINKS = {
-    gofood: "https://gofood.co.id/", 
-    grabfood: "https://food.grab.com/", 
-    shopeefood: "https://shopee.co.id/" 
-  };
+  // Foto Default: Soto Pindang Kudus (Hyperrealistic)
+  const bgImage = headerImage || "https://res.cloudinary.com/dwdaydzsh/image/upload/v1768368455/Soto_Pindang_Kudus_orwjnb.jpg";
 
   const handleLogoClick = () => {
     if (!onSecretAdminTrigger) return;
@@ -73,14 +31,14 @@ export const PromoCarousel: React.FC<PromoCarouselProps> = ({ onSecretAdminTrigg
 
   return (
     <div className="mb-6 -mx-6">
-      <div className="relative h-[280px] w-full overflow-hidden shadow-xl rounded-b-[32px] md:mx-auto md:w-full">
+      <div className="relative aspect-[4/3] w-full overflow-hidden shadow-xl rounded-b-[32px] md:mx-auto md:w-full">
         
         <img 
           src={bgImage} 
           alt="Pawon Salam Banner" 
           className="absolute inset-0 w-full h-full object-cover animate-in fade-in duration-700"
           onError={(e) => {
-             (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1572656631137-7935297eff55?auto=format&fit=crop&w=800&q=80";
+             (e.target as HTMLImageElement).src = "https://res.cloudinary.com/dwdaydzsh/image/upload/v1768368455/Soto_Pindang_Kudus_orwjnb.jpg";
           }}
         />
         
@@ -90,24 +48,20 @@ export const PromoCarousel: React.FC<PromoCarouselProps> = ({ onSecretAdminTrigg
         <div className="absolute top-0 left-0 w-full p-6 z-30 flex justify-between items-start">
           <button 
             onClick={handleLogoClick}
-            className="flex items-center gap-2.5 opacity-100 transition-opacity active:scale-95 duration-200 outline-none group text-left"
+            className="flex items-center gap-4 opacity-100 transition-opacity active:scale-95 duration-200 outline-none group text-left"
           >
             <div className="flex-shrink-0 drop-shadow-md">
-               {/* Logo diperkecil agar lebih compact */}
-               <Logo size="md" variant="light" showText={false} />
+               <Logo size="lg" variant="light" showText={false} />
             </div>
             <div className="flex flex-col items-start text-white drop-shadow-md">
-              <h1 className="font-serif text-2xl font-bold leading-tight tracking-normal group-active:text-gray-200 transition-colors">
+              {/* Teks "Pawon Salam" di atas */}
+              <h1 className="font-serif text-3xl font-bold leading-tight tracking-tight group-active:text-gray-200 transition-colors">
                 Pawon Salam
               </h1>
-              {/* Info Sub-header yang lebih Rapi */}
-              <div className="flex items-center divide-x divide-white/30 mt-1.5 bg-black/20 px-2.5 py-1.5 rounded-full backdrop-blur-sm border border-white/10">
-                  <span className="pr-2.5 text-[9px] font-medium tracking-wider uppercase text-white/80">Resto & Catering</span>
-                  <div className="pl-2.5 flex items-center gap-1.5">
-                      <Phone size={10} className="text-white/80" />
-                      <span className="text-[9px] font-bold tracking-wider text-white">0822-1045-6729</span>
-                  </div>
-              </div>
+              {/* Teks "Resto & Catering" di bawah */}
+              <span className="text-xs font-medium tracking-wider uppercase text-white/80 mt-1">
+                Resto & Catering
+              </span>
             </div>
           </button>
 
@@ -121,38 +75,16 @@ export const PromoCarousel: React.FC<PromoCarouselProps> = ({ onSecretAdminTrigg
                 </div>
               </div>
             )}
-            <button onClick={onCartClick} className="p-2.5 bg-white/90 backdrop-blur-md text-pawon-dark rounded-full shadow-lg hover:shadow-md border border-white/50 transition-all relative active:scale-95">
-              <ShoppingBag size={20} strokeWidth={2} />
-              {cartItemCount > 0 && <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-[10px] font-bold rounded-full border-2 border-pawon-bg flex items-center justify-center">{cartItemCount > 9 ? '9+' : cartItemCount}</span>}
-            </button>
           </div>
         </div>
 
         <div className="absolute inset-0 flex flex-col justify-end items-center pb-6 z-20 pointer-events-none">
-          <div className="flex flex-col items-center animate-in slide-in-from-bottom-2 fade-in duration-700 delay-100 pointer-events-auto mb-4">
-            <span className="text-[9px] text-white/70 font-medium mb-2 tracking-wide">Kami juga ada di</span>
-            <div className="flex items-center gap-3">
-              <PartnerLink 
-                href={MERCHANT_LINKS.gofood} 
-                src="https://upload.wikimedia.org/wikipedia/commons/8/86/Gojek_logo_2019.svg" 
-                alt="GoFood"
-                fallbackText="GoFood"
-              />
-              <PartnerLink 
-                href={MERCHANT_LINKS.grabfood} 
-                src="https://assets.grab.com/wp-content/uploads/sites/4/2021/04/15151634/Grab_Logo_2021.jpg" 
-                alt="GrabFood"
-                fallbackText="GrabFood"
-                imgClassName="mix-blend-multiply"
-              />
-              <PartnerLink 
-                href={MERCHANT_LINKS.shopeefood} 
-                src="https://upload.wikimedia.org/wikipedia/commons/f/fe/Shopee.svg" 
-                alt="ShopeeFood"
-                fallbackText="Shopee"
-              />
-            </div>
+          {/* Info kontak dipindahkan ke sini */}
+          <div className="flex items-center gap-1.5 mb-2.5 bg-black/40 px-3 py-1.5 rounded-full backdrop-blur-sm border border-white/10 text-white shadow-sm pointer-events-auto">
+              <Phone size={10} className="text-white/80" />
+              <span className="text-[10px] font-bold tracking-wider text-white">0823-2033-6007</span>
           </div>
+
           <div className="flex flex-col items-center px-4 py-2 rounded-2xl bg-black/40 backdrop-blur-md border border-white/10 text-white shadow-sm text-center pointer-events-auto">
             <div className="flex items-center gap-2 mb-1.5">
                <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>

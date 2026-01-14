@@ -1,26 +1,41 @@
-
 import React from 'react';
-import { BookOpen, Settings, LogOut } from 'lucide-react';
+import { MapPin, Settings, LogOut, Bell } from 'lucide-react';
+import { useOrderStore } from '../store/orderStore';
 
 interface BottomNavProps {
-  activeTab: 'menu' | 'admin';
-  onTabChange: (tab: 'menu' | 'admin') => void;
+  activeTab: 'meja' | 'peta' | 'admin';
+  onTabChange: (tab: 'meja' | 'peta' | 'admin') => void;
   onExitAdmin: () => void;
 }
 
 export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onTabChange, onExitAdmin }) => {
-  
+  const { orders } = useOrderStore();
+  const hasPendingOrders = orders.some(o => o.status === 'pending');
+
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 py-3 px-2 flex justify-around items-center z-50 max-w-[480px] mx-auto shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
       
-      {/* Tab Menu */}
+      {/* Tab Meja (Monitor Pesanan) */}
       <button 
         type="button"
-        onClick={() => onTabChange('menu')}
-        className={`flex-1 flex flex-col items-center gap-1 transition-colors duration-300 ${activeTab === 'menu' ? 'text-pawon-accent' : 'text-gray-400'}`}
+        onClick={() => onTabChange('meja')}
+        className={`relative flex-1 flex flex-col items-center gap-1 transition-colors duration-300 ${activeTab === 'meja' ? 'text-pawon-accent' : 'text-gray-400'}`}
       >
-        <BookOpen size={24} strokeWidth={activeTab === 'menu' ? 2.5 : 2} />
-        <span className="text-[10px] font-bold tracking-wide uppercase">Menu</span>
+        {hasPendingOrders && (
+          <span className="absolute top-0 right-1/2 translate-x-[20px] w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white animate-pulse"></span>
+        )}
+        <Bell size={24} strokeWidth={activeTab === 'meja' ? 2.5 : 2} />
+        <span className="text-[10px] font-bold tracking-wide uppercase">Pesanan</span>
+      </button>
+      
+      {/* Tab Peta Meja & QR */}
+      <button 
+        type="button"
+        onClick={() => onTabChange('peta')}
+        className={`relative flex-1 flex flex-col items-center gap-1 transition-colors duration-300 ${activeTab === 'peta' ? 'text-pawon-accent' : 'text-gray-400'}`}
+      >
+        <MapPin size={24} strokeWidth={activeTab === 'peta' ? 2.5 : 2} />
+        <span className="text-[10px] font-bold tracking-wide uppercase">Peta Meja</span>
       </button>
 
       {/* Tab Kelola (Admin) */}

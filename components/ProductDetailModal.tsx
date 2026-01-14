@@ -12,6 +12,7 @@ interface ProductDetailModalProps {
 export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ item, onClose, onAddToCart }) => {
   const [quantity, setQuantity] = useState(1);
   const [notes, setNotes] = useState('');
+  const isAvailable = item.isAvailable !== false; // Treat undefined as true
 
   // Prevent body scroll when modal is open
   useEffect(() => {
@@ -22,9 +23,9 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ item, on
   }, []);
 
   const handleAddToCartClick = () => {
-    if (onAddToCart) {
+    if (onAddToCart && isAvailable) {
         onAddToCart(item, quantity, notes);
-    } else {
+    } else if (isAvailable) {
         alert('Fitur pemesanan belum tersedia.');
         onClose();
     }
@@ -57,10 +58,18 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ item, on
         <img 
           src={item.imageUrl} 
           alt={item.name} 
-          className="w-full h-full object-cover"
+          className={`w-full h-full object-cover ${!isAvailable ? 'grayscale' : ''}`}
         />
         {/* Gradient Overlay for text readability if needed */}
         <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-black/50 to-transparent opacity-60"></div>
+        
+        {!isAvailable && (
+          <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+            <span className="bg-white/90 text-pawon-dark text-sm font-bold px-4 py-2 rounded-full shadow-xl backdrop-blur-sm">
+                Stok Habis
+            </span>
+          </div>
+        )}
       </div>
 
       {/* 3. Scrollable Content */}
@@ -123,6 +132,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ item, on
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="Contoh: Jangan pedas, saus dipisah, tanpa bawang..."
                 className="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 text-sm focus:outline-none focus:ring-1 focus:ring-pawon-accent resize-none h-24 transition-all"
+                disabled={!isAvailable}
               ></textarea>
             </div>
           </section>
@@ -137,7 +147,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ item, on
           <div className="flex items-center bg-gray-100 rounded-full px-1 py-1">
             <button 
                 onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                disabled={quantity <= 1}
+                disabled={quantity <= 1 || !isAvailable}
                 className="w-10 h-10 rounded-full bg-white text-pawon-dark flex items-center justify-center shadow-sm active:scale-95 transition-transform disabled:opacity-50 hover:bg-gray-50"
             >
               <Minus size={18} />
@@ -145,7 +155,8 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ item, on
             <span className="w-10 text-center font-bold text-lg text-pawon-dark">{quantity}</span>
             <button 
                 onClick={() => setQuantity(quantity + 1)}
-                className="w-10 h-10 rounded-full bg-pawon-dark text-white flex items-center justify-center shadow-sm active:scale-95 transition-transform hover:bg-black"
+                disabled={!isAvailable}
+                className="w-10 h-10 rounded-full bg-pawon-dark text-white flex items-center justify-center shadow-sm active:scale-95 transition-transform hover:bg-black disabled:bg-gray-300"
             >
               <Plus size={18} />
             </button>
@@ -154,10 +165,17 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ item, on
           {/* Add to Cart Button */}
           <button 
             onClick={handleAddToCartClick}
-            className="flex-1 bg-pawon-accent text-white h-12 rounded-full font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-pawon-accent/30 active:scale-[0.98] transition-all hover:bg-orange-700"
+            disabled={!isAvailable}
+            className={`flex-1 h-12 rounded-full font-bold text-sm flex items-center justify-center gap-2 transition-all ${isAvailable ? 'bg-pawon-accent text-white shadow-lg shadow-pawon-accent/30 active:scale-[0.98] hover:bg-orange-700' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}
           >
-            <ShoppingBag size={18} />
-            Tambah ke Keranjang - Rp {(item.price * quantity).toLocaleString('id-ID')}
+            {isAvailable ? (
+                <>
+                    <ShoppingBag size={18} />
+                    <span>Tambah - Rp {(item.price * quantity).toLocaleString('id-ID')}</span>
+                </>
+            ) : (
+                <span>Stok Habis</span>
+            )}
           </button>
 
         </div>

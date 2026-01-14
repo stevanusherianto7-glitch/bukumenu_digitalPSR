@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { Settings, RotateCcw, QrCode, Download, Save, X, AlertCircle, Plus, Smartphone, Utensils, Info, Image as ImageIcon, Camera, ChevronDown, Check } from 'lucide-react';
+import { Settings, RotateCcw, Save, X, AlertCircle, Plus, Utensils, Image as ImageIcon, Camera, ChevronDown, Check } from 'lucide-react';
 import { MenuItem } from '../types';
 import { AdminMenuCard } from './AdminMenuCard';
 import { CategoryFilter } from './CategoryFilter'; 
@@ -12,10 +11,10 @@ interface AdminSectionProps {
   category: string; 
   categories: string[]; // List Kategori Dinamis
   onCategoryChange: (category: string) => void;
-  onSaveAll: (items: MenuItem[]) => void;
-  onUpdateHeaderImage: (url: string) => void;
+  onSaveAll: (items: MenuItem[], newHeaderImage: string | null) => void;
   onResetData: () => void;
   onAddCategory: (newCategory: string) => void; // Handler Baru
+  onDeleteItem: (id: string) => void;
 }
 
 export const AdminSection: React.FC<AdminSectionProps> = ({ 
@@ -25,14 +24,10 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
   categories,
   onCategoryChange, 
   onSaveAll, 
-  onUpdateHeaderImage, 
   onResetData,
-  onAddCategory
+  onAddCategory,
+  onDeleteItem
 }) => {
-  const [showQrGenerator, setShowQrGenerator] = useState(false);
-  const [qrMode, setQrMode] = useState<'table' | 'app'>('table');
-  const [tableInput, setTableInput] = useState('A1');
-  
   // Header Editor State
   const [showHeaderEditor, setShowHeaderEditor] = useState(false);
   const [headerEditorSource, setHeaderEditorSource] = useState<string | null>(null);
@@ -44,25 +39,25 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
 
   // Local Draft State
   const [draftItems, setDraftItems] = useState<MenuItem[]>(items);
+  const [draftHeaderImage, setDraftHeaderImage] = useState<string | null>(null);
 
-  // Sync draft when parent items change
+  // Sync draft when parent items change (e.g., after a save)
   useEffect(() => {
     setDraftItems(items);
   }, [items]);
+  
+  useEffect(() => {
+    setDraftHeaderImage(null);
+  }, [headerImage]);
 
-  // Check for unsaved changes
+  // Check for unsaved changes (now includes header image)
   const hasUnsavedChanges = useMemo(() => {
-    return JSON.stringify(items) !== JSON.stringify(draftItems);
-  }, [items, draftItems]);
+    const itemsChanged = JSON.stringify(items) !== JSON.stringify(draftItems);
+    const headerChanged = draftHeaderImage !== null;
+    return itemsChanged || headerChanged;
+  }, [items, draftItems, draftHeaderImage]);
 
-  // Shortcut Categories untuk Admin (Sama seperti Menu Utama)
-  const SHORTCUT_CATEGORIES = ['Terlaris', 'Menu Baru', 'Paket Keluarga'];
-
-  // QR Logic
-  const baseUrl = window.location.origin + window.location.pathname;
-  const qrData = qrMode === 'table' ? `${baseUrl}?meja=${tableInput}` : baseUrl;
-  const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(qrData)}&color=3E342D&bgcolor=FDFBF7`;
-  const downloadName = qrMode === 'table' ? `QR-Meja-${tableInput}.png` : `QR-PawonSalam-App.png`;
+  const SHORTCUT_CATEGORIES = ['Terlaris', 'Makanan', 'Minuman'];
 
   // --- HEADER IMAGE HANDLERS ---
   const handleHeaderFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -77,14 +72,13 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
       };
       reader.readAsDataURL(file);
     }
-    // Reset input
     if (headerInputRef.current) {
       headerInputRef.current.value = '';
     }
   };
 
   const handleHeaderEditorSave = (base64: string) => {
-    onUpdateHeaderImage(base64);
+    setDraftHeaderImage(base64); // Update local draft state
     setShowHeaderEditor(false);
     setHeaderEditorSource(null);
   };
@@ -96,16 +90,12 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
     ));
   };
 
-  // Handle Add Draft Item (Local)
   const handleAddDraftItem = () => {
     let targetCategory = category;
-
-    // If currently on a view-only category like 'Terlaris', defaulting to 'Makanan Utama'
     if (category === 'Terlaris') {
-      targetCategory = 'Makanan Utama';
-      onCategoryChange('Makanan Utama');
+      targetCategory = 'Makanan';
+      onCategoryChange('Makanan');
     }
-
     const newItem: MenuItem = {
       id: Date.now().toString(),
       name: 'Menu Baru',
@@ -114,36 +104,36 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
       imageUrl: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80',
       category: targetCategory,
       isFavorite: false,
+      isAvailable: true,
     };
     setDraftItems(prev => [newItem, ...prev]);
   };
 
-  // Handle Discard
   const handleDiscard = () => {
     if (window.confirm('Batalkan semua perubahan yang belum disimpan?')) {
       setDraftItems(items);
+      setDraftHeaderImage(null); // Also reset header draft
     }
   };
 
-  // Handle Save
   const handleSave = () => {
-    onSaveAll(draftItems);
+    onSaveAll(draftItems, draftHeaderImage);
   };
 
-  // Handle Add Category
   const submitNewCategory = () => {
     if (!newCategoryName.trim()) return;
     onAddCategory(newCategoryName.trim());
     setNewCategoryName('');
     setIsAddingCategory(false);
-    // Switch view to the new category
     onCategoryChange(newCategoryName.trim());
   };
 
-  // Filter items
   const displayItems = useMemo(() => {
     if (category === 'Terlaris') {
       return draftItems.filter(item => item.isFavorite);
+    }
+    if (category === 'Menu Baru') {
+        return draftItems.filter(item => item.isNew);
     } 
     return draftItems.filter(item => item.category === category);
   }, [draftItems, category]);
@@ -151,7 +141,6 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
   return (
     <div className="mt-2 relative">
       
-      {/* HEADER EDITOR COMPONENT */}
       {showHeaderEditor && headerEditorSource && (
         <ImageEditor 
           imageSrc={headerEditorSource}
@@ -160,18 +149,25 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
         />
       )}
 
-      {/* Save Bar (Sticky Top/Floating) */}
-      {hasUnsavedChanges && (
-        <div className="sticky top-0 z-40 mb-4 animate-in slide-in-from-top-2">
-          <div className="bg-pawon-dark text-white p-3 rounded-xl shadow-xl flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2">
+      <div className="sticky top-0 z-40 mb-4">
+        <div className={`p-3 rounded-xl shadow-xl flex items-center justify-between gap-3 transition-colors duration-300 ${hasUnsavedChanges ? 'bg-pawon-dark text-white' : 'bg-white text-pawon-dark border border-gray-100'}`}>
+          <div className="flex items-center gap-2">
+            {hasUnsavedChanges ? (
               <AlertCircle size={18} className="text-orange-400 shrink-0" />
-              <div className="flex flex-col">
-                <span className="font-bold text-sm leading-none mb-0.5">Belum Disimpan</span>
-                <span className="text-[10px] opacity-80 leading-none">Segera simpan data</span>
-              </div>
+            ) : (
+              <Check size={18} className="text-green-500 shrink-0" />
+            )}
+            <div className="flex flex-col">
+              <span className="font-bold text-sm leading-none mb-0.5">
+                {hasUnsavedChanges ? 'Belum Disimpan' : 'Semua Tersimpan'}
+              </span>
+              <span className={`text-[10px] leading-none ${hasUnsavedChanges ? 'opacity-80' : 'text-gray-400'}`}>
+                {hasUnsavedChanges ? 'Segera simpan data' : 'Data menu sudah sinkron'}
+              </span>
             </div>
-            <div className="flex items-center gap-2 shrink-0">
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            {hasUnsavedChanges && (
               <button 
                 onClick={handleDiscard}
                 className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
@@ -179,26 +175,26 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
               >
                 <X size={16} />
               </button>
-              <button 
-                onClick={handleSave}
-                className="px-3 py-1.5 rounded-lg bg-pawon-accent font-bold text-xs flex items-center gap-1.5 shadow-lg hover:bg-orange-700 transition-colors"
-              >
-                <Save size={14} /> Simpan
-              </button>
-            </div>
+            )}
+            <button 
+              onClick={handleSave}
+              disabled={!hasUnsavedChanges}
+              className="px-3 py-1.5 rounded-lg bg-pawon-accent font-bold text-xs flex items-center gap-1.5 shadow-lg hover:bg-orange-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-300"
+            >
+              <Save size={14} /> Simpan
+            </button>
           </div>
         </div>
-      )}
+      </div>
 
-      {/* Section Header */}
       <div className="flex items-center justify-between mb-4 bg-orange-50 p-4 rounded-xl border border-orange-100">
         <div className="flex items-center gap-3 text-pawon-dark">
           <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-pawon-accent shadow-sm">
             <Settings size={20} />
           </div>
           <div>
-            <h2 className="font-serif text-lg font-bold leading-none">Mode Kelola</h2>
-            <p className="text-xs text-pawon-accent/80 mt-1 font-medium">Edit data & QR Code</p>
+            <h2 className="font-serif text-lg font-bold leading-none">Kelola Menu & Header</h2>
+            <p className="text-xs text-pawon-accent/80 mt-1 font-medium">Edit data menu, kategori & foto</p>
           </div>
         </div>
         
@@ -212,7 +208,6 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
         </button>
       </div>
 
-      {/* --- HEADER IMAGE SETTING --- */}
       <div className="bg-white rounded-xl p-4 mb-6 shadow-sm border border-gray-100">
         <div className="flex items-center gap-2 mb-3">
            <ImageIcon size={16} className="text-pawon-accent" />
@@ -221,7 +216,7 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
         
         <div className="relative w-full h-32 rounded-lg overflow-hidden group">
            <img 
-              src={headerImage} 
+              src={draftHeaderImage || headerImage} 
               alt="Current Header" 
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
            />
@@ -246,107 +241,7 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
         </p>
       </div>
 
-      {/* QR Code Generator Toggle */}
-      <div className="mb-6">
-        <button 
-          onClick={() => setShowQrGenerator(!showQrGenerator)}
-          className="w-full bg-white border border-gray-200 p-4 rounded-xl shadow-sm flex items-center justify-between group hover:border-pawon-accent transition-all"
-        >
-          <div className="flex items-center gap-3">
-            <div className={`p-2 rounded-lg transition-colors ${showQrGenerator ? 'bg-pawon-accent text-white' : 'bg-gray-100 text-pawon-dark'}`}>
-              <QrCode size={20} />
-            </div>
-            <div className="text-left">
-              <h3 className="font-serif font-bold text-pawon-dark">Generator QR Code</h3>
-              <p className="text-xs text-pawon-textGray">Cetak QR Meja atau Link Aplikasi</p>
-            </div>
-          </div>
-          <span className="text-2xl text-gray-300 font-light group-hover:text-pawon-accent transition-colors">
-            {showQrGenerator ? '−' : '+'}
-          </span>
-        </button>
-
-        {/* QR Code Generator Panel */}
-        {showQrGenerator && (
-          <div className="mt-2 bg-white rounded-xl p-5 border border-gray-100 shadow-sm animate-in fade-in slide-in-from-top-2 duration-300">
-            <div className="flex flex-col items-center">
-              
-              {/* Type Switcher */}
-              <div className="bg-gray-100 p-1 rounded-lg flex w-full mb-4">
-                <button 
-                  onClick={() => setQrMode('table')}
-                  className={`flex-1 py-2 text-xs font-bold rounded-md flex items-center justify-center gap-2 transition-all ${qrMode === 'table' ? 'bg-white text-pawon-dark shadow-sm ring-1 ring-gray-200' : 'text-gray-500 hover:bg-gray-200'}`}
-                >
-                  <Utensils size={14} /> Khusus Meja
-                </button>
-                <button 
-                  onClick={() => setQrMode('app')}
-                  className={`flex-1 py-2 text-xs font-bold rounded-md flex items-center justify-center gap-2 transition-all ${qrMode === 'app' ? 'bg-white text-pawon-dark shadow-sm ring-1 ring-gray-200' : 'text-gray-500 hover:bg-gray-200'}`}
-                >
-                  <Smartphone size={14} /> QR Utama (Umum)
-                </button>
-              </div>
-
-              {/* Table Input (Only visible in Table Mode) */}
-              {qrMode === 'table' && (
-                <div className="w-full mb-4 animate-in fade-in">
-                  <label className="block text-xs font-bold text-pawon-textGray uppercase mb-2">Nomor Meja</label>
-                  <input 
-                    type="text" 
-                    value={tableInput}
-                    onChange={(e) => setTableInput(e.target.value)}
-                    className="w-full border border-gray-300 rounded-lg p-3 font-bold text-lg text-center text-pawon-dark focus:ring-2 focus:ring-pawon-accent focus:border-pawon-accent outline-none"
-                    placeholder="Contoh: A1"
-                  />
-                </div>
-              )}
-
-              {/* Info Text for App Mode */}
-              {qrMode === 'app' && (
-                <div className="flex gap-2 items-start bg-blue-50 p-3 rounded-lg mb-4 text-left w-full">
-                  <Info size={16} className="text-blue-500 shrink-0 mt-0.5" />
-                  <p className="text-[10px] text-blue-700 leading-relaxed">
-                    <strong>QR Utama:</strong> Gunakan ini untuk Kasir, Brosur, atau Media Sosial. Tidak ada nomor meja yang terikat, pelanggan bebas memilih tempat duduk.
-                  </p>
-                </div>
-              )}
-
-              {/* QR Display */}
-              <div className="bg-[#FDFBF7] p-6 rounded-xl border border-gray-200 mb-4 shadow-inner flex flex-col items-center text-center">
-                 {/* Branding Text */}
-                 <h3 className="font-serif font-bold text-pawon-dark text-lg mb-1">Pawon Salam Resto</h3>
-                 <p className="text-[10px] font-medium text-pawon-accent uppercase tracking-widest mb-4">Buku Menu Digital</p>
-
-                 <img src={qrImageUrl} alt="QR Code Preview" className="w-48 h-48 mix-blend-multiply" />
-                 
-                 <span className="mt-4 text-[12px] font-bold text-pawon-dark bg-white px-3 py-1 rounded-full border border-gray-100 shadow-sm">
-                   {qrMode === 'table' ? `Meja ${tableInput}` : 'Scan Menu'}
-                 </span>
-              </div>
-              
-              <div className="text-center mb-4 w-full">
-                <p className="text-xs text-gray-500 mb-1">Link tujuan:</p>
-                <div className="bg-gray-100 px-3 py-2 rounded-lg text-[10px] text-pawon-accent break-all font-mono border border-gray-200">
-                  {qrData}
-                </div>
-              </div>
-
-              <a 
-                href={qrImageUrl} 
-                download={downloadName}
-                target="_blank"
-                rel="noreferrer"
-                className="w-full bg-pawon-dark text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-black transition-colors"
-              >
-                <Download size={18} /> {qrMode === 'table' ? 'Download QR Meja' : 'Download QR Utama'}
-              </a>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* ADMIN SHORTCUT FILTER (LIMITED TO 3) */}
-      <div className="mb-4 sticky top-0 bg-pawon-bg/95 backdrop-blur-sm z-20 pt-2 pb-1 -mx-4 px-4">
+      <div className="mb-4 sticky top-[72px] bg-pawon-bg/95 backdrop-blur-sm z-20 pt-2 pb-1 -mx-4 px-4">
         <CategoryFilter 
            categories={SHORTCUT_CATEGORIES} 
            selectedCategory={category} 
@@ -354,7 +249,6 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
         />
       </div>
 
-      {/* Product List Header WITH DROPDOWN & ADD CATEGORY */}
       <div className="flex flex-col gap-3 mb-4 mt-2">
         <div className="flex items-center justify-between">
           <div>
@@ -367,7 +261,6 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
           </div>
 
           <div className="flex items-center gap-2">
-            {/* Add Category Trigger Button */}
             {!isAddingCategory && (
               <button 
                 onClick={() => setIsAddingCategory(true)}
@@ -378,7 +271,6 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
               </button>
             )}
 
-            {/* Admin Category Dropdown */}
             <div className="relative group">
               <select
                 value={category}
@@ -398,7 +290,6 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
           </div>
         </div>
 
-        {/* INLINE ADD CATEGORY FORM */}
         {isAddingCategory && (
           <div className="bg-white p-3 rounded-xl border border-pawon-accent/30 shadow-sm animate-in fade-in slide-in-from-top-1">
             <label className="text-[10px] font-bold text-pawon-accent uppercase mb-1 block">Tambah Kategori Baru</label>
@@ -430,7 +321,6 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
         )}
       </div>
 
-      {/* Add New Button (Local Draft) */}
       <button 
         onClick={handleAddDraftItem}
         className="w-full border-2 border-dashed border-gray-200 rounded-[20px] py-4 flex items-center justify-center gap-2 text-pawon-textGray font-medium hover:border-pawon-accent hover:text-pawon-accent transition-colors mb-6 group active:scale-[0.98]"
@@ -441,7 +331,6 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
         Tambah Menu (Draft)
       </button>
 
-      {/* Grid */}
       <div className="grid grid-cols-2 gap-4 pb-32">
         {displayItems.length > 0 ? (
           displayItems.map((item) => (
@@ -449,7 +338,8 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
               key={item.id} 
               item={item} 
               onUpdate={handleDraftUpdate}
-              availableCategories={categories} // PASSING DYNAMIC CATEGORIES
+              onDelete={onDeleteItem}
+              availableCategories={categories}
             />
           ))
         ) : (

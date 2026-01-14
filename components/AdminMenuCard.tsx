@@ -1,21 +1,20 @@
 
 import React, { useState, useRef } from 'react';
-import { Edit2, Image as ImageIcon, DollarSign, Upload, Camera, Check, Type, AlignLeft, Tag, Heart } from 'lucide-react';
+import { Edit2, DollarSign, Check, Type, AlignLeft, Tag, Heart, Package, Crop, Sparkles, Trash2 } from 'lucide-react';
 import { MenuItem } from '../types';
-import { ImageEditor } from './ImageEditor';
-import { api, BACKEND_URL } from '../api';
+import ImageUploader from './ImageUploader';
+import { ImageEditor } from './ImageEditor'; // Import ImageEditor
 
 interface AdminMenuCardProps {
   item: MenuItem;
   onUpdate: (id: string, updates: Partial<MenuItem>) => void;
+  onDelete: (id: string) => void;
   availableCategories: string[];
 }
 
-export const AdminMenuCard: React.FC<AdminMenuCardProps> = ({ item, onUpdate, availableCategories }) => {
+export const AdminMenuCard: React.FC<AdminMenuCardProps> = ({ item, onUpdate, onDelete, availableCategories }) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [showImageEditor, setShowImageEditor] = useState(false);
   const [editorSource, setEditorSource] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const assignableCategories = availableCategories.filter(c => c !== 'Semua' && c !== 'Terlaris');
 
@@ -23,72 +22,87 @@ export const AdminMenuCard: React.FC<AdminMenuCardProps> = ({ item, onUpdate, av
     onUpdate(item.id, { [field]: value });
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        if (event.target?.result) {
-          setEditorSource(event.target.result as string);
-          setShowImageEditor(true);
-        }
-      };
-      reader.readAsDataURL(file);
+  const handleImageSelected = (file: File) => {
+    const newImageUrl = URL.createObjectURL(file);
+    if (item.imageUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(item.imageUrl);
     }
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
+    // When uploading a new file, the file object is the source of truth
+    onUpdate(item.id, { imageUrl: newImageUrl, imageFile: file });
+  };
+  
+  const handleEditorSave = (base64: string) => {
+    // The base64 string IS the new image source for the draft.
+    // We also clear imageFile, because the base64 string is now the source of truth for this draft.
+    onUpdate(item.id, { imageUrl: base64, imageFile: undefined });
+    setEditorSource(null); // Close editor
   };
 
-  const handleEditPhotoClick = () => {
-    fileInputRef.current?.click();
+  const openImageEditor = () => {
+    // We need to convert the current image URL (which can be http or blob) to base64
+    const img = new Image();
+    img.crossOrigin = "Anonymous";
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext('2d');
+      ctx?.drawImage(img, 0, 0);
+      const dataURL = canvas.toDataURL('image/jpeg');
+      setEditorSource(dataURL);
+    };
+    img.src = item.imageUrl;
   };
 
-  const handleEditorSave = async (base64: string) => {
-    setShowImageEditor(false);
-    setEditorSource(null);
-    try {
-      const response = await api.post('/upload', { image: base64 });
-      const newImageUrl = BACKEND_URL + response.data.url;
-
-      // Revoke old blob URL to prevent memory leaks if it exists
-      if (item.imageUrl.startsWith('blob:')) {
-        URL.revokeObjectURL(item.imageUrl);
-      }
-
-      onUpdate(item.id, { imageUrl: newImageUrl });
-    } catch (error) {
-      console.error("Gagal mengunggah gambar:", error);
-      alert("Gagal mengunggah gambar. Pastikan server backend berjalan.");
-    }
+  const handleDelete = () => {
+    // Konfirmasi sekarang ditangani oleh parent handler di App.tsx
+    onDelete(item.id);
   };
+
+  const isAvailable = item.isAvailable !== false;
 
   return (
     <>
-      {showImageEditor && editorSource && (
-        <ImageEditor 
+      {editorSource && (
+        <ImageEditor
           imageSrc={editorSource}
           onSave={handleEditorSave}
-          onCancel={() => { setShowImageEditor(false); setEditorSource(null); }}
+          onCancel={() => setEditorSource(null)}
         />
       )}
 
       <div className={`bg-white rounded-[20px] p-3 shadow-sm transition-all duration-300 flex flex-col h-full border ${isEditing ? 'border-pawon-accent ring-1 ring-pawon-accent relative z-10' : 'border-transparent'}`}>
         
-        <div className={`relative aspect-square rounded-[16px] overflow-hidden mb-3 bg-gray-100 group transition-all ${isEditing ? 'h-32 mx-auto aspect-auto w-32 rounded-full mb-4 ring-4 ring-gray-50' : ''}`}>
+        <div className={`relative aspect-square rounded-[16px] overflow-hidden mb-3 bg-gray-100 group transition-all`}>
           <img 
             src={item.imageUrl} 
             alt={item.name}
             onError={(e) => {
               (e.target as HTMLImageElement).src = 'https://via.placeholder.com/400?text=No+Image';
             }}
-            className={`w-full h-full object-cover transition-opacity ${isEditing ? 'opacity-90' : ''}`}
+            className={`w-full h-full object-cover transition-opacity ${isEditing ? 'opacity-90' : ''} ${!isAvailable && !isEditing ? 'grayscale' : ''}`}
           />
           
-          {!isEditing && item.isFavorite && (
-              <div className="absolute top-2 left-2 w-6 h-6 rounded-full bg-white/90 backdrop-blur-md flex items-center justify-center shadow-sm border border-white/50 text-red-500">
-                <Heart size={12} fill="currentColor" />
-              </div>
+          {!isEditing && (
+            <div className="absolute top-2 left-2 flex flex-col gap-1.5 z-10">
+              {item.isFavorite && (
+                <div className="w-6 h-6 rounded-full bg-white/90 backdrop-blur-md flex items-center justify-center shadow-sm border border-white/50 text-red-500">
+                  <Heart size={12} fill="currentColor" />
+                </div>
+              )}
+              {item.isNew && (
+                <div className="w-6 h-6 rounded-full bg-white/90 backdrop-blur-md flex items-center justify-center shadow-sm border border-white/50 text-blue-500">
+                  <Sparkles size={12} fill="currentColor" />
+                </div>
+              )}
+            </div>
+          )}
+
+
+          {!isEditing && !isAvailable && (
+            <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+              <span className="bg-white text-pawon-dark text-[10px] font-bold px-2 py-1 rounded-full shadow-md">HABIS</span>
+            </div>
           )}
 
           {!isEditing && (
@@ -101,20 +115,13 @@ export const AdminMenuCard: React.FC<AdminMenuCardProps> = ({ item, onUpdate, av
           )}
 
           {isEditing && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 backdrop-blur-[1px] rounded-full">
-              <input 
-                type="file" 
-                ref={fileInputRef}
-                className="hidden" 
-                accept="image/*"
-                onChange={handleFileChange}
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-black/40 backdrop-blur-[1px]">
+              <ImageUploader 
+                itemId={item.id}
+                onImageSelected={handleImageSelected}
               />
-              <button 
-                onClick={handleEditPhotoClick}
-                className="bg-white/90 text-pawon-dark p-2 rounded-full shadow-lg hover:bg-white flex items-center justify-center"
-                title="Ganti Foto"
-              >
-                <Camera size={16} />
+              <button onClick={openImageEditor} className="bg-white/90 text-pawon-dark p-2 rounded-full shadow-lg hover:bg-white flex items-center justify-center transition-colors text-xs font-bold gap-1 px-3">
+                 <Crop size={12}/> Edit Foto
               </button>
             </div>
           )}
@@ -216,12 +223,57 @@ export const AdminMenuCard: React.FC<AdminMenuCardProps> = ({ item, onUpdate, av
                         </label>
                     </div>
                 </div>
-               <div className="pt-2">
+                <div>
+                    <label className="flex items-center gap-1 text-[10px] font-bold text-pawon-textGray uppercase mb-1">
+                        <Sparkles size={12} /> Label Menu Baru
+                    </label>
+                    <div className="flex items-center justify-between bg-gray-50 p-2 rounded-lg border border-gray-200">
+                        <span className="text-xs font-medium text-pawon-dark">Tandai Sebagai Menu Baru</span>
+                        <label htmlFor={`new-${item.id}`} className="relative inline-flex items-center cursor-pointer">
+                            <input 
+                                type="checkbox" 
+                                id={`new-${item.id}`} 
+                                className="sr-only peer"
+                                checked={!!item.isNew}
+                                onChange={(e) => handleUpdate('isNew', e.target.checked)}
+                            />
+                            <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-2 peer-focus:ring-blue-500/30 peer-checked:bg-blue-500 transition-colors peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                        </label>
+                    </div>
+                </div>
+                <div>
+                    <label className="flex items-center gap-1 text-[10px] font-bold text-pawon-textGray uppercase mb-1">
+                        <Package size={12} /> Status Ketersediaan
+                    </label>
+                    <div className="flex items-center justify-between bg-gray-50 p-2 rounded-lg border border-gray-200">
+                        <span className={`text-xs font-bold ${!isAvailable ? 'text-red-500' : 'text-green-600'}`}>
+                            {isAvailable ? 'Tersedia' : 'Habis'}
+                        </span>
+                        <label htmlFor={`available-${item.id}`} className="relative inline-flex items-center cursor-pointer">
+                            <input 
+                                type="checkbox" 
+                                id={`available-${item.id}`} 
+                                className="sr-only peer"
+                                checked={isAvailable}
+                                onChange={(e) => handleUpdate('isAvailable', e.target.checked)}
+                            />
+                            <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-2 peer-focus:ring-pawon-accent/30 peer-checked:bg-green-500 transition-colors peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                        </label>
+                    </div>
+                </div>
+               <div className="pt-2 flex items-center gap-2">
+                 <button 
+                   onClick={handleDelete}
+                   className="p-3 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
+                   title="Hapus Menu"
+                 >
+                   <Trash2 size={16} />
+                 </button>
                  <button 
                    onClick={() => setIsEditing(false)}
-                   className="w-full py-2.5 rounded-lg bg-pawon-dark text-white text-xs font-bold hover:bg-black transition-colors flex items-center justify-center gap-1.5 shadow-md"
+                   className="w-full py-3 rounded-lg bg-pawon-dark text-white text-xs font-bold hover:bg-black transition-colors flex items-center justify-center gap-1.5 shadow-md"
                  >
-                   <Check size={14} /> Simpan Perubahan
+                   <Check size={14} /> Selesai
                  </button>
                </div>
             </div>

@@ -1,30 +1,28 @@
 
 import React, { useState } from 'react';
-import { CheckCircle2, Clock, Coffee, MapPin, ChevronLeft, Receipt, AlertCircle, Utensils, PlusSquare, Info } from 'lucide-react';
+import { CheckCircle2, Clock, Coffee, MapPin, ChevronLeft, Receipt, AlertCircle, Utensils, PlusSquare } from 'lucide-react';
+import { Order } from '../../types';
 import { useOrderStore } from '../store/orderStore';
 
-// Data dummy untuk simulasi penambahan order jika needed
+// Data dummy untuk simulasi penambahan order
 const dummyMenuItems = [
     { menuName: 'Beef Burger Premium', price: 55000 },
     { menuName: 'Spaghetti Bolognese', price: 45000 },
     { menuName: 'Kopi Susu Gula Aren', price: 18000 },
 ];
 
-export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }) => {
+export const WaiterTableSection: React.FC = () => {
   const { orders, completeOrder, addOrder } = useOrderStore();
   const [selectedTable, setSelectedTable] = useState<string | null>(null);
 
-  // Safety check: ensure orders is an array
-  const safeOrders = Array.isArray(orders) ? orders : [];
-
-  // Generate Tables A1-A9 (Standardized with TableMapSection)
+  // Generate Tables A1-A9
   const tables = Array.from({ length: 9 }, (_, i) => `A${i + 1}`);
 
   const getTableOrders = (tableNum: string) => {
-    return safeOrders.filter(o => o.tableNumber === tableNum && o.status === 'pending');
+    return orders.filter(o => o.tableNumber === tableNum && o.status === 'pending');
   };
 
-  const activeTablesCount = new Set(safeOrders.filter(o => o.status === 'pending').map(o => o.tableNumber)).size;
+  const activeTablesCount = new Set(orders.filter(o => o.status === 'pending').map(o => o.tableNumber)).size;
 
   const handleSimulateOrder = () => {
     // Pilih meja dan item secara acak
@@ -33,7 +31,7 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
     const randomQuantity = Math.floor(Math.random() * 2) + 1;
 
     addOrder(randomTable, [{ ...randomItem, quantity: randomQuantity }]);
-    alert(`Order simulasi untuk ${randomQuantity}x ${randomItem.menuName} di Meja ${randomTable} telah ditambahkan. Cek notifikasi!`);
+    alert(`Order simulasi untuk ${randomQuantity}x ${randomItem.menuName} di Meja ${randomTable} telah ditambahkan.`);
   };
 
   // --- Tampilan Detail Meja (Fullscreen) ---
@@ -41,7 +39,7 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
     const activeOrders = getTableOrders(selectedTable).sort((a, b) => a.timestamp - b.timestamp);
 
     return (
-      <div className="bg-gray-50 flex flex-col animate-in slide-in-from-right duration-300 min-h-screen">
+      <div className="bg-gray-50 flex flex-col animate-in slide-in-from-right duration-300 -m-8 min-h-screen">
         <div className="bg-white px-5 py-4 border-b border-gray-200 shadow-sm flex items-center justify-between sticky top-0 z-20">
            <button 
              onClick={() => setSelectedTable(null)}
@@ -87,7 +85,7 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
                            </div>
                         </div>
                       </div>
-                      <span className="text-[10px] bg-red-100 text-red-600 px-3 py-1 rounded-full font-bold uppercase tracking-wide border border-red-200 font-sans animate-pulse">Baru</span>
+                      <span className="text-[10px] bg-red-100 text-red-600 px-3 py-1 rounded-full font-bold uppercase tracking-wide border border-red-200 font-sans">Baru</span>
                     </div>
                     <div className="pl-3 space-y-4 mb-4">
                       {order.items.map((item, idx) => (
@@ -113,14 +111,6 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
                         <CheckCircle2 size={20} />
                         <span>Selesaikan Pesanan</span>
                       </button>
-                      
-                      {/* Catatan untuk Waiter */}
-                      <div className="mt-3 flex items-start gap-2 bg-yellow-50 p-3 rounded-lg border border-yellow-200">
-                         <Info size={14} className="text-yellow-600 shrink-0 mt-0.5" />
-                         <p className="text-[10px] text-yellow-800 font-medium font-sans italic leading-snug">
-                           Segera lakukan repeat order ke tamu untuk memastikan order/pesanan sudah benar.
-                         </p>
-                      </div>
                     </div>
                   </div>
                 ))}
@@ -133,12 +123,12 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
 
   // --- Tampilan Utama (Grid Meja) ---
   return (
-    <div className="animate-in fade-in pb-20">
-      <div className="bg-gray-900 text-white p-5 rounded-2xl shadow-xl shadow-gray-900/10 mb-8 flex items-center justify-between relative overflow-hidden mx-6 mt-6">
+    <div className="animate-in fade-in">
+      <div className="bg-gray-900 text-white p-5 rounded-2xl shadow-xl shadow-gray-900/10 mb-8 flex items-center justify-between relative overflow-hidden">
         <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-10 -mt-10 blur-2xl"></div>
         <div className="relative z-10">
           <h2 className="text-xl font-bold mb-1">Monitor Meja</h2>
-          <p className="text-xs text-white/70 font-sans">Pantau pesanan masuk real-time</p>
+          <p className="text-xs text-white/70 font-sans">Pantau status & pesanan</p>
         </div>
         <div className="text-right relative z-10">
           <span className="block text-3xl font-bold text-orange-400 leading-none mb-1 font-sans">{activeTablesCount}</span>
@@ -146,19 +136,19 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
         </div>
       </div>
 
-      <div className="mb-6 px-6 text-right">
+      <div className="mb-6 text-right">
         <button onClick={handleSimulateOrder} className="bg-white border border-gray-200 text-sm text-gray-800 font-bold py-2 px-4 rounded-lg flex items-center gap-2 hover:bg-gray-100 transition-colors shadow-sm inline-flex">
-          <PlusSquare size={16} /> Simulasi Order
+          <PlusSquare size={16} /> Simulasi Order Baru
         </button>
       </div>
 
-      <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 px-6">
+      <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 px-1">
         {tables.map((tableNum) => {
           const pendingOrders = getTableOrders(tableNum);
           const hasOrder = pendingOrders.length > 0;
           return (
-            <button key={tableNum} onClick={() => setSelectedTable(tableNum)} className={`relative aspect-[4/5] rounded-2xl flex flex-col items-center justify-center border transition-all duration-300 group ${hasOrder ? 'bg-white border-red-500 shadow-lg shadow-red-500/10 scale-105' : 'bg-white border-transparent shadow-sm hover:border-gray-200 hover:shadow-md'}`}>
-              <div className={`absolute top-3 right-3 w-3 h-3 rounded-full ${hasOrder ? 'bg-red-500 animate-pulse ring-4 ring-red-100' : 'bg-green-400'}`}></div>
+            <button key={tableNum} onClick={() => setSelectedTable(tableNum)} className={`relative aspect-[4/5] rounded-2xl flex flex-col items-center justify-center border transition-all duration-300 group ${hasOrder ? 'bg-white border-red-500 shadow-lg shadow-red-500/10' : 'bg-white border-transparent shadow-sm hover:border-gray-200 hover:shadow-md'}`}>
+              <div className={`absolute top-3 right-3 w-2.5 h-2.5 rounded-full ${hasOrder ? 'bg-red-500 animate-pulse' : 'bg-green-400'}`}></div>
               <div className={`mb-3 p-3 rounded-full transition-colors ${hasOrder ? 'bg-red-50 text-red-500' : 'bg-gray-50 text-gray-300 group-hover:text-gray-400'}`}><Utensils size={20} /></div>
               <span className={`text-2xl font-bold mb-1 font-sans ${hasOrder ? 'text-gray-900' : 'text-gray-400'}`}>{tableNum}</span>
               <span className={`text-[10px] font-bold uppercase tracking-widest font-sans ${hasOrder ? 'text-red-500' : 'text-gray-300'}`}>Meja</span>

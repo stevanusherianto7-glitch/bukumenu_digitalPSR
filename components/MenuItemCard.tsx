@@ -11,24 +11,37 @@ interface MenuItemCardProps {
 
 export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onClick, onAddToCart }) => {
   
+  const isAvailable = item.isAvailable !== false; // Treat undefined as true
+
   const handleAddToCartClick = (e: React.MouseEvent) => {
     e.stopPropagation(); // Mencegah trigger onClick pada div utama
-    if (onAddToCart) {
+    if (onAddToCart && isAvailable) {
       onAddToCart(item);
     }
   };
 
   return (
     <div 
-      onClick={() => onClick && onClick(item)}
-      className="group bg-white p-2.5 rounded-[24px] shadow-[0_8px_30px_rgba(0,0,0,0.04)] hover:shadow-[0_15px_30px_rgba(0,0,0,0.08)] border border-[#F2F2F2] transition-all duration-300 flex flex-col h-full cursor-pointer active:scale-[0.98]"
+      onClick={() => isAvailable && onClick && onClick(item)}
+      className={`group relative bg-white p-2.5 rounded-[24px] shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-[#F2F2F2] transition-all duration-300 flex flex-col h-full ${isAvailable ? 'hover:shadow-[0_15px_30px_rgba(0,0,0,0.08)] cursor-pointer active:scale-[0.98]' : 'opacity-60 cursor-not-allowed'}`}
     >
-      {/* Premium Image Frame (Matte Effect) */}
-      <div className="relative aspect-[1/1] overflow-hidden rounded-[20px] bg-gray-50 mb-3 isolate">
+      {/* New Menu "Necklace" Tag */}
+      {item.isNew && (
+        <div 
+          className="absolute top-0 -right-1 z-20 w-10 text-center bg-red-600 text-white text-[9px] font-bold uppercase pt-2 pb-3 rounded-b-lg shadow-lg shadow-red-600/30"
+          style={{ clipPath: 'polygon(0 0, 100% 0, 100% 100%, 50% 85%, 0 100%)' }}
+          aria-label="Menu Baru"
+        >
+          Baru
+        </div>
+      )}
+
+      {/* Premium Image Frame (Matte Effect) - Aspect Ratio Changed to 4:5 (Portrait) */}
+      <div className="relative aspect-[4/5] overflow-hidden rounded-[20px] bg-gray-50 mb-3 isolate">
         <img 
           src={item.imageUrl} 
           alt={item.name} 
-          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+          className={`w-full h-full object-cover transition-all duration-700 ${isAvailable ? 'group-hover:scale-110' : 'grayscale'}`}
           loading="lazy"
         />
         
@@ -37,6 +50,13 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onClick, onAdd
 
         {/* Floating Gradient Overlay at bottom for contrast (Optional, kept subtle) */}
         <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+        
+        {/* Out of Stock Overlay */}
+        {!isAvailable && (
+          <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-[20px]">
+            <span className="bg-white text-pawon-dark text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">Stok Habis</span>
+          </div>
+        )}
         
         {/* Badges - Premium Positioning */}
         <div className="absolute top-2.5 left-2.5 right-2.5 flex justify-between items-start z-20">
@@ -82,9 +102,10 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onClick, onAdd
           {/* Aesthetic Add Button (Squircle) */}
           <button 
             onClick={handleAddToCartClick}
-            className="w-9 h-9 rounded-[14px] bg-pawon-dark text-white flex items-center justify-center hover:bg-black transition-all shadow-lg shadow-pawon-dark/20 group-active:scale-90 relative overflow-hidden"
+            disabled={!isAvailable}
+            className={`w-9 h-9 rounded-[14px] flex items-center justify-center transition-all shadow-lg relative overflow-hidden ${isAvailable ? 'bg-pawon-dark text-white hover:bg-black group-active:scale-90 shadow-pawon-dark/20' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}
           >
-            <div className="absolute inset-0 bg-white/10 opacity-0 hover:opacity-100 transition-opacity"></div>
+            {isAvailable && <div className="absolute inset-0 bg-white/10 opacity-0 hover:opacity-100 transition-opacity"></div>}
             <Plus size={18} strokeWidth={2.5} />
           </button>
         </div>

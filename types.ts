@@ -1,5 +1,4 @@
 
-
 export interface MenuItem {
   id: string;
   name: string;
@@ -7,11 +6,15 @@ export interface MenuItem {
   price: number;
   imageUrl: string;
   isFavorite?: boolean;
-  category: string;
+  isAvailable?: boolean; // New: true for available, false for out of stock
+  isNew?: boolean; // New: To mark new menu items
+  // FIX: Improved type safety by using the Category union type instead of a generic string.
+  category: Category;
   rating?: number; // New: 4.5, 4.8 etc
   prepTime?: number; // New: in minutes
   calories?: number; // New: in kcal
   updatedAt?: Date;
+  imageFile?: File; // For handling new image uploads
 }
 
 export interface CartItem extends MenuItem {
@@ -19,16 +22,13 @@ export interface CartItem extends MenuItem {
   notes?: string;
 }
 
+// Tipe kategori disederhanakan agar sesuai dengan data menu baru dari pengguna.
 export type Category = 
   | 'Terlaris' 
-  | 'Menu Baru' 
-  | 'Menu Paket 2 Orang' 
-  | 'Paket 4 Orang' 
-  | 'Paket Keluarga'
-  | 'Makanan Utama' 
-  | 'Minuman' 
-  | 'Snack' 
-  | 'Oleh-oleh';
+  | 'Menu Baru'
+  | 'Makanan'
+  | 'Minuman'
+  | 'Snack';
 
 // FIX: Add Order and OrderItem interfaces for WaiterTableSection component
 export interface OrderItem {

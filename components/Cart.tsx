@@ -2,15 +2,39 @@
 import React from 'react';
 import { X, Trash2, Minus, Plus, ShoppingBag } from 'lucide-react';
 import { useCartStore } from '../store/cartStore';
+import { useOrderStore } from '../store/orderStore';
+import { OrderItem } from '../types';
 
 interface CartProps {
   isOpen: boolean;
   onClose: () => void;
-  onConfirmOrder: () => void;
+  tableNumber?: string;
 }
 
-export const Cart: React.FC<CartProps> = ({ isOpen, onClose, onConfirmOrder }) => {
-  const { items, totalItems, totalPrice, updateQuantity, removeItem } = useCartStore();
+export const Cart: React.FC<CartProps> = ({ isOpen, onClose, tableNumber }) => {
+  const { items, totalItems, totalPrice, updateQuantity, removeItem, clearCart } = useCartStore();
+  const { addOrder } = useOrderStore();
+
+  const handleConfirmOrder = () => {
+    if (totalItems === 0) return;
+
+    if (tableNumber) {
+        const orderItems: OrderItem[] = items.map(item => ({
+            menuName: item.name,
+            quantity: item.quantity,
+            price: item.price,
+            notes: item.notes,
+        }));
+        addOrder(tableNumber, orderItems);
+        // Robust Feedback: Confirm specifically which table was ordered
+        alert(`Pesanan BERHASIL dikirim untuk MEJA ${tableNumber}!\n\nMohon tunggu, pesanan Anda akan segera muncul di sistem waiter.`);
+    } else {
+        alert(`Pesanan Take Away telah dikirim ke dapur! Mohon tunggu panggilan.`);
+    }
+    
+    clearCart();
+    onClose();
+  };
 
   return (
     <>
@@ -25,7 +49,19 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose, onConfirmOrder }) =
         
         {/* Header */}
         <div className="flex-none flex items-center justify-between p-5 border-b border-gray-200">
-          <h2 className="font-serif text-xl font-bold text-pawon-dark">Keranjang Saya</h2>
+          <div>
+            <h2 className="font-serif text-xl font-bold text-pawon-dark">Keranjang Saya</h2>
+            {tableNumber ? (
+              <p className="text-xs font-bold text-pawon-accent bg-orange-50 px-2 py-0.5 rounded-full mt-1.5 inline-block border border-orange-100 flex items-center gap-1">
+                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                Pesanan untuk Meja: {tableNumber}
+              </p>
+            ) : (
+               <p className="text-xs font-bold text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full mt-1.5 inline-block">
+                Take Away / Bungkus
+              </p>
+            )}
+          </div>
           <button onClick={onClose} className="p-2 text-gray-400 hover:text-pawon-dark transition-colors rounded-full hover:bg-gray-100">
             <X size={20} />
           </button>
@@ -74,7 +110,7 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose, onConfirmOrder }) =
               <span className="font-bold text-lg text-pawon-dark">Rp {totalPrice.toLocaleString('id-ID')}</span>
             </div>
             <button
-              onClick={onConfirmOrder}
+              onClick={handleConfirmOrder}
               className="w-full bg-pawon-accent text-white py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-pawon-accent/30 hover:bg-orange-700 transition-all active:scale-[0.98]"
             >
               <ShoppingBag size={18} />

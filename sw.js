@@ -1,5 +1,4 @@
-
-const CACHE_NAME = 'pawon-salam-native-v3';
+const CACHE_NAME = 'pawon-salam-native-v4';
 const urlsToCache = [
   './',
   './index.html',

@@ -1,11 +1,12 @@
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { UtensilsCrossed, ChevronDown } from 'lucide-react';
 import { MenuItem } from '../types';
 import { MenuItemCard } from './MenuItemCard';
 
 interface MenuSectionProps {
   items: MenuItem[];
+  allItems: MenuItem[]; // Ditambahkan untuk menghitung total item per kategori
   onItemClick?: (item: MenuItem) => void;
   onAddToCart?: (item: MenuItem) => void;
   selectedCategory?: string; 
@@ -17,12 +18,29 @@ interface MenuSectionProps {
 
 export const MenuSection: React.FC<MenuSectionProps> = ({ 
   items, 
+  allItems,
   onItemClick,
   onAddToCart,
   selectedCategory,
   allCategories,
   onCategoryChange
 }) => {
+  const categoryCounts = useMemo(() => {
+    if (!allCategories || !allItems) return {};
+    
+    const counts: Record<string, number> = {};
+    for (const category of allCategories) {
+        if (category === 'Terlaris') {
+            counts[category] = allItems.filter(item => item.isFavorite).length;
+        } else if (category === 'Menu Baru') {
+            counts[category] = allItems.filter(item => item.isNew).length;
+        } else {
+            counts[category] = allItems.filter(item => item.category === category).length;
+        }
+    }
+    return counts;
+  }, [allItems, allCategories]);
+
   return (
     <div className="mt-2">
       
@@ -32,8 +50,8 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
           <h2 className="font-serif text-xl font-bold text-pawon-dark leading-none">
             Daftar Menu
           </h2>
-          <p className="text-[10px] text-pawon-textGray mt-1">
-            Menampilkan kategori: <span className="font-bold text-pawon-accent">{selectedCategory}</span>
+          <p className="text-[10px] text-pawon-textGray mt-1 capitalize">
+            Kategori: <span className="font-bold text-pawon-accent">{selectedCategory}</span>
           </p>
         </div>
 
@@ -47,7 +65,7 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
             >
               {allCategories.map((cat) => (
                 <option key={cat} value={cat}>
-                  {cat}
+                  {cat} ({categoryCounts[cat] ?? 0})
                 </option>
               ))}
             </select>
