@@ -9,59 +9,10 @@ interface OrderState {
   completeOrder: (orderId: string) => void;
 }
 
-// Data pesanan awal untuk demonstrasi (Updated with notes)
-const createDummyOrders = (): Order[] => [
-    {
-        id: `ord-${Math.random().toString(36).substr(2, 4)}`,
-        tableNumber: 'A1',
-        status: 'pending',
-        timestamp: Date.now() - 120000, // 2 menit lalu
-        items: [
-            { 
-              menuName: 'Nasi Ayam Lengkuas Semarang', 
-              quantity: 2, 
-              price: 34000, 
-              notes: 'Dada semua ya kak, jangan pake paha. Sambal dipisah.' // Contoh catatan
-            },
-            { 
-              menuName: 'Es Teler', 
-              quantity: 1, 
-              price: 20000,
-              notes: 'Jangan pake nangka, susu dikit aja' // Contoh catatan
-            },
-        ]
-    },
-    {
-        id: `ord-${Math.random().toString(36).substr(2, 4)}`,
-        tableNumber: 'A3',
-        status: 'pending',
-        timestamp: Date.now() - 300000, // 5 menit lalu
-        items: [
-            { menuName: 'Soto Ayam Semarang', quantity: 1, price: 30000 },
-        ]
-    },
-    {
-        id: `ord-${Math.random().toString(36).substr(2, 4)}`,
-        tableNumber: 'A7',
-        status: 'pending',
-        timestamp: Date.now() - 600000, // 10 menit lalu
-        items: [
-            { menuName: 'Rawon Semarang', quantity: 1, price: 35000 },
-            { 
-              menuName: 'Ayam Goreng Penyet Semarang', 
-              quantity: 1, 
-              price: 34000, 
-              notes: 'PEDAS BANGET!!!' // Contoh catatan penting
-            },
-            { menuName: 'Tahu Gimbal Semarang', quantity: 1, price: 28000 },
-        ]
-    }
-];
-
 export const useOrderStore = create<OrderState>()(
   persist(
     (set, get) => ({
-      orders: createDummyOrders(),
+      orders: [], // Inisialisasi dengan array kosong (Data dummy dihapus)
 
       addOrder: (tableNumber: string, items: OrderItem[]) => {
         const newOrder: Order = {

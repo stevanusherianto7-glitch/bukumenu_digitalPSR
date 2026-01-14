@@ -1,35 +1,27 @@
 
 import React, { useState } from 'react';
-import { MapPin, QrCode, Download, Link as LinkIcon, AlertTriangle } from 'lucide-react';
+import { MapPin, QrCode, Download, Link as LinkIcon, ExternalLink } from 'lucide-react';
 
 export const TableMapSection: React.FC = () => {
   // Update: Standardize to 9 tables to match WaiterTableSection logic
   const tables = Array.from({ length: 9 }, (_, i) => `A${i + 1}`);
   const [selectedTable, setSelectedTable] = useState<string>('A1');
   
-  // URL CLEANING LOGIC:
-  // Ensure we don't end up with "https://site.com//?meja=A1" or double slashes
-  const getBaseUrl = () => {
-     const { protocol, host, pathname } = window.location;
-     // Remove 'index.html' or trailing slash if present
-     const cleanPath = pathname.replace(/\/index\.html$/, '').replace(/\/$/, '');
-     return `${protocol}//${host}${cleanPath}`;
-  };
-
-  const baseUrl = getBaseUrl();
-  const qrData = `${baseUrl}?meja=${selectedTable}`;
+  // KONFIGURASI URL PRODUKSI
+  // Menggunakan link Vercel agar QR Code valid saat dicetak dan discan oleh tamu
+  const PRODUCTION_URL = 'https://buku-menu-digital-psr.vercel.app';
+  
+  const qrData = `${PRODUCTION_URL}?meja=${selectedTable}`;
   
   // QR Server API for generating QR codes dynamically
-  const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(qrData)}&color=3E342D&bgcolor=FDFBF7`;
-  const downloadName = `QR-Meja-${selectedTable}.png`;
+  const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=1000x1000&data=${encodeURIComponent(qrData)}&color=3E342D&bgcolor=FFFFFF&margin=20`;
+  const downloadName = `QR-Meja-${selectedTable}-PawonSalam.png`;
 
   const copyToClipboard = () => {
       navigator.clipboard.writeText(qrData).then(() => {
-          alert('Link meja berhasil disalin! Anda bisa mencoba membukanya di browser lain atau mengirimnya ke HP.');
+          alert(`Link meja ${selectedTable} berhasil disalin!`);
       });
   };
-
-  const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 
   return (
     <div className="p-6">
@@ -41,24 +33,22 @@ export const TableMapSection: React.FC = () => {
               </div>
               <div>
                 <h2 className="font-serif text-lg font-bold leading-none">Peta & QR Meja</h2>
-                <p className="text-xs text-blue-600/80 mt-1 font-medium">Pilih meja untuk mencetak QR Code.</p>
+                <p className="text-xs text-blue-600/80 mt-1 font-medium">Generate QR Code Siap Cetak</p>
               </div>
             </div>
         </div>
         
-        {isLocalhost && (
-            <div className="mb-6 bg-orange-50 p-3 rounded-lg border border-orange-200 flex items-start gap-2">
-                <AlertTriangle size={16} className="text-orange-600 shrink-0 mt-0.5" />
-                <p className="text-xs text-orange-800 leading-snug">
-                    <span className="font-bold">Perhatian (Localhost):</span> QR Code ini mengarah ke <code>localhost</code>. 
-                    Jika di-scan menggunakan HP, pastikan HP & Laptop terhubung ke jaringan yang sama dan gunakan IP Address (contoh: <code>192.168.1.5:3000</code>), bukan localhost.
-                </p>
-            </div>
-        )}
+        {/* Info Box */}
+        <div className="mb-6 bg-green-50 p-3 rounded-lg border border-green-200 flex items-start gap-2">
+            <ExternalLink size={16} className="text-green-600 shrink-0 mt-0.5" />
+            <p className="text-xs text-green-800 leading-snug">
+                <span className="font-bold">Mode Siap Cetak:</span> QR Code di bawah ini sudah mengarah ke server produksi (<code>{PRODUCTION_URL}</code>). Aman untuk dicetak dan ditempel di meja.
+            </p>
+        </div>
 
         {/* Table Grid */}
         <div className="mb-6">
-            <h3 className="font-bold text-sm text-pawon-dark uppercase tracking-wider mb-3">1. Pilih Meja dari Denah</h3>
+            <h3 className="font-bold text-sm text-pawon-dark uppercase tracking-wider mb-3">1. Pilih Meja</h3>
             <div className="grid grid-cols-4 sm:grid-cols-5 gap-3">
                 {tables.map(table => (
                     <button 
@@ -84,24 +74,34 @@ export const TableMapSection: React.FC = () => {
             <div className="flex items-center gap-2 mb-4">
                <QrCode size={16} className="text-pawon-accent" />
                <h3 className="font-bold text-sm text-pawon-dark uppercase tracking-wider">
-                 2. Unduh QR Code untuk Meja: <span className="text-pawon-accent">{selectedTable}</span>
+                 2. Preview & Download QR: <span className="text-pawon-accent">Meja {selectedTable}</span>
                </h3>
             </div>
         
             <div className="flex flex-col items-center">
-              <div className="bg-[#FDFBF7] p-6 rounded-xl border border-gray-200 mb-4 shadow-inner flex flex-col items-center text-center">
-                 <h3 className="font-serif font-bold text-pawon-dark text-lg mb-1">Pawon Salam Resto</h3>
-                 <p className="text-[10px] font-medium text-pawon-accent uppercase tracking-widest mb-4">Buku Menu Digital</p>
-                 <img src={qrImageUrl} alt="QR Code Preview" className="w-48 h-48 mix-blend-multiply" />
-                 <span className="mt-4 text-[12px] font-bold text-pawon-dark bg-white px-3 py-1 rounded-full border border-gray-100 shadow-sm">
+              {/* Card Preview Cetak */}
+              <div className="bg-white p-6 rounded-xl border-2 border-dashed border-gray-300 mb-4 flex flex-col items-center text-center relative w-full max-w-[280px]">
+                 <div className="absolute top-0 left-0 bg-gray-100 text-[10px] px-2 py-0.5 rounded-br-lg text-gray-500 font-bold border-b border-r border-gray-200">
+                    AREA CETAK
+                 </div>
+
+                 {/* Desain Sticker Meja Sederhana */}
+                 <div className="mt-4 mb-2">
+                    <h3 className="font-serif font-bold text-pawon-dark text-xl leading-none">Pawon Salam</h3>
+                    <p className="text-[9px] uppercase tracking-[0.2em] text-gray-400 mt-1">Scan to Order</p>
+                 </div>
+                 
+                 <img src={qrImageUrl} alt="QR Code Preview" className="w-40 h-40 my-2 mix-blend-multiply" />
+                 
+                 <div className="mt-2 bg-pawon-dark text-white px-4 py-1 rounded-full text-sm font-bold shadow-md">
                    Meja {selectedTable}
-                 </span>
+                 </div>
               </div>
               
               <div className="text-center mb-4 w-full">
-                <p className="text-xs text-gray-500 mb-1">Link tujuan (Scan untuk tes):</p>
+                <p className="text-xs text-gray-500 mb-1">Target URL:</p>
                 <div className="flex items-center gap-2">
-                    <div className="flex-1 bg-gray-100 px-3 py-2 rounded-lg text-[10px] text-pawon-accent break-all font-mono border border-gray-200 truncate">
+                    <div className="flex-1 bg-gray-50 px-3 py-2 rounded-lg text-[10px] text-gray-600 break-all font-mono border border-gray-200 truncate">
                       {qrData}
                     </div>
                     <button 
@@ -119,10 +119,13 @@ export const TableMapSection: React.FC = () => {
                 download={downloadName}
                 target="_blank"
                 rel="noreferrer"
-                className="w-full bg-pawon-dark text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-black transition-colors"
+                className="w-full bg-pawon-dark text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-black transition-colors shadow-lg shadow-gray-200"
               >
-                <Download size={18} /> Download QR Meja {selectedTable}
+                <Download size={18} /> Download High-Res QR
               </a>
+              <p className="text-[10px] text-gray-400 mt-2">
+                *File PNG ukuran 1000x1000px, cocok untuk dicetak di stiker atau acrylic stand.
+              </p>
             </div>
         </div>
     </div>
