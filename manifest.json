@@ -12,13 +12,13 @@
   "description": "Aplikasi buku menu digital resmi Pawon Salam Resto & Catering. Pesan makanan, pantau meja, dan kelola menu dengan mudah.",
   "icons": [
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/1046/1046751.png",
+      "src": "https://cdn-icons-png.flaticon.com/512/1046/1046751.png?v=2",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/1046/1046751.png",
+      "src": "https://cdn-icons-png.flaticon.com/512/1046/1046751.png?v=2",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
