@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { MapPin, Settings, LogOut, Bell } from 'lucide-react';
 import { useOrderStore } from '../store/orderStore';
@@ -13,7 +14,8 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onTabChange, on
   const hasPendingOrders = orders.some(o => o.status === 'pending');
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 py-3 px-2 flex justify-around items-center z-50 max-w-[480px] mx-auto shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+    // Updated padding-bottom to handle safe area (iPhone home indicator)
+    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] px-2 flex justify-around items-center z-50 max-w-[480px] mx-auto shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
       
       {/* Tab Meja (Monitor Pesanan) */}
       <button 

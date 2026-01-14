@@ -44,8 +44,8 @@ export const PromoCarousel: React.FC<PromoCarouselProps> = ({ onSecretAdminTrigg
         
         <div className="absolute inset-0 bg-gradient-to-t from-pawon-dark/95 via-pawon-dark/40 to-black/30"></div>
 
-        {/* --- HEADER CONTENT --- */}
-        <div className="absolute top-0 left-0 w-full p-6 z-30 flex justify-between items-start">
+        {/* --- HEADER CONTENT (Updated: Added padding-top for safe area/notch) --- */}
+        <div className="absolute top-0 left-0 w-full p-6 pt-[calc(1.5rem+env(safe-area-inset-top))] z-30 flex justify-between items-start">
           <button 
             onClick={handleLogoClick}
             className="flex items-center gap-4 opacity-100 transition-opacity active:scale-95 duration-200 outline-none group text-left"

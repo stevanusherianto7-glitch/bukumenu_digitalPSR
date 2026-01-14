@@ -15,6 +15,7 @@ import { MENU_ITEMS, CATEGORIES } from './data';
 import { WaiterTableSection } from './components/WaiterTableSection';
 import { TableMapSection } from './components/TableMapSection';
 import { SEED_VERSION } from './seed-version';
+import { InstallPWA } from './components/InstallPWA'; // Import PWA Installer
 
 const App: React.FC = () => {
   const searchParams = new URLSearchParams(window.location.search);
@@ -292,6 +293,9 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-pawon-bg flex justify-center">
+      {/* PWA Install Prompt Component */}
+      <InstallPWA />
+
       {selectedItem && (
         <ProductDetailModal 
           item={selectedItem} 

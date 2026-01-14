@@ -34,8 +34,8 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ item, on
   return (
     <div className="fixed inset-0 z-[60] bg-white flex flex-col animate-in slide-in-from-bottom-4 duration-300">
       
-      {/* 1. New Navigation Header (Transparent to Content) */}
-      <div className="absolute top-0 left-0 right-0 p-4 z-20 flex justify-between items-start">
+      {/* 1. New Navigation Header (Updated: Added padding-top for safe area) */}
+      <div className="absolute top-0 left-0 right-0 p-4 pt-[calc(1rem+env(safe-area-inset-top))] z-20 flex justify-between items-start">
         <button 
           onClick={onClose}
           className="w-10 h-10 rounded-full bg-white/90 backdrop-blur-md flex items-center justify-center text-pawon-dark shadow-lg hover:bg-white transition-all active:scale-90"
@@ -139,8 +139,8 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ item, on
         </div>
       </div>
 
-      {/* 4. Fixed Bottom Action Bar */}
-      <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-100 p-4 px-6 pb-6 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] z-30">
+      {/* 4. Fixed Bottom Action Bar (Updated: Added padding-bottom for safe area) */}
+      <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-100 p-4 pb-[calc(1.5rem+env(safe-area-inset-bottom))] px-6 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] z-30">
         <div className="flex items-center gap-4 max-w-[480px] mx-auto">
           
           {/* Quantity Stepper */}
