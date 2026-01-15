@@ -42,8 +42,6 @@ export interface Order {
   id: string;
   tableNumber: string;
   status: 'pending' | 'completed';
-  createdAt: string | Date; // Backend returns DateTime as ISO string
+  timestamp: number;
   items: OrderItem[];
-  // Legacy field for backward compatibility (computed from createdAt)
-  timestamp?: number;
 }
