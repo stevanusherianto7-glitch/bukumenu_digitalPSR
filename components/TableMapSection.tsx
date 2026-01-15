@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { MapPin, QrCode, Download, Link as LinkIcon, ExternalLink } from 'lucide-react';
+import { MapPin, QrCode, Download, Link as LinkIcon, ExternalLink, Info, CheckCircle2 } from 'lucide-react';
 
 export const TableMapSection: React.FC = () => {
   // Update: Standardize to 9 tables to match WaiterTableSection logic
@@ -42,12 +42,21 @@ export const TableMapSection: React.FC = () => {
             </div>
         </div>
         
-        {/* Info Box */}
-        <div className="mb-6 bg-green-50 p-3 rounded-lg border border-green-200 flex items-start gap-2">
-            <ExternalLink size={16} className="text-green-600 shrink-0 mt-0.5" />
-            <p className="text-xs text-green-800 leading-snug">
-                <span className="font-bold">Mode Siap Cetak:</span> QR Code di bawah ini sudah mengarah ke server produksi (<code>{PRODUCTION_URL}</code>) dan memiliki logo Pawon Salam di tengah.
-            </p>
+        {/* Info Box - Updated Text */}
+        <div className="mb-6 space-y-3">
+            <div className="bg-green-50 p-3 rounded-lg border border-green-200 flex items-start gap-2 shadow-sm">
+                <CheckCircle2 size={16} className="text-green-600 shrink-0 mt-0.5" />
+                <p className="text-xs text-green-800 leading-snug">
+                    <span className="font-bold">QR Code Permanen (Statis):</span> Anda <span className="underline decoration-green-600 font-bold">TIDAK PERLU</span> mencetak ulang QR Code ini meskipun ada perubahan harga, foto, atau penambahan menu baru di aplikasi.
+                </p>
+            </div>
+            
+            <div className="bg-gray-50 p-3 rounded-lg border border-gray-200 flex items-start gap-2">
+                <ExternalLink size={16} className="text-gray-500 shrink-0 mt-0.5" />
+                <p className="text-xs text-gray-600 leading-snug">
+                    Link mengarah ke server produksi: <code className="bg-gray-200 px-1 py-0.5 rounded text-gray-800 font-bold">{PRODUCTION_URL}</code>
+                </p>
+            </div>
         </div>
 
         {/* Table Grid */}
@@ -135,8 +144,8 @@ export const TableMapSection: React.FC = () => {
               >
                 <Download size={18} /> Download High-Res QR
               </a>
-              <p className="text-[10px] text-gray-400 mt-2">
-                *File PNG termasuk logo Pawon Salam di tengah. Siap cetak.
+              <p className="text-[10px] text-gray-400 mt-2 text-center px-4">
+                *File PNG High-Res termasuk logo Pawon Salam di tengah.
               </p>
             </div>
         </div>

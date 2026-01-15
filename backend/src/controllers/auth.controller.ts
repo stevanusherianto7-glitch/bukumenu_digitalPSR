@@ -1,12 +1,14 @@
 
 import { Request, Response } from 'express';
-// FIX: This error (Module '"@prisma/client"' has no exported member) is likely due to the Prisma client not being generated. Run `npx prisma generate`.
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '../lib/prisma';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
-const prisma = new PrismaClient();
-const JWT_SECRET = process.env.JWT_SECRET || 'supersecretkey';
+// Security: JWT_SECRET must be set in environment variables
+if (!process.env.JWT_SECRET) {
+  throw new Error('JWT_SECRET environment variable is required. Please set it in your .env file.');
+}
+const JWT_SECRET = process.env.JWT_SECRET;
 
 export const login = async (req: Request, res: Response) => {
   const { email, password } = req.body;
@@ -52,7 +54,8 @@ export const login = async (req: Request, res: Response) => {
     });
 
   } catch (error) {
-    console.error(error);
+    // Security: Don't expose error details to client
+    console.error('Login error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };

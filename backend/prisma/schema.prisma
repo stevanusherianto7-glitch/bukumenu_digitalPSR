@@ -1,0 +1,54 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model MenuItem {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  price       Float
+  imageUrl    String?
+  category    String
+  isFavorite  Boolean  @default(false)
+  isNew       Boolean  @default(false)
+  rating      Float?   @default(0)
+  prepTime    Int?     // in minutes
+  calories    Int?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("menu_items")
+}
+
+model Category {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("categories")
+}
+
+model Order {
+  id          String   @id @default(cuid())
+  tableNumber String?
+  status      String   @default("pending") // pending, completed, cancelled
+  items       Json     // Array of order items: [{ menuName, quantity, price, notes }]
+  total       Float
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("orders")
+  @@index([status])
+  @@index([createdAt])
+}

@@ -1,5 +1,3 @@
-// HARDCODED: Service Worker cache configuration
-// DO NOT change cache paths - relative paths resolve from root correctly
 const CACHE_NAME = 'pawon-salam-native-v4';
 const urlsToCache = [
   './',

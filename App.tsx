@@ -14,9 +14,10 @@ import { Loader2 } from 'lucide-react';
 import { MENU_ITEMS, CATEGORIES } from './data';
 import { WaiterTableSection } from './components/WaiterTableSection';
 import { TableMapSection } from './components/TableMapSection';
+import { SalesRecapSection } from './components/SalesRecapSection'; // Import Sales Recap
 import { SEED_VERSION } from './seed-version';
-import { InstallPWA } from './components/InstallPWA'; // Import PWA Installer
-import { WelcomeModal } from './components/WelcomeModal'; // Import Welcome Modal
+import { InstallPWA } from './components/InstallPWA'; 
+import { WelcomeModal } from './components/WelcomeModal'; 
 
 const App: React.FC = () => {
   const searchParams = new URLSearchParams(window.location.search);
@@ -49,7 +50,9 @@ const App: React.FC = () => {
   
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('Terlaris');
-  const [activeTab, setActiveTab] = useState<'meja' | 'peta' | 'admin'>('meja');
+  
+  // Update Type Tab Active
+  const [activeTab, setActiveTab] = useState<'meja' | 'peta' | 'laporan' | 'admin'>('meja');
 
   const SHORTCUT_CATEGORIES = ['Terlaris', 'Makanan', 'Minuman'];
 
@@ -373,6 +376,10 @@ const App: React.FC = () => {
                   </div>
                   <div className={activeTab === 'peta' ? 'block' : 'hidden'}>
                      <TableMapSection />
+                  </div>
+                  {/* NEW TAB: Laporan */}
+                  <div className={activeTab === 'laporan' ? 'block' : 'hidden'}>
+                     <SalesRecapSection />
                   </div>
                   <div className={activeTab === 'admin' ? 'block' : 'hidden'}>
                      <div className="px-6">

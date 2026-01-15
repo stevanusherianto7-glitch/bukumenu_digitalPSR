@@ -2,8 +2,14 @@
 import axios from 'axios';
 import { useAuthStore } from '../store/authStore';
 
+// Logika penentuan URL Backend
+// Jika di Vercel (Production), gunakan relatif path '/api' agar otomatis satu domain
+// Jika di Localhost, gunakan 'http://localhost:5000/api'
+const isProduction = (import.meta as any).env.PROD; 
+// Atau bisa cek hostname window.location.hostname !== 'localhost'
+
 const api = axios.create({
-  baseURL: 'http://localhost:5000/api', // Ganti dengan URL backend Anda saat deploy
+  baseURL: isProduction ? '/api' : 'http://localhost:5000/api',
 });
 
 // Request Interceptor to add JWT token to headers
@@ -27,7 +33,10 @@ api.interceptors.response.use(
     if (error.response && error.response.status === 401) {
       // Token expired or invalid, log out the user
       useAuthStore.getState().logout();
-      window.location.href = '/login';
+      // Jangan redirect paksa jika sedang di halaman publik (misal menu)
+      if (!window.location.pathname.includes('/login')) {
+          // window.location.href = '/login'; 
+      }
     }
     return Promise.reject(error);
   }

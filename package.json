@@ -8,26 +8,32 @@
     "build": "vite build",
     "preview": "vite preview"
   },
+  "prisma": {
+    "seed": "tsx backend/prisma/seed.ts"
+  },
   "dependencies": {
+    "@prisma/client": "^6.19.2",
+    "axios": "^1.13.2",
+    "bcryptjs": "^3.0.3",
+    "buffer": "^6.0.3",
+    "cors": "^2.8.5",
+    "express": "^5.2.1",
+    "fs": "^0.0.1-security",
+    "jsonwebtoken": "^9.0.3",
+    "lucide-react": "^0.562.0",
+    "path": "^0.12.7",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
-    "lucide-react": "^0.562.0",
-    "zustand": "^5.0.9",
-    "express": "^5.2.1",
-    "jsonwebtoken": "^9.0.3",
-    "@prisma/client": "^7.2.0",
-    "bcryptjs": "^3.0.3",
     "react-router-dom": "^7.12.0",
-    "cors": "^2.8.5",
-    "axios": "^1.13.2",
-    "path": "^0.12.7",
     "url": "^0.11.4",
-    "fs": "^0.0.1-security",
-    "buffer": "^6.0.3"
+    "zod": "^4.3.5",
+    "zustand": "^5.0.9"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",
     "@vitejs/plugin-react": "^5.0.0",
+    "prisma": "^6.19.2",
+    "tsx": "^4.21.0",
     "typescript": "~5.8.2",
     "vite": "^6.2.0"
   }

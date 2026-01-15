@@ -1,63 +1,70 @@
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { Order, OrderItem } from '../../types';
+import { Order, OrderItem } from '../types';
+import api from '../api'; // Import axios instance
 
 interface OrderState {
   orders: Order[];
-  addOrder: (tableNumber: string, items: OrderItem[]) => void;
-  completeOrder: (orderId: string) => void;
+  addOrder: (tableNumber: string, items: OrderItem[]) => Promise<void>;
+  completeOrder: (orderId: string) => Promise<void>; // Diubah menjadi async
+  setOrders: (orders: Order[]) => void; // Fungsi baru untuk sinkronisasi
+  isLoading: boolean;
 }
-
-// Data pesanan awal untuk demonstrasi
-const createDummyOrders = (): Order[] => [
-    {
-        id: `ord-${Math.random().toString(36).substr(2, 4)}`,
-        tableNumber: 'A1',
-        status: 'pending',
-        timestamp: Date.now() - 120000, // 2 menit lalu
-        items: [
-            { menuName: 'Nasi Goreng Spesial', quantity: 1, price: 35000 },
-            { menuName: 'Es Teh Manis', quantity: 2, price: 8000, notes: 'Jangan terlalu manis' },
-        ]
-    },
-    {
-        id: `ord-${Math.random().toString(36).substr(2, 4)}`,
-        tableNumber: 'A3',
-        status: 'pending',
-        timestamp: Date.now() - 300000, // 5 menit lalu
-        items: [
-            { menuName: 'Sate Ayam Madura', quantity: 1, price: 40000 },
-        ]
-    }
-];
 
 export const useOrderStore = create<OrderState>()(
   persist(
     (set, get) => ({
-      orders: createDummyOrders(),
+      orders: [],
+      isLoading: false,
 
-      addOrder: (tableNumber: string, items: OrderItem[]) => {
-        const newOrder: Order = {
-          id: `ord-${Date.now().toString().slice(-4)}`,
-          tableNumber,
-          items,
-          status: 'pending',
-          timestamp: Date.now(),
-        };
-        set({ orders: [newOrder, ...get().orders] });
+      // Fungsi ini dijalankan di HP PELANGGAN
+      addOrder: async (tableNumber: string, items: OrderItem[]) => {
+        set({ isLoading: true });
+        
+        // Kirim ke Google Cloud (Backend)
+        try {
+            await api.post('/orders', {
+                tableNumber,
+                items
+            });
+            console.log("Pesanan berhasil dikirim ke Cloud");
+            // Tidak perlu update state lokal di sini, karena HP waiter akan mengambilnya dari server
+        } catch (error) {
+            console.error("Gagal kirim ke Cloud:", error);
+            // Handle error, mungkin tampilkan pesan ke pelanggan
+        } finally {
+            set({ isLoading: false });
+        }
       },
-
-      completeOrder: (orderId: string) => {
+      
+      // Fungsi ini dijalankan di HP WAITER
+      completeOrder: async (orderId: string) => {
+        // 1. Optimistic UI Update: Langsung update di layar agar terasa cepat
+        const originalOrders = get().orders;
         set({
-          orders: get().orders.map(order => 
-            order.id === orderId ? { ...order, status: 'completed' } : order
-          ),
+          orders: get().orders.filter(order => order.id !== orderId)
         });
+
+        // 2. Kirim update status ke backend
+        try {
+            await api.patch(`/orders/${orderId}/complete`);
+            console.log(`Order ${orderId} marked as complete on server.`);
+        } catch (error) {
+            console.error("Gagal menyelesaikan pesanan di server, mengembalikan state:", error);
+            // Jika gagal, kembalikan state seperti semula
+            set({ orders: originalOrders });
+            alert("Gagal menyelesaikan pesanan. Periksa koneksi internet Anda.");
+        }
       },
+
+      // Fungsi ini untuk menerima data fresh dari server (dipanggil oleh poller)
+      setOrders: (orders: Order[]) => {
+        set({ orders });
+      }
     }),
     {
-      name: 'restohris-order-storage', // Nama key di local storage
+      name: 'pawon-salam-order-storage',
     }
   )
 );

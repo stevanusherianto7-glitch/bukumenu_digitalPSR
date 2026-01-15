@@ -1,11 +1,11 @@
 
 import React from 'react';
-import { MapPin, Settings, LogOut, Bell } from 'lucide-react';
+import { MapPin, Settings, LogOut, Bell, BarChart3 } from 'lucide-react';
 import { useOrderStore } from '../store/orderStore';
 
 interface BottomNavProps {
-  activeTab: 'meja' | 'peta' | 'admin';
-  onTabChange: (tab: 'meja' | 'peta' | 'admin') => void;
+  activeTab: 'meja' | 'peta' | 'laporan' | 'admin';
+  onTabChange: (tab: 'meja' | 'peta' | 'laporan' | 'admin') => void;
   onExitAdmin: () => void;
 }
 
@@ -24,10 +24,10 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onTabChange, on
         className={`relative flex-1 flex flex-col items-center gap-1 transition-colors duration-300 ${activeTab === 'meja' ? 'text-pawon-accent' : 'text-gray-400'}`}
       >
         {hasPendingOrders && (
-          <span className="absolute top-0 right-1/2 translate-x-[20px] w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white animate-pulse"></span>
+          <span className="absolute top-0 right-1/2 translate-x-[14px] w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white animate-pulse"></span>
         )}
-        <Bell size={24} strokeWidth={activeTab === 'meja' ? 2.5 : 2} />
-        <span className="text-[10px] font-bold tracking-wide uppercase">Pesanan</span>
+        <Bell size={22} strokeWidth={activeTab === 'meja' ? 2.5 : 2} />
+        <span className="text-[9px] font-bold tracking-wide uppercase">Pesanan</span>
       </button>
       
       {/* Tab Peta Meja & QR */}
@@ -36,8 +36,18 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onTabChange, on
         onClick={() => onTabChange('peta')}
         className={`relative flex-1 flex flex-col items-center gap-1 transition-colors duration-300 ${activeTab === 'peta' ? 'text-pawon-accent' : 'text-gray-400'}`}
       >
-        <MapPin size={24} strokeWidth={activeTab === 'peta' ? 2.5 : 2} />
-        <span className="text-[10px] font-bold tracking-wide uppercase">Peta Meja</span>
+        <MapPin size={22} strokeWidth={activeTab === 'peta' ? 2.5 : 2} />
+        <span className="text-[9px] font-bold tracking-wide uppercase">QR Meja</span>
+      </button>
+
+       {/* Tab Laporan (NEW) */}
+       <button 
+        type="button"
+        onClick={() => onTabChange('laporan')}
+        className={`relative flex-1 flex flex-col items-center gap-1 transition-colors duration-300 ${activeTab === 'laporan' ? 'text-pawon-accent' : 'text-gray-400'}`}
+      >
+        <BarChart3 size={22} strokeWidth={activeTab === 'laporan' ? 2.5 : 2} />
+        <span className="text-[9px] font-bold tracking-wide uppercase">Laporan</span>
       </button>
 
       {/* Tab Kelola (Admin) */}
@@ -46,8 +56,8 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onTabChange, on
         onClick={() => onTabChange('admin')}
         className={`flex-1 flex flex-col items-center gap-1 transition-colors duration-300 ${activeTab === 'admin' ? 'text-pawon-accent' : 'text-gray-400'}`}
       >
-        <Settings size={24} strokeWidth={activeTab === 'admin' ? 2.5 : 2} />
-        <span className="text-[10px] font-bold tracking-wide uppercase">Kelola</span>
+        <Settings size={22} strokeWidth={activeTab === 'admin' ? 2.5 : 2} />
+        <span className="text-[9px] font-bold tracking-wide uppercase">Menu</span>
       </button>
 
       {/* Tombol Keluar (Exit Admin) */}
@@ -56,8 +66,8 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onTabChange, on
         onClick={onExitAdmin}
         className="flex-1 flex flex-col items-center gap-1 text-gray-400 hover:text-red-600 transition-colors duration-300 group"
       >
-        <LogOut size={24} strokeWidth={2} className="group-hover:stroke-red-600" />
-        <span className="text-[10px] font-bold tracking-wide uppercase group-hover:text-red-600">Keluar</span>
+        <LogOut size={22} strokeWidth={2} className="group-hover:stroke-red-600" />
+        <span className="text-[9px] font-bold tracking-wide uppercase group-hover:text-red-600">Keluar</span>
       </button>
 
     </div>
