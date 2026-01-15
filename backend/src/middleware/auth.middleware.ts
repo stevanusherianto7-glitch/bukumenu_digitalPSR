@@ -3,7 +3,15 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
 // Define Role type since it's not in Prisma schema
-export type Role = 'OWNER' | 'RESTAURANT_MANAGER' | 'STAFF_FOH' | 'STAFF_BOH' | 'SUPER_ADMIN';
+export type Role = 
+  | 'OWNER' 
+  | 'RESTAURANT_MANAGER' 
+  | 'STAFF_FOH' 
+  | 'STAFF_BOH' 
+  | 'SUPER_ADMIN'
+  | 'HR_MANAGER'
+  | 'FINANCE_MANAGER'
+  | 'MARKETING_MANAGER';
 
 // Security: JWT_SECRET must be set in environment variables
 if (!process.env.JWT_SECRET) {
