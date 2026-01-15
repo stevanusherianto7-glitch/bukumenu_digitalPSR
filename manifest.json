@@ -2,8 +2,9 @@
 {
   "name": "Pawon Salam Resto",
   "short_name": "Pawon Salam",
-  "id": "./?source=pwa",
-  "start_url": "./?source=pwa",
+  "id": "/",
+  "start_url": "/",
+  "_comment_id_starturl": "WARNING: JANGAN UBAH id dan start_url! Harus tetap '/' untuk mencegah 404 error setelah PWA installation",
   "display": "standalone",
   "background_color": "#F7F5F2",
   "theme_color": "#F7F5F2",
@@ -12,13 +13,15 @@
   "description": "Aplikasi buku menu digital resmi Pawon Salam Resto & Catering. Pesan makanan, pantau meja, dan kelola menu dengan mudah.",
   "icons": [
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/1046/1046751.png",
+      "_comment": "WARNING: JANGAN HAPUS URL CLOUDINARY INI! Icon app harus menggunakan URL Cloudinary yang sudah ditentukan",
+      "src": "https://res.cloudinary.com/dwdaydzsh/image/upload/v1768382524/gemini-2.5-flash-image-preview_nano-banana__a_jadikan_ikon_ukuran__vj1ytb.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/1046/1046751.png",
+      "_comment": "WARNING: JANGAN HAPUS URL CLOUDINARY INI! Icon app harus menggunakan URL Cloudinary yang sudah ditentukan",
+      "src": "https://res.cloudinary.com/dwdaydzsh/image/upload/v1768382524/gemini-2.5-flash-image-preview_nano-banana__a_jadikan_ikon_ukuran__vj1ytb.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
