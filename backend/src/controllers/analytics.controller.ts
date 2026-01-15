@@ -1,14 +1,10 @@
 import { Request, Response } from 'express';
 import { prisma } from '../lib/prisma';
-import { AuthRequest } from '../middleware/auth.middleware';
 import { analyticsQuerySchema } from '../lib/validators';
 
 // GET /api/analytics/sales
 export const getSalesRecap = async (req: Request, res: Response) => {
   try {
-    const authReq = req as AuthRequest;
-    const user = authReq.user;
-    
     // Input validation
     const { period } = analyticsQuerySchema.parse(req.query);
     
@@ -28,9 +24,6 @@ export const getSalesRecap = async (req: Request, res: Response) => {
       },
       status: 'completed'
     };
-
-    // Jika ada restaurantId di user, filter berdasarkan restaurantId
-    // Owner bisa lihat semua, tidak perlu filter
 
     // 1. Hitung Total Revenue & Transaksi
     const aggregator = await prisma.order.aggregate({
