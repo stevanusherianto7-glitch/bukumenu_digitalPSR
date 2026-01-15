@@ -28,7 +28,7 @@
 
 | Variable Name | Value | Description |
 |--------------|-------|-------------|
-| `DATABASE_URL` | `postgresql://postgres:MKPz@h2Ztwh4VH@db.yrthjyyfirtbckwkvfbg.supabase.co:5432/postgres` | Connection string Supabase PostgreSQL |
+| `DATABASE_URL` | `postgresql://postgres:[YOUR_PASSWORD]@db.[PROJECT_REF].supabase.co:5432/postgres` | Connection string Supabase PostgreSQL (dapatkan dari Supabase Dashboard) |
 | `JWT_SECRET` | `[GENERATE_RANDOM_STRING]` | Secret key untuk JWT token (min 32 karakter) |
 
 #### 🟡 OPTIONAL (Opsional):
@@ -55,10 +55,17 @@ Atau gunakan online generator: https://generate-secret.vercel.app/32
 
 1. **Buat file `.env` di root project** (tidak akan ter-commit):
 ```env
-DATABASE_URL="postgresql://postgres:MKPz@h2Ztwh4VH@db.yrthjyyfirtbckwkvfbg.supabase.co:5432/postgres"
+# Dapatkan DATABASE_URL dari Supabase Dashboard → Settings → Database → Connection string
+DATABASE_URL="postgresql://postgres:[YOUR_PASSWORD_ENCODED]@db.[PROJECT_REF].supabase.co:5432/postgres"
 JWT_SECRET="your-secret-key-here-min-32-chars"
 CORS_ORIGIN="http://localhost:3000"
 ```
+
+**Cara mendapatkan DATABASE_URL**:
+1. Buka Supabase Dashboard → Settings → Database
+2. Scroll ke "Connection string"
+3. Copy connection string dan ganti `[YOUR-PASSWORD]` dengan password database Anda
+4. URL-encode password jika mengandung karakter khusus (misal: `@` → `%40`)
 
 2. **Test connection**:
 ```bash
@@ -153,7 +160,7 @@ Setelah deploy, test endpoint berikut:
 3. Gunakan **Connection Pooling** URL jika tersedia (biasanya port 6543, bukan 5432)
 4. URL-encode password jika mengandung karakter khusus:
    ```javascript
-   encodeURIComponent('MKPz@h2Ztwh4VH')
+   encodeURIComponent('YOUR_PASSWORD_HERE')
    ```
 
 ### Error: "JWT_SECRET is required"

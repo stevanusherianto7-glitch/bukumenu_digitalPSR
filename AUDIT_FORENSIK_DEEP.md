@@ -153,7 +153,7 @@ if (!name || !email || !password || !role || !position || !salary || !joinDate |
 ### ❌ **SEC-007: Database Credentials Exposed in Documentation**
 **File**: `ENVIRONMENT_VARIABLES.md:9,33`
 ```markdown
-| `DATABASE_URL` | PostgreSQL connection string dari Supabase | `postgresql://postgres:MKPz%40h2Ztwh4VH@db.yrthjyyfirtbckwkvfbg.supabase.co:5432/postgres` |
+| `DATABASE_URL` | PostgreSQL connection string dari Supabase | `postgresql://postgres:[PASSWORD_ENCODED]@db.[PROJECT_REF].supabase.co:5432/postgres` |
 ```
 **Status**: 🔴 **CRITICAL - CREDENTIALS EXPOSED**
 **Risiko**: 
@@ -170,7 +170,7 @@ if (!name || !email || !password || !role || !position || !salary || !joinDate |
 ### ❌ **SEC-008: Supabase Keys Exposed in Documentation**
 **File**: `ENVIRONMENT_VARIABLES.md:17,36,62`
 ```markdown
-| `SUPABASE_ANON_KEY` | Supabase publishable/anonymous key | `sb_publishable_yCv3XjayFfMwlKFWdBvSVw_yXVLLAA-` |
+| `SUPABASE_ANON_KEY` | Supabase publishable/anonymous key | `[YOUR_SUPABASE_ANON_KEY]` |
 ```
 **Status**: 🟡 **MEDIUM** (Anon key is public, but still should not be in docs)
 **Risiko**: 

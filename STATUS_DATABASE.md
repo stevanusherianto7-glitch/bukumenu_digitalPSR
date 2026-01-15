@@ -1,12 +1,14 @@
 # 📊 Status Database Connection
 
-## Connection String yang Digunakan:
+## Connection String Format:
 
 ```
-postgresql://postgres:MKPz%40h2Ztwh4VH@db.yrthjyyfirtbckwkvfbg.supabase.co:5432/postgres
+postgresql://postgres:[PASSWORD_ENCODED]@db.[PROJECT_REF].supabase.co:5432/postgres
 ```
 
-**Format**: ✅ **BENAR** (password sudah di-URL-encode: `@` → `%40`)
+**Cara mendapatkan**: Supabase Dashboard → Settings → Database → Connection string
+
+**Format**: ✅ **BENAR** (password harus di-URL-encode jika mengandung karakter khusus: `@` → `%40`)
 
 ---
 
@@ -52,9 +54,11 @@ postgresql://postgres:MKPz%40h2Ztwh4VH@db.yrthjyyfirtbckwkvfbg.supabase.co:5432/
 
 1. **Set Environment Variables di Vercel Dashboard**:
    ```
-   DATABASE_URL = postgresql://postgres:MKPz%40h2Ztwh4VH@db.yrthjyyfirtbckwkvfbg.supabase.co:5432/postgres
+   DATABASE_URL = postgresql://postgres:[YOUR_PASSWORD_ENCODED]@db.[PROJECT_REF].supabase.co:5432/postgres
    JWT_SECRET = [generate random 32+ chars]
    ```
+   
+   **Cara mendapatkan DATABASE_URL**: Supabase Dashboard → Settings → Database → Connection string
 
 2. **Deploy ke Vercel** (otomatis setelah push ke GitHub)
 

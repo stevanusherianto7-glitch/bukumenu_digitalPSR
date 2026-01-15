@@ -10,9 +10,9 @@
 ### Files to Fix IMMEDIATELY:
 
 1. **`ENVIRONMENT_VARIABLES.md`** - Contains:
-   - Database password: `MKPz%40h2Ztwh4VH`
-   - Database connection string with credentials
-   - Supabase keys
+   - Database password (sudah dihapus, diganti dengan placeholder)
+   - Database connection string (sudah dihapus, diganti dengan placeholder)
+   - Supabase keys (sudah dihapus, diganti dengan placeholder)
 
 2. **`SETUP_DATABASE.md`** - Contains:
    - Database connection string with password

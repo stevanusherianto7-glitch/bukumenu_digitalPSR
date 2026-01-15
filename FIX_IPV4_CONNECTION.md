@@ -32,13 +32,16 @@ Dari screenshot Supabase Dashboard, terlihat warning:
 
 ### Format Session Pooler:
 ```
-postgresql://postgres.yrthjyyfirtbckwkvfbg:MKPz%40h2Ztwh4VH@aws-0-[REGION].pooler.supabase.com:6543/postgres
+postgresql://postgres.[PROJECT_REF]:[PASSWORD_ENCODED]@aws-0-[REGION].pooler.supabase.com:6543/postgres
 ```
 
 **Catatan**:
-- `postgres.yrthjyyfirtbckwkvfbg` (bukan `postgres`)
+- `postgres.[PROJECT_REF]` (bukan `postgres` saja)
 - Port: `6543` (bukan `5432`)
-- Host: `aws-0-[REGION].pooler.supabase.com` (bukan `db.yrthjyyfirtbckwkvfbg.supabase.co`)
+- Host: `aws-0-[REGION].pooler.supabase.com` (bukan `db.[PROJECT_REF].supabase.co`)
+- Ganti `[PROJECT_REF]` dengan project reference dari Supabase Dashboard
+- Ganti `[PASSWORD_ENCODED]` dengan password yang sudah di-URL-encode
+- Ganti `[REGION]` dengan region project (cek di Settings → General)
 
 **Cek Region**: Di Supabase Dashboard → Settings → General → Region
 

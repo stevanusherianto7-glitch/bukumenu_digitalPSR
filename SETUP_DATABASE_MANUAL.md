@@ -14,8 +14,8 @@ Karena local connection terblokir, kita akan setup database langsung dari Supaba
 ### Langkah 1: Buka SQL Editor
 
 1. Buka Supabase Dashboard: https://supabase.com/dashboard
-2. Pilih project: **pawon-salam-buku-menu-digital**
-3. Klik **"SQL Editor"** di sidebar kiri (atau: https://supabase.com/dashboard/project/yrthjyyfirtbckwkvfbg/sql/new)
+2. Pilih project Anda
+3. Klik **"SQL Editor"** di sidebar kiri
 
 ### Langkah 2: Create Tables
 
@@ -78,13 +78,15 @@ Karena local connection terblokir, kita akan setup database langsung dari Supaba
 
 **Untuk Production, gunakan Session Pooler URL** (jika tersedia):
 ```
-postgresql://postgres.yrthjyyfirtbckwkvfbg:[PASSWORD]@aws-0-[REGION].pooler.supabase.com:6543/postgres
+postgresql://postgres.[PROJECT_REF]:[PASSWORD_ENCODED]@aws-0-[REGION].pooler.supabase.com:6543/postgres
 ```
 
 **Atau Direct Connection** (jika Session Pooler tidak tersedia):
 ```
-postgresql://postgres:MKPz%40h2Ztwh4VH@db.yrthjyyfirtbckwkvfbg.supabase.co:5432/postgres
+postgresql://postgres:[PASSWORD_ENCODED]@db.[PROJECT_REF].supabase.co:5432/postgres
 ```
+
+**Cara mendapatkan connection string**: Supabase Dashboard → Settings → Database → Connection string
 
 ### 2. Test API Endpoints:
 

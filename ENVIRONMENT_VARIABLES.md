@@ -6,15 +6,15 @@
 
 | Variable | Description | Example Value |
 |----------|-------------|---------------|
-| `DATABASE_URL` | PostgreSQL connection string dari Supabase | `postgresql://postgres:MKPz%40h2Ztwh4VH@db.yrthjyyfirtbckwkvfbg.supabase.co:5432/postgres` |
+| `DATABASE_URL` | PostgreSQL connection string dari Supabase | `postgresql://postgres:[YOUR_PASSWORD]@db.[PROJECT_REF].supabase.co:5432/postgres` |
 | `JWT_SECRET` | Secret key untuk JWT token (min 32 karakter) | `[generate-random-32-chars]` |
 
 ### 🟡 OPTIONAL (Opsional):
 
 | Variable | Description | Example Value |
 |----------|-------------|---------------|
-| `SUPABASE_URL` | Supabase project URL | `https://yrthjyyfirtbckwkvfbg.supabase.co` |
-| `SUPABASE_ANON_KEY` | Supabase publishable/anonymous key | `sb_publishable_yCv3XjayFfMwlKFWdBvSVw_yXVLLAA-` |
+| `SUPABASE_URL` | Supabase project URL | `https://[PROJECT_REF].supabase.co` |
+| `SUPABASE_ANON_KEY` | Supabase publishable/anonymous key | `[YOUR_SUPABASE_ANON_KEY]` |
 | `CORS_ORIGIN` | Production URL untuk CORS | `https://your-app.vercel.app` |
 | `NODE_ENV` | Environment mode | `production` (otomatis di-set oleh Vercel) |
 
@@ -30,12 +30,17 @@
 4. **Tambahkan variables berikut**:
 
 ```
-DATABASE_URL = postgresql://postgres:MKPz%40h2Ztwh4VH@db.yrthjyyfirtbckwkvfbg.supabase.co:5432/postgres
+DATABASE_URL = postgresql://postgres:[YOUR_PASSWORD_ENCODED]@db.[PROJECT_REF].supabase.co:5432/postgres
 JWT_SECRET = [generate-random-32-chars]
-SUPABASE_URL = https://yrthjyyfirtbckwkvfbg.supabase.co
-SUPABASE_ANON_KEY = sb_publishable_yCv3XjayFfMwlKFWdBvSVw_yXVLLAA-
+SUPABASE_URL = https://[PROJECT_REF].supabase.co
+SUPABASE_ANON_KEY = [YOUR_SUPABASE_ANON_KEY]
 CORS_ORIGIN = https://your-app.vercel.app
 ```
+
+**Catatan Penting**: 
+- Ganti `[YOUR_PASSWORD_ENCODED]` dengan password database yang sudah di-URL-encode
+- Ganti `[PROJECT_REF]` dengan project reference dari Supabase Dashboard
+- Ganti `[YOUR_SUPABASE_ANON_KEY]` dengan anon key dari Supabase Dashboard
 
 ---
 
@@ -53,18 +58,21 @@ Atau gunakan online generator: https://generate-secret.vercel.app/32
 ## 📋 Supabase Keys
 
 ### SUPABASE_URL:
+Dapatkan dari Supabase Dashboard → Settings → API → Project URL
 ```
-https://yrthjyyfirtbckwkvfbg.supabase.co
+https://[PROJECT_REF].supabase.co
 ```
 
 ### SUPABASE_ANON_KEY (Publishable Key):
+Dapatkan dari Supabase Dashboard → Settings → API → Project API keys → `anon` `public`
 ```
-sb_publishable_yCv3XjayFfMwlKFWdBvSVw_yXVLLAA-
+[YOUR_SUPABASE_ANON_KEY]
 ```
 
 **Catatan**: 
 - Anon key adalah **public key** yang aman untuk digunakan di frontend
 - Jangan gunakan **service_role key** di frontend (hanya untuk backend/server-side)
+- **JANGAN commit keys ke Git** - gunakan environment variables saja
 
 ---
 

@@ -3,7 +3,7 @@
 ## Error: P1001 - Can't reach database server
 
 ### Status Saat Ini:
-- ❌ **Connection FAILED**: `Can't reach database server at db.yrthjyyfirtbckwkvfbg.supabase.co:5432`
+- ❌ **Connection FAILED**: `Can't reach database server at db.[PROJECT_REF].supabase.co:5432`
 - ✅ Prisma Client generated successfully
 - ✅ Schema file valid
 
@@ -15,7 +15,7 @@
 
 **Cek Status Project**:
 1. Buka https://supabase.com/dashboard
-2. Login dan pilih project `yrthjyyfirtbckwkvfbg`
+2. Login dan pilih project Anda
 3. Cek apakah project status **Active** atau **Paused**
 
 **Solusi**: Jika paused, **Resume** project di dashboard.
@@ -37,10 +37,10 @@ postgresql://postgres:[PASSWORD]@db.[PROJECT_REF].supabase.co:5432/postgres
 
 **Contoh**:
 ```
-# Password: MKPz@h2Ztwh4VH
-# Encoded: MKPz%40h2Ztwh4VH
+# Password: YourPassword@123
+# Encoded: YourPassword%40123
 
-postgresql://postgres:MKPz%40h2Ztwh4VH@db.yrthjyyfirtbckwkvfbg.supabase.co:5432/postgres
+postgresql://postgres:YourPassword%40123@db.[PROJECT_REF].supabase.co:5432/postgres
 ```
 
 ---
@@ -49,12 +49,12 @@ postgresql://postgres:MKPz%40h2Ztwh4VH@db.yrthjyyfirtbckwkvfbg.supabase.co:5432/
 
 **Direct Connection** (Port 5432) - Bisa terblokir oleh firewall:
 ```
-postgresql://postgres:MKPz%40h2Ztwh4VH@db.yrthjyyfirtbckwkvfbg.supabase.co:5432/postgres
+postgresql://postgres:[PASSWORD_ENCODED]@db.[PROJECT_REF].supabase.co:5432/postgres
 ```
 
 **Connection Pooling** (Port 6543) - Lebih reliable:
 ```
-postgresql://postgres.yrthjyyfirtbckwkvfbg:MKPz%40h2Ztwh4VH@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres
+postgresql://postgres.[PROJECT_REF]:[PASSWORD_ENCODED]@aws-0-[REGION].pooler.supabase.com:6543/postgres
 ```
 
 **Cara mendapatkan Connection Pooling URL**:
@@ -82,7 +82,7 @@ postgresql://postgres.yrthjyyfirtbckwkvfbg:MKPz%40h2Ztwh4VH@aws-0-ap-southeast-1
 
 **Test dengan psql** (jika terinstall):
 ```bash
-psql "postgresql://postgres:MKPz%40h2Ztwh4VH@db.yrthjyyfirtbckwkvfbg.supabase.co:5432/postgres"
+psql "postgresql://postgres:[PASSWORD_ENCODED]@db.[PROJECT_REF].supabase.co:5432/postgres"
 ```
 
 **Test dengan Prisma Studio**:
@@ -125,7 +125,8 @@ test();
 ### Step 3: Update .env File
 ```env
 # Format: postgresql://postgres:[PASSWORD_ENCODED]@[HOST]:[PORT]/postgres
-DATABASE_URL="postgresql://postgres:MKPz%40h2Ztwh4VH@db.yrthjyyfirtbckwkvfbg.supabase.co:5432/postgres"
+# Dapatkan connection string dari Supabase Dashboard → Settings → Database
+DATABASE_URL="postgresql://postgres:[YOUR_PASSWORD_ENCODED]@db.[PROJECT_REF].supabase.co:5432/postgres"
 ```
 
 ### Step 4: Test Connection
@@ -161,12 +162,15 @@ npx prisma db seed --schema=./backend/prisma/schema.prisma
 postgresql://postgres.[PROJECT_REF]:[PASSWORD_ENCODED]@aws-0-[REGION].pooler.supabase.com:6543/postgres
 ```
 
-**Contoh untuk project ini**:
+**Format Connection Pooling**:
 ```
-postgresql://postgres.yrthjyyfirtbckwkvfbg:MKPz%40h2Ztwh4VH@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres
+postgresql://postgres.[PROJECT_REF]:[PASSWORD_ENCODED]@aws-0-[REGION].pooler.supabase.com:6543/postgres
 ```
 
-**Catatan**: Ganti `[REGION]` dengan region Supabase project Anda (cek di Settings → General).
+**Catatan**: 
+- Ganti `[PROJECT_REF]` dengan project reference dari Supabase Dashboard
+- Ganti `[REGION]` dengan region Supabase project Anda (cek di Settings → General)
+- Ganti `[PASSWORD_ENCODED]` dengan password yang sudah di-URL-encode
 
 ---
 
@@ -190,13 +194,13 @@ postgresql://postgres.yrthjyyfirtbckwkvfbg:MKPz%40h2Ztwh4VH@aws-0-ap-southeast-1
 
 ---
 
-## 📝 Current Connection String:
+## 📝 Connection String Format:
 
 ```
-postgresql://postgres:MKPz%40h2Ztwh4VH@db.yrthjyyfirtbckwkvfbg.supabase.co:5432/postgres
+postgresql://postgres:[PASSWORD_ENCODED]@db.[PROJECT_REF].supabase.co:5432/postgres
 ```
 
-**Status**: ❌ Connection Failed (P1001)
+**Cara mendapatkan**: Supabase Dashboard → Settings → Database → Connection string
 
 **Next Steps**:
 1. Verifikasi project status di Supabase Dashboard
