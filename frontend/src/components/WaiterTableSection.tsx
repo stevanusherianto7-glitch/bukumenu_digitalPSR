@@ -28,9 +28,21 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
     const fetchPendingOrders = async () => {
         try {
             const response = await api.get('/orders');
-            setOrders(response.data); // Update state global dengan data dari server
-        } catch (error) {
+            // Transform data dari backend (createdAt) ke format frontend (timestamp)
+            const transformedOrders = response.data.map((order: any) => ({
+              ...order,
+              // Ensure timestamp is available (backend returns createdAt as ISO string)
+              timestamp: order.timestamp || (order.createdAt ? new Date(order.createdAt).getTime() : Date.now()),
+              // Keep createdAt for compatibility
+              createdAt: order.createdAt || new Date(order.timestamp || Date.now()).toISOString(),
+            }));
+            setOrders(transformedOrders); // Update state global dengan data dari server
+        } catch (error: any) {
             console.error("Gagal sinkronisasi pesanan:", error);
+            // Show error message if it's not a network error
+            if (error.response) {
+              console.error("Error response:", error.response.status, error.response.data);
+            }
         } finally {
             setIsLoading(false);
         }
@@ -39,8 +51,8 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
     // Panggil sekali saat komponen pertama kali dimuat
     fetchPendingOrders();
 
-    // Set interval untuk memanggil fungsi setiap 7 detik
-    const intervalId = setInterval(fetchPendingOrders, 7000); // 7000 ms = 7 detik
+    // Set interval untuk memanggil fungsi setiap 3 detik (lebih cepat untuk real-time feel)
+    const intervalId = setInterval(fetchPendingOrders, 3000); // 3000 ms = 3 detik
 
     // Cleanup: Hentikan interval saat komponen di-unmount
     return () => clearInterval(intervalId);

@@ -22,17 +22,21 @@ export const useOrderStore = create<OrderState>()(
       addOrder: async (tableNumber: string, items: OrderItem[]) => {
         set({ isLoading: true });
         
-        // Kirim ke Google Cloud (Backend)
+        // Kirim ke Backend
         try {
-            await api.post('/orders', {
+            const response = await api.post('/orders', {
                 tableNumber,
                 items
             });
-            console.log("Pesanan berhasil dikirim ke Cloud");
+            console.log("Pesanan berhasil dikirim ke server:", response.data);
+            // Show success message to user
+            alert(`Pesanan untuk Meja ${tableNumber} berhasil dikirim!`);
             // Tidak perlu update state lokal di sini, karena HP waiter akan mengambilnya dari server
-        } catch (error) {
-            console.error("Gagal kirim ke Cloud:", error);
-            // Handle error, mungkin tampilkan pesan ke pelanggan
+        } catch (error: any) {
+            console.error("Gagal kirim ke server:", error);
+            // Show error message to user
+            const errorMessage = error.response?.data?.message || "Gagal mengirim pesanan. Silakan coba lagi.";
+            alert(errorMessage);
         } finally {
             set({ isLoading: false });
         }

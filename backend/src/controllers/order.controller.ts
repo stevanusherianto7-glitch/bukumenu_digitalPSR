@@ -47,7 +47,15 @@ export const getOrders = async (req: Request, res: Response) => {
       },
       orderBy: { createdAt: 'asc' }, // Oldest first
     });
-    res.json(pendingOrders);
+    
+    // Transform data untuk frontend: createdAt → timestamp
+    const transformedOrders = pendingOrders.map(order => ({
+      ...order,
+      timestamp: new Date(order.createdAt).getTime(), // Convert DateTime to timestamp
+      createdAt: order.createdAt.toISOString(), // Keep ISO string for compatibility
+    }));
+    
+    res.json(transformedOrders);
   } catch (error) {
     console.error('Get Orders Error:', error);
     res.status(500).json({ message: 'Gagal mengambil data pesanan' });
