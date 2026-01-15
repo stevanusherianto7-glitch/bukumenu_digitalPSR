@@ -1,9 +1,13 @@
 {
   "version": 2,
+  "buildCommand": "npm run build && npx prisma generate --schema=./backend/prisma/schema.prisma",
   "builds": [
     {
       "src": "backend/src/index.ts",
-      "use": "@vercel/node"
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": ["backend/prisma/**"]
+      }
     },
     {
       "src": "package.json",
