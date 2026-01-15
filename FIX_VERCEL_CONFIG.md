@@ -87,14 +87,10 @@ Jika backend bisa dipindah ke `/api` folder (Vercel serverless functions), kita 
       }
     }
   ],
-  "routes": [
+  "rewrites": [
     {
-      "src": "/api/(.*)",
-      "dest": "/backend/src/index.ts"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/$1"
+      "source": "/api/(.*)",
+      "destination": "/backend/src/index.ts"
     }
   ]
 }
@@ -104,7 +100,8 @@ Jika backend bisa dipindah ke `/api` folder (Vercel serverless functions), kita 
 - ❌ Hapus `buildCommand`, `outputDirectory`, `installCommand`, `framework` dari root (tidak digunakan dengan `builds`)
 - ✅ Pindahkan `buildCommand` ke `config` dari `@vercel/static-build`
 - ✅ Keep `distDir` di config static-build
-- ✅ Hapus `rewrites` yang redundant (sudah di-handle oleh `routes`)
+- ✅ Konversi `routes` ke `rewrites` (lebih modern dan kompatibel)
+- ✅ Hapus route `/(.*)` yang redundant (frontend static files di-handle otomatis oleh Vercel)
 
 ### Project Settings (Vercel Dashboard):
 - **Framework Preset**: Vite
