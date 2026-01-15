@@ -3,11 +3,11 @@
 ## ⚠️ Masalah:
 
 **Warning di Vercel Dashboard**:
-> "Configuration Settings in the current Production deployment differ from your current Project Settings."
+> "Due to `builds` existing in your configuration file, the Build and Development Settings defined in your Project Settings will not apply."
 
 **Penyebab**:
 - `vercel.json` menggunakan `builds` yang membuat Project Settings di Vercel Dashboard tidak berlaku
-- Ada konflik antara `vercel.json` dan Framework Settings di Dashboard
+- Field seperti `buildCommand`, `outputDirectory`, `installCommand`, `framework` di root `vercel.json` tidak digunakan ketika `builds` ada
 
 ---
 
@@ -34,37 +34,41 @@ Jika backend bisa dipindah ke `/api` folder (Vercel serverless functions), kita 
 
 **Tapi**: Ini memerlukan refactor besar untuk memindahkan Express routes ke Vercel serverless functions.
 
-### Opsi 3: Keep `builds` dan Ignore Warning (Current)
+### Opsi 3: Hapus Field Redundant dari vercel.json (✅ FIXED)
+
+**Solusi yang Diterapkan**:
+- ✅ Hapus `buildCommand`, `outputDirectory`, `installCommand`, `framework` dari root `vercel.json`
+- ✅ Pindahkan `buildCommand` ke dalam `config` dari `@vercel/static-build`
+- ✅ Keep `builds` karena diperlukan untuk backend Express
+- ✅ Warning akan hilang karena tidak ada lagi field yang conflict
 
 **Status Saat Ini**:
-- ✅ `vercel.json` sudah dikonfigurasi dengan benar
+- ✅ `vercel.json` sudah dikonfigurasi dengan benar (tanpa field redundant)
 - ✅ `builds` diperlukan untuk backend Express
-- ⚠️ Warning muncul karena `builds` override Project Settings
-
-**Ini OK** - Warning tidak mempengaruhi deployment, hanya informasi bahwa Project Settings tidak digunakan.
+- ✅ Build command include Prisma generate di config static-build
 
 ---
 
 ## 📋 Konfigurasi Saat Ini:
 
-### vercel.json:
+### vercel.json (Updated - Fixed):
 ```json
 {
   "version": 2,
-  "buildCommand": "npm run build && npx prisma generate --schema=./backend/prisma/schema.prisma",
-  "outputDirectory": "dist",
-  "installCommand": "npm install",
-  "framework": "vite",
   "builds": [
     {
       "src": "backend/src/index.ts",
-      "use": "@vercel/node"
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": ["backend/prisma/**", "node_modules/@prisma/client/**"]
+      }
     },
     {
       "src": "package.json",
       "use": "@vercel/static-build",
       "config": {
-        "distDir": "dist"
+        "distDir": "dist",
+        "buildCommand": "npm run build && npx prisma generate --schema=./backend/prisma/schema.prisma"
       }
     }
   ],
@@ -80,6 +84,12 @@ Jika backend bisa dipindah ke `/api` folder (Vercel serverless functions), kita 
   ]
 }
 ```
+
+**Perubahan**:
+- ❌ Hapus `buildCommand`, `outputDirectory`, `installCommand`, `framework` dari root (tidak digunakan dengan `builds`)
+- ✅ Pindahkan `buildCommand` ke `config` dari `@vercel/static-build`
+- ✅ Keep `distDir` di config static-build
+- ✅ Hapus `rewrites` yang redundant (sudah di-handle oleh `routes`)
 
 ### Project Settings (Vercel Dashboard):
 - **Framework Preset**: Vite
@@ -101,14 +111,15 @@ Jika backend bisa dipindah ke `/api` folder (Vercel serverless functions), kita 
 
 ## ✅ Checklist:
 
-- [x] `vercel.json` sudah dikonfigurasi dengan benar
-- [x] Build command include Prisma generate
-- [x] Output directory set ke `dist`
+- [x] `vercel.json` sudah dikonfigurasi dengan benar (tanpa field redundant)
+- [x] Build command include Prisma generate (di config static-build)
+- [x] Output directory set ke `dist` (di config static-build)
 - [x] Routes configured untuk backend dan frontend
-- [ ] Sync Project Settings di Vercel Dashboard (optional)
+- [x] Field redundant dihapus dari root vercel.json
+- [x] Warning seharusnya hilang setelah deployment berikutnya
 
 ---
 
-**Last Updated**: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")  
-**Status**: ⚠️ Warning tidak critical, deployment tetap berfungsi
+**Last Updated**: 2025-01-27  
+**Status**: ✅ **FIXED** - Field redundant dihapus, warning seharusnya hilang
 

@@ -1,9 +1,5 @@
 {
   "version": 2,
-  "buildCommand": "npm run build && npx prisma generate --schema=./backend/prisma/schema.prisma",
-  "outputDirectory": "dist",
-  "installCommand": "npm install",
-  "framework": "vite",
   "builds": [
     {
       "src": "backend/src/index.ts",
@@ -16,7 +12,8 @@
       "src": "package.json",
       "use": "@vercel/static-build",
       "config": {
-        "distDir": "dist"
+        "distDir": "dist",
+        "buildCommand": "npm run build && npx prisma generate --schema=./backend/prisma/schema.prisma"
       }
     }
   ],
@@ -28,12 +25,6 @@
     {
       "src": "/(.*)",
       "dest": "/$1"
-    }
-  ],
-  "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/$1"
     }
   ]
 }
