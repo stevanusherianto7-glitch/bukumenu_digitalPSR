@@ -164,7 +164,7 @@ export const MENU_ITEMS: MenuItem[] = [
     name: 'Teh Poci',
     description: 'Teh tubruk khas Jawa yang disajikan dalam poci tanah liat dengan gula batu, memberikan aroma dan rasa otentik.',
     price: 25000,
-    imageUrl: 'https://res.cloudinary.com/dwdaydzsh/image/upload/v1768367697/Teh_Poci_dinezn.jpg',
+    imageUrl: 'https://res.cloudinary.com/dwdaydzsh/image/upload/v1768367917/Jus_Strawberry_yqxwqr.jpg',
     isAvailable: true,
     isFavorite: true,
     category: 'Minuman',
@@ -404,6 +404,34 @@ export const MENU_ITEMS: MenuItem[] = [
     rating: 4.8,
     prepTime: 2,
     calories: 0
+  },
+  {
+    id: '33',
+    name: 'Emping',
+    description: 'Emping melinjo renyah dan gurih, pelengkap sempurna untuk soto dan masakan berkuah lainnya.',
+    price: 6000,
+    imageUrl: 'https://res.cloudinary.com/dwdaydzsh/image/upload/v1768394165/emping_e3vnp5.webp',
+    isAvailable: true,
+    isFavorite: false,
+    isNew: true,
+    category: 'Snack',
+    rating: 4.6,
+    prepTime: 1,
+    calories: 180
+  },
+  {
+    id: '34',
+    name: 'Kerupuk Udang',
+    description: 'Kerupuk udang premium yang digoreng garing. Renyah, gurih, dan terasa udangnya.',
+    price: 6000,
+    imageUrl: 'https://res.cloudinary.com/dwdaydzsh/image/upload/v1768394245/shrimp-crackers_bjwpba.jpg',
+    isAvailable: true,
+    isFavorite: false,
+    isNew: true,
+    category: 'Snack',
+    rating: 4.7,
+    prepTime: 1,
+    calories: 150
   }
 ];
 

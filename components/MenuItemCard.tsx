@@ -18,14 +18,23 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onClick }) => 
       onClick={() => isAvailable && onClick && onClick(item)}
       className={`group relative bg-white p-2.5 rounded-[24px] shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-[#F2F2F2] transition-all duration-300 flex flex-col h-full ${isAvailable ? 'hover:shadow-[0_15px_30px_rgba(0,0,0,0.08)] cursor-pointer active:scale-[0.98]' : 'opacity-60 cursor-not-allowed'}`}
     >
-      {/* New Menu "Necklace" Tag */}
+      {/* Premium "New Menu" Ribbon - Positioned Center to avoid covering Heart */}
       {item.isNew && (
-        <div 
-          className="absolute top-0 -right-1 z-20 w-10 text-center bg-red-600 text-white text-[9px] font-bold uppercase pt-2 pb-3 rounded-b-lg shadow-lg shadow-red-600/30"
-          style={{ clipPath: 'polygon(0 0, 100% 0, 100% 100%, 50% 85%, 0 100%)' }}
-          aria-label="Menu Baru"
-        >
-          Baru
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 z-20 filter drop-shadow-md">
+          <div 
+            className="w-8 bg-[#D32F2F] flex flex-col items-center pt-2 pb-3 shadow-inner"
+            style={{ clipPath: 'polygon(0 0, 100% 0, 100% 100%, 50% 80%, 0 100%)' }}
+          >
+            {/* Top Gold Line Detail */}
+            <div className="w-full h-[1px] bg-amber-200/50 absolute top-0 left-0"></div>
+            
+            <span className="text-[6px] text-amber-100 uppercase tracking-widest font-medium mb-0.5">
+              MENU
+            </span>
+            <span className="text-[8px] text-white font-bold uppercase tracking-wider leading-none">
+              BARU
+            </span>
+          </div>
         </div>
       )}
 
@@ -34,6 +43,10 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onClick }) => 
         <img 
           src={item.imageUrl} 
           alt={item.name} 
+          onError={(e) => {
+             // Fallback to a placeholder image if load fails
+             (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80';
+          }}
           className={`w-full h-full object-cover transition-all duration-700 ${isAvailable ? 'group-hover:scale-110' : 'grayscale'}`}
           loading="lazy"
         />
@@ -73,8 +86,8 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onClick }) => 
       {/* Content Area */}
       <div className="flex flex-col flex-grow px-1.5 pb-1">
         
-        {/* Title - Font size reduced to text-[13px] */}
-        <h3 className="font-serif text-pawon-dark font-bold text-[13px] leading-tight mb-1.5 line-clamp-2 group-hover:text-pawon-accent transition-colors">
+        {/* Title - Font color changed to Dark Green (#1b4d3e) */}
+        <h3 className="font-serif text-[#1b4d3e] font-bold text-[13px] leading-tight mb-1.5 line-clamp-2 group-hover:text-pawon-accent transition-colors">
           {item.name}
         </h3>
         
@@ -86,7 +99,8 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onClick }) => 
         {/* Footer: Price Only (Button Removed, Label 'Harga' Removed) */}
         <div className="mt-auto flex items-end justify-between">
           <div className="flex flex-col">
-             <span className="font-bold text-pawon-accent text-[15px] whitespace-nowrap leading-none">
+             {/* Updated Price Color to Maroon */}
+             <span className="font-bold text-[#800000] text-[15px] whitespace-nowrap leading-none">
                 <span className="text-xs align-top mr-0.5">Rp</span>{item.price.toLocaleString('id-ID')}
              </span>
           </div>

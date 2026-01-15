@@ -27,8 +27,8 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
               className={`
                 px-5 py-2.5 rounded-full text-sm font-medium whitespace-nowrap transition-all duration-300
                 ${isActive 
-                  ? 'bg-pawon-dark text-white shadow-lg shadow-pawon-dark/20 scale-105' 
-                  : 'bg-white text-pawon-textGray hover:bg-gray-50 active:scale-95'
+                  ? 'bg-pawon-accent text-white shadow-xl shadow-pawon-accent/40 scale-105' 
+                  : 'bg-white text-pawon-textGray hover:bg-gray-50 active:scale-95 shadow-md hover:shadow-lg'
                 }
               `}
             >

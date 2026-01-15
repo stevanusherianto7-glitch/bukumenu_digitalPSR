@@ -8,13 +8,17 @@ export const TableMapSection: React.FC = () => {
   const [selectedTable, setSelectedTable] = useState<string>('A1');
   
   // KONFIGURASI URL PRODUKSI
-  // Menggunakan link Vercel agar QR Code valid saat dicetak dan discan oleh tamu
   const PRODUCTION_URL = 'https://buku-menu-digital-psr.vercel.app';
   
   const qrData = `${PRODUCTION_URL}?meja=${selectedTable}`;
   
-  // QR Server API for generating QR codes dynamically
-  const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=1000x1000&data=${encodeURIComponent(qrData)}&color=3E342D&bgcolor=FFFFFF&margin=20`;
+  // 1. Gunakan Logo Custom untuk Bagian Tengah QR Code
+  const labelUrl = 'https://res.cloudinary.com/dwdaydzsh/image/upload/v1768382524/gemini-2.5-flash-image-preview_nano-banana__a_jadikan_ikon_ukuran__vj1ytb.png';
+
+  // 2. Generate QR Code dengan Logo di Tengah (High Error Correction 'H')
+  // Menggunakan QuickChart API untuk menggabungkan QR + Logo secara server-side agar hasil download sesuai
+  const qrImageUrl = `https://quickchart.io/qr?text=${encodeURIComponent(qrData)}&centerImageUrl=${encodeURIComponent(labelUrl)}&centerImageSizeRatio=0.3&ecLevel=H&size=1000&margin=2&dark=3E342D&light=FFFFFF&format=png`;
+  
   const downloadName = `QR-Meja-${selectedTable}-PawonSalam.png`;
 
   const copyToClipboard = () => {
@@ -42,7 +46,7 @@ export const TableMapSection: React.FC = () => {
         <div className="mb-6 bg-green-50 p-3 rounded-lg border border-green-200 flex items-start gap-2">
             <ExternalLink size={16} className="text-green-600 shrink-0 mt-0.5" />
             <p className="text-xs text-green-800 leading-snug">
-                <span className="font-bold">Mode Siap Cetak:</span> QR Code di bawah ini sudah mengarah ke server produksi (<code>{PRODUCTION_URL}</code>). Aman untuk dicetak dan ditempel di meja.
+                <span className="font-bold">Mode Siap Cetak:</span> QR Code di bawah ini sudah mengarah ke server produksi (<code>{PRODUCTION_URL}</code>) dan memiliki logo Pawon Salam di tengah.
             </p>
         </div>
 
@@ -91,10 +95,18 @@ export const TableMapSection: React.FC = () => {
                     <p className="text-[9px] uppercase tracking-[0.2em] text-gray-400 mt-1">Scan to Order</p>
                  </div>
                  
-                 <img src={qrImageUrl} alt="QR Code Preview" className="w-40 h-40 my-2 mix-blend-multiply" />
+                 {/* QR Code dengan Label di Tengah */}
+                 <div className="relative w-40 h-40 my-2">
+                    <img 
+                        src={qrImageUrl} 
+                        alt={`QR Code Meja ${selectedTable}`} 
+                        className="w-full h-full object-contain mix-blend-multiply" 
+                        loading="lazy"
+                    />
+                 </div>
                  
-                 <div className="mt-2 bg-pawon-dark text-white px-4 py-1 rounded-full text-sm font-bold shadow-md">
-                   Meja {selectedTable}
+                 <div className="mt-2 text-[10px] text-gray-400 font-mono">
+                    {selectedTable}
                  </div>
               </div>
               
@@ -124,7 +136,7 @@ export const TableMapSection: React.FC = () => {
                 <Download size={18} /> Download High-Res QR
               </a>
               <p className="text-[10px] text-gray-400 mt-2">
-                *File PNG ukuran 1000x1000px, cocok untuk dicetak di stiker atau acrylic stand.
+                *File PNG termasuk logo Pawon Salam di tengah. Siap cetak.
               </p>
             </div>
         </div>

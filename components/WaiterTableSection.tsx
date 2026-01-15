@@ -75,64 +75,85 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
     return (
       <div className="bg-gray-50 flex flex-col animate-in slide-in-from-right duration-300 min-h-screen">
         
-        {/* Navbar Detail Meja */}
-        <div className="bg-white px-5 py-4 border-b border-gray-200 shadow-sm sticky top-0 z-20">
-           <div className="flex items-center justify-between mb-4">
-                <button 
-                    onClick={() => setSelectedTable(null)}
-                    className="flex items-center gap-3 text-gray-900 font-bold active:scale-95 transition-transform group"
-                >
-                    <div className="w-10 h-10 rounded-full bg-gray-100 group-hover:bg-gray-200 flex items-center justify-center transition-colors">
-                    <ChevronLeft size={24} />
-                    </div>
-                    <span className="text-sm font-sans">Kembali</span>
-                </button>
-                <div className="flex flex-col items-end">
-                    <div className="flex items-center gap-2">
-                    <MapPin size={18} className="text-orange-600" />
-                    <h2 className="font-serif text-2xl font-bold text-gray-900 leading-none">Meja {selectedTable}</h2>
-                    </div>
-                </div>
-           </div>
+        {/* Navbar Detail Meja - PREMIUM DARK STYLE */}
+        <div className="bg-gray-900 text-white p-6 pb-8 rounded-b-[40px] shadow-xl shadow-gray-900/20 sticky top-0 z-30 relative overflow-hidden -mt-0">
+           
+           {/* Background Glow Effect */}
+           <div className="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -mr-10 -mt-10 blur-3xl pointer-events-none"></div>
 
-           {/* Tab Switcher Detail Meja */}
-           <div className="flex bg-gray-100 p-1 rounded-lg">
-                <button 
-                    onClick={() => setTableDetailTab('active')}
-                    className={`flex-1 py-2 rounded-md text-xs font-bold transition-all flex items-center justify-center gap-2 ${tableDetailTab === 'active' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-900'}`}
-                >
-                    <Utensils size={14} /> 
-                    Pesanan Aktif 
-                    {activeOrders.length > 0 && <span className="ml-1 bg-red-500 text-white px-1.5 py-0.5 rounded-full text-[9px]">{activeOrders.length}</span>}
-                </button>
-                <button 
-                    onClick={() => setTableDetailTab('history')}
-                    className={`flex-1 py-2 rounded-md text-xs font-bold transition-all flex items-center justify-center gap-2 ${tableDetailTab === 'history' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-900'}`}
-                >
-                    <FileClock size={14} /> 
-                    Riwayat Meja
-                    {tableHistory.length > 0 && <span className="ml-1 bg-gray-200 text-gray-600 px-1.5 py-0.5 rounded-full text-[9px]">{tableHistory.length}</span>}
-                </button>
+           <div className="relative z-10">
+               {/* Top Row: Back & Title */}
+               <div className="flex items-center justify-between mb-6">
+                    <button 
+                        onClick={() => setSelectedTable(null)}
+                        className="flex items-center gap-3 text-white/90 hover:text-white font-bold active:scale-95 transition-transform group"
+                    >
+                        <div className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-sm group-hover:bg-white/20 flex items-center justify-center transition-colors border border-white/5">
+                            <ChevronLeft size={24} />
+                        </div>
+                        <span className="text-sm font-sans tracking-wide">Kembali</span>
+                    </button>
+                    
+                    <div className="flex flex-col items-end">
+                        <div className="flex items-center gap-2">
+                            <div className="bg-orange-500/20 p-1.5 rounded-lg backdrop-blur-sm border border-orange-500/30">
+                                <MapPin size={18} className="text-orange-400" />
+                            </div>
+                            <h2 className="font-serif text-2xl font-bold text-white leading-none tracking-wide">Meja {selectedTable}</h2>
+                        </div>
+                    </div>
+               </div>
+
+               {/* Tab Switcher Detail Meja - GLASSMORPHISM */}
+               <div className="flex bg-white/10 p-1.5 rounded-xl border border-white/10 backdrop-blur-md">
+                    <button 
+                        onClick={() => setTableDetailTab('active')}
+                        className={`flex-1 py-2.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 ${tableDetailTab === 'active' ? 'bg-white text-gray-900 shadow-lg' : 'text-white/60 hover:bg-white/5 hover:text-white'}`}
+                    >
+                        <Utensils size={14} className={tableDetailTab === 'active' ? 'text-orange-600' : ''} /> 
+                        Pesanan Aktif 
+                        {activeOrders.length > 0 && (
+                            <span className={`ml-1 px-1.5 py-0.5 rounded-full text-[9px] ${tableDetailTab === 'active' ? 'bg-red-500 text-white' : 'bg-white/20 text-white'}`}>
+                                {activeOrders.length}
+                            </span>
+                        )}
+                    </button>
+                    <button 
+                        onClick={() => setTableDetailTab('history')}
+                        className={`flex-1 py-2.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 ${tableDetailTab === 'history' ? 'bg-white text-gray-900 shadow-lg' : 'text-white/60 hover:bg-white/5 hover:text-white'}`}
+                    >
+                        <FileClock size={14} className={tableDetailTab === 'history' ? 'text-blue-600' : ''} /> 
+                        Riwayat Meja
+                        {tableHistory.length > 0 && (
+                            <span className={`ml-1 px-1.5 py-0.5 rounded-full text-[9px] ${tableDetailTab === 'history' ? 'bg-gray-200 text-gray-800' : 'bg-white/20 text-white'}`}>
+                                {tableHistory.length}
+                            </span>
+                        )}
+                    </button>
+               </div>
            </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-5 pb-32">
+        <div className="flex-1 overflow-y-auto p-5 pb-32 -mt-2">
            
            {/* KONTEN TAB: PESANAN AKTIF */}
            {tableDetailTab === 'active' && (
                <>
                 {activeOrders.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center h-[50vh] text-gray-400">
-                    <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center mb-6 shadow-sm border border-gray-100">
-                        <Coffee size={40} className="opacity-30 text-gray-900" />
-                    </div>
-                    <h2 className="font-bold text-xl text-gray-800 mb-1">Meja Kosong</h2>
-                    <p className="text-sm opacity-70 font-sans">Belum ada pesanan aktif saat ini.</p>
+                    <div className="flex flex-col items-center justify-center h-[50vh] text-gray-400 animate-in fade-in zoom-in-95 duration-500">
+                        <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center mb-6 shadow-[0_8px_30px_rgba(0,0,0,0.05)] border border-gray-100">
+                            <Coffee size={40} className="opacity-30 text-gray-900" />
+                        </div>
+                        <h2 className="font-bold text-xl text-gray-800 mb-1 font-serif">Meja Kosong</h2>
+                        <p className="text-sm opacity-70 font-sans">Belum ada pesanan aktif saat ini.</p>
+                        <button onClick={() => setSelectedTable(null)} className="mt-6 px-6 py-2.5 bg-white border border-gray-200 rounded-full text-sm font-bold text-gray-600 hover:bg-gray-50 transition-colors shadow-sm">
+                            Kembali ke Dashboard
+                        </button>
                     </div>
                 ) : (
                     <div className="space-y-4">
                         {activeOrders.map((order) => (
-                        <div key={order.id} className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm relative overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
+                        <div key={order.id} className="bg-white border border-gray-100 rounded-2xl p-5 shadow-[0_4px_20px_rgba(0,0,0,0.03)] relative overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
                             <div className="absolute top-0 left-0 bottom-0 w-1.5 bg-red-500"></div>
                             <div className="flex justify-between items-start mb-4 pl-3">
                             <div className="flex items-center gap-2">

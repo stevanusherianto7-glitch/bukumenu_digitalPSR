@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { UtensilsCrossed, CheckCircle2 } from 'lucide-react';
+import { CheckCircle2 } from 'lucide-react';
 
 interface WelcomeModalProps {
   tableNumber: string;
@@ -18,8 +18,14 @@ export const WelcomeModal: React.FC<WelcomeModalProps> = ({ tableNumber, onDismi
         <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-green-100 rounded-full blur-3xl opacity-50"></div>
 
         <div className="relative z-10 flex flex-col items-center">
-          <div className="w-20 h-20 bg-pawon-bg rounded-full flex items-center justify-center mb-4 shadow-inner ring-4 ring-white">
-            <UtensilsCrossed size={32} className="text-pawon-accent" />
+          
+          {/* Logo Section - Updated with Custom Image */}
+          <div className="w-24 h-24 rounded-full flex items-center justify-center mb-5 shadow-lg ring-4 ring-white bg-white overflow-hidden">
+             <img 
+               src="https://res.cloudinary.com/dwdaydzsh/image/upload/v1768382524/gemini-2.5-flash-image-preview_nano-banana__a_jadikan_ikon_ukuran__vj1ytb.png" 
+               alt="Pawon Salam Logo" 
+               className="w-full h-full object-cover"
+             />
           </div>
 
           <h2 className="font-serif text-2xl font-bold text-pawon-dark mb-1">

@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
-import { ChevronLeft, Share2, Minus, Plus, Clock, Flame, Star, Heart } from 'lucide-react';
+import { ChevronLeft, Share2, Clock, Flame, Star, Heart } from 'lucide-react';
 import { MenuItem } from '../types';
 
 interface ProductDetailModalProps {
@@ -10,7 +10,7 @@ interface ProductDetailModalProps {
 }
 
 export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ item, onClose, onAddToCart }) => {
-  const [quantity, setQuantity] = useState(1);
+  // Quantity state removed from UI, defaults to 1 for logic
   const [notes, setNotes] = useState('');
   const isAvailable = item.isAvailable !== false; // Treat undefined as true
 
@@ -24,7 +24,8 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ item, on
 
   const handleAddToCartClick = () => {
     if (onAddToCart && isAvailable) {
-        onAddToCart(item, quantity, notes);
+        // Always add 1 item, quantity can be adjusted in Cart
+        onAddToCart(item, 1, notes);
     } else if (isAvailable) {
         alert('Fitur pemesanan belum tersedia.');
         onClose();
@@ -94,8 +95,8 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ item, on
           </div>
         </div>
 
-        {/* Quick Stats Row (Delight Factor) */}
-        <div className="flex items-center gap-4 mb-6 pb-6 border-b border-gray-100 overflow-x-auto no-scrollbar">
+        {/* Quick Stats Row (Delight Factor) - UPDATED: Center Aligned */}
+        <div className="flex items-center justify-center gap-3 mb-6 pb-6 border-b border-gray-100 overflow-x-auto no-scrollbar">
           {item.rating && (
             <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-yellow-50 border border-yellow-100 shrink-0">
               <Star size={14} className="text-yellow-500 fill-yellow-500" />
@@ -139,37 +140,18 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ item, on
         </div>
       </div>
 
-      {/* 4. Fixed Bottom Action Bar (Updated: Added padding-bottom for safe area) */}
+      {/* 4. Fixed Bottom Action Bar (Updated: Removed Quantity Stepper) */}
       <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-100 p-4 pb-[calc(1.5rem+env(safe-area-inset-bottom))] px-6 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] z-30">
-        <div className="flex items-center gap-4 max-w-[480px] mx-auto">
+        <div className="w-full max-w-[480px] mx-auto">
           
-          {/* Quantity Stepper */}
-          <div className="flex items-center bg-gray-100 rounded-full px-1 py-1">
-            <button 
-                onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                disabled={quantity <= 1 || !isAvailable}
-                className="w-10 h-10 rounded-full bg-white text-pawon-dark flex items-center justify-center shadow-sm active:scale-95 transition-transform disabled:opacity-50 hover:bg-gray-50"
-            >
-              <Minus size={18} />
-            </button>
-            <span className="w-10 text-center font-bold text-lg text-pawon-dark">{quantity}</span>
-            <button 
-                onClick={() => setQuantity(quantity + 1)}
-                disabled={!isAvailable}
-                className="w-10 h-10 rounded-full bg-pawon-dark text-white flex items-center justify-center shadow-sm active:scale-95 transition-transform hover:bg-black disabled:bg-gray-300"
-            >
-              <Plus size={18} />
-            </button>
-          </div>
-
-          {/* Add to Cart Button */}
+          {/* Add to Cart Button - Full Width */}
           <button 
             onClick={handleAddToCartClick}
             disabled={!isAvailable}
-            className={`flex-1 h-12 rounded-full font-bold text-sm flex items-center justify-center gap-2 transition-all ${isAvailable ? 'bg-pawon-accent text-white shadow-lg shadow-pawon-accent/30 active:scale-[0.98] hover:bg-orange-700' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}
+            className={`w-full h-12 rounded-full font-bold text-sm flex items-center justify-center gap-2 transition-all ${isAvailable ? 'bg-pawon-accent text-white shadow-lg shadow-pawon-accent/30 active:scale-[0.98] hover:bg-orange-700' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}
           >
             {isAvailable ? (
-                <span className="text-base">Rp {(item.price * quantity).toLocaleString('id-ID')}</span>
+                <span className="text-base">Pesan</span>
             ) : (
                 <span>Stok Habis</span>
             )}

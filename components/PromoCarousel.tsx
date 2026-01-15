@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { MapPin, Phone } from 'lucide-react';
+import { MapPin, Phone, Clock } from 'lucide-react';
 import { Logo } from './Logo';
 
 interface PromoCarouselProps {
@@ -31,6 +31,25 @@ export const PromoCarousel: React.FC<PromoCarouselProps> = ({ onSecretAdminTrigg
 
   return (
     <div className="mb-6 -mx-6">
+      {/* Inject Custom CSS for Animations */}
+      <style>{`
+        @keyframes marquee {
+          0% { transform: translateX(100%); }
+          100% { transform: translateX(-150%); }
+        }
+        .animate-marquee-scrolling {
+          animation: marquee 20s linear infinite; /* Diperlambat sedikit agar lebih mudah dibaca */
+        }
+
+        @keyframes pulse-scale {
+          0%, 100% { transform: scale(1); opacity: 1; }
+          50% { transform: scale(1.05); opacity: 0.95; }
+        }
+        .animate-pulse-slow {
+          animation: pulse-scale 2s infinite ease-in-out;
+        }
+      `}</style>
+
       <div className="relative aspect-[4/3] w-full overflow-hidden shadow-xl rounded-b-[32px] md:mx-auto md:w-full">
         
         <img 
@@ -44,24 +63,30 @@ export const PromoCarousel: React.FC<PromoCarouselProps> = ({ onSecretAdminTrigg
         
         <div className="absolute inset-0 bg-gradient-to-t from-pawon-dark/95 via-pawon-dark/40 to-black/30"></div>
 
-        {/* --- HEADER CONTENT (Updated: Added padding-top for safe area/notch) --- */}
+        {/* --- HEADER CONTENT --- */}
         <div className="absolute top-0 left-0 w-full p-6 pt-[calc(1.5rem+env(safe-area-inset-top))] z-30 flex justify-between items-start">
           <button 
             onClick={handleLogoClick}
-            className="flex items-center gap-4 opacity-100 transition-opacity active:scale-95 duration-200 outline-none group text-left"
+            className="flex items-center gap-3 opacity-100 transition-opacity active:scale-95 duration-200 outline-none group text-left"
           >
             <div className="flex-shrink-0 drop-shadow-md">
-               <Logo size="lg" variant="light" showText={false} />
+               <Logo size="md" variant="light" showText={false} />
             </div>
             <div className="flex flex-col items-start text-white drop-shadow-md">
               {/* Teks "Pawon Salam" di atas */}
-              <h1 className="font-serif text-3xl font-bold leading-tight tracking-tight group-active:text-gray-200 transition-colors">
+              <h1 className="font-serif text-xl font-bold leading-tight tracking-tight group-active:text-gray-200 transition-colors">
                 Pawon Salam
               </h1>
               {/* Teks "Resto & Catering" di bawah */}
-              <span className="text-xs font-medium tracking-wider uppercase text-white/80 mt-1">
+              <span className="text-[10px] font-medium tracking-wider uppercase text-white/80 mt-0.5">
                 Resto & Catering
               </span>
+
+              {/* Info Kontak (Phone) - Moved Here & Animated */}
+              <div className="flex items-center gap-1.5 mt-2 bg-white/20 px-2.5 py-1 rounded-full backdrop-blur-md border border-white/20 text-white shadow-sm animate-pulse-slow origin-left">
+                  <Phone size={10} className="text-white fill-white" />
+                  <span className="text-[10px] font-bold tracking-wider text-white">0823-2033-6007</span>
+              </div>
             </div>
           </button>
 
@@ -79,27 +104,33 @@ export const PromoCarousel: React.FC<PromoCarouselProps> = ({ onSecretAdminTrigg
         </div>
 
         <div className="absolute inset-0 flex flex-col justify-end items-center pb-6 z-20 pointer-events-none">
-          {/* Info kontak dipindahkan ke sini */}
-          <div className="flex items-center gap-1.5 mb-2.5 bg-black/40 px-3 py-1.5 rounded-full backdrop-blur-sm border border-white/10 text-white shadow-sm pointer-events-auto">
-              <Phone size={10} className="text-white/80" />
-              <span className="text-[10px] font-bold tracking-wider text-white">0823-2033-6007</span>
+          
+          {/* Running Text Jam Operasional (Marquee) */}
+          <div className="w-[85%] max-w-sm pointer-events-auto">
+             <div className="relative bg-black/50 backdrop-blur-md border border-white/10 rounded-full h-9 flex items-center overflow-hidden shadow-lg">
+                
+                {/* Fixed Label Badge */}
+                <div className="bg-pawon-accent/90 h-full px-3 flex items-center gap-1.5 z-10 shrink-0 border-r border-white/10 shadow-md">
+                   <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse shadow-[0_0_8px_rgba(74,222,128,0.8)]"/>
+                   <span className="text-[9px] font-bold text-white uppercase tracking-wider">Buka</span>
+                </div>
+
+                {/* Scrolling Area */}
+                <div className="flex-1 relative overflow-hidden h-full flex items-center mask-linear-fade">
+                   <div className="whitespace-nowrap animate-marquee-scrolling text-[10px] text-white/90 font-medium flex items-center gap-4 pl-4">
+                      <span>Senin - Jumat: <span className="text-green-300 font-bold">10.00 - 21.00</span></span>
+                      <span className="text-white/40">•</span>
+                      <span>Sabtu - Minggu: <span className="text-green-300 font-bold">08.00 - 21.00</span></span>
+                      <span className="text-white/40">•</span>
+                      <span>Selamat Menikmati Hidangan Kami!</span>
+                      <span className="text-white/40">•</span>
+                      <span className="italic font-serif text-orange-200">"Hangat dari Rumah"</span>
+                   </div>
+                </div>
+
+             </div>
           </div>
 
-          <div className="flex flex-col items-center px-4 py-2 rounded-2xl bg-black/40 backdrop-blur-md border border-white/10 text-white shadow-sm text-center pointer-events-auto">
-            <div className="flex items-center gap-2 mb-1.5">
-               <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
-               <span className="text-[10px] font-bold uppercase tracking-widest text-green-400">Jam Operasional</span>
-            </div>
-            <div className="flex flex-wrap justify-center items-center gap-x-3 gap-y-0.5 text-[10px] font-medium leading-tight">
-              <span className="whitespace-nowrap text-white/90">
-                Senin-Jumat <span className="text-green-400 font-bold ml-0.5">10.00 - 21.00</span>
-              </span>
-              <span className="hidden sm:inline w-0.5 h-0.5 rounded-full bg-white/50"></span>
-              <span className="whitespace-nowrap text-white/90">
-                Sabtu-Minggu <span className="text-green-400 font-bold ml-0.5">08.00 - 21.00</span>
-              </span>
-            </div>
-          </div>
         </div>
       </div>
     </div>
