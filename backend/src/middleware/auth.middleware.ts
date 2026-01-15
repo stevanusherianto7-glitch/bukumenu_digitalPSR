@@ -1,7 +1,9 @@
 
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import { Role } from '@prisma/client';
+
+// Define Role type since it's not in Prisma schema
+export type Role = 'OWNER' | 'RESTAURANT_MANAGER' | 'STAFF_FOH' | 'STAFF_BOH' | 'SUPER_ADMIN';
 
 // Security: JWT_SECRET must be set in environment variables
 if (!process.env.JWT_SECRET) {
