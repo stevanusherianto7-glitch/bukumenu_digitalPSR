@@ -11,6 +11,8 @@ node_modules
 dist
 dist-ssr
 *.local
+
+# Environment variables (CRITICAL: Never commit secrets!)
 .env
 .env.local
 .env.*.local
