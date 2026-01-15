@@ -21,20 +21,16 @@ export const getSalesRecap = async (req: Request, res: Response) => {
       startDate.setDate(startDate.getDate() - 30);
     }
 
-    // Filter scope (Owner liat semua cabangnya, Manager liat cabangnya aja)
+    // Filter scope - Owner bisa lihat semua data
     const whereClause: any = {
       createdAt: {
         gte: startDate
       },
-      status: 'completed' // Fixed: lowercase to match schema
+      status: 'completed'
     };
 
-    if (user?.role === 'RESTAURANT_MANAGER' || user?.role === 'STAFF_FOH') {
-      if (user.restaurantId) {
-        whereClause.restaurantId = user.restaurantId;
-      }
-    }
-    // Note: Owner & Super Admin gets all data if restaurantId not specified in params
+    // Jika ada restaurantId di user, filter berdasarkan restaurantId
+    // Owner bisa lihat semua, tidak perlu filter
 
     // 1. Hitung Total Revenue & Transaksi
     const aggregator = await prisma.order.aggregate({

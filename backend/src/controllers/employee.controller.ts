@@ -11,7 +11,7 @@ export const getAllEmployees = async (req: Request, res: Response) => {
     const employees = await prisma.user.findMany({
       where: {
         role: {
-          in: ['HR_MANAGER', 'RESTAURANT_MANAGER', 'FINANCE_MANAGER', 'MARKETING_MANAGER', 'STAFF_FOH', 'STAFF_BOH']
+          in: ['STAFF_FOH'] // Hanya waiter
         }
       },
       include: {
