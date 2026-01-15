@@ -108,3 +108,4 @@ POST https://your-app.vercel.app/api/orders
 **Status**: ⚠️ **Perlu run SQL scripts di Supabase Dashboard**
 
 **Next Step**: Buka Supabase SQL Editor dan run `001_create_tables.sql`
+

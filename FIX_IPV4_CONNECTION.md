@@ -85,3 +85,4 @@ postgresql://postgres.yrthjyyfirtbckwkvfbg:MKPz%40h2Ztwh4VH@aws-0-[REGION].poole
 **Status**: ⚠️ **Perlu Session Pooler URL dari Supabase Dashboard**
 
 **Next Step**: Klik "Pooler settings" di Supabase dan berikan Session Pooler connection string yang lengkap.
+

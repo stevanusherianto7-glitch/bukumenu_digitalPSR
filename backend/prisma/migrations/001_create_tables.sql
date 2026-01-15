@@ -59,3 +59,4 @@ ALTER TABLE "orders" ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Allow all for menu_items" ON "menu_items" FOR ALL USING (true);
 CREATE POLICY "Allow all for categories" ON "categories" FOR ALL USING (true);
 CREATE POLICY "Allow all for orders" ON "orders" FOR ALL USING (true);
+

@@ -34,3 +34,4 @@ export const createOrderSchema = z.object({
 export const analyticsQuerySchema = z.object({
   period: z.enum(['today', '7days', '30days']).optional().default('today'),
 });
+

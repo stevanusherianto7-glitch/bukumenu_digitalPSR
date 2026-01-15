@@ -1,7 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
-import { CheckCircle2, Clock, Coffee, MapPin, ChevronLeft, Receipt, AlertCircle, Utensils, PlusSquare, History, LayoutGrid, CalendarDays, Info, FileClock } from 'lucide-react';
+import { CheckCircle2, Clock, Coffee, MapPin, ChevronLeft, Receipt, AlertCircle, Utensils, PlusSquare, History, LayoutGrid, CalendarDays, Info, FileClock, Loader2 } from 'lucide-react';
 import { useOrderStore } from '../store/orderStore';
+import api from '../lib/api'; // Import API client untuk polling
 
 // Data dummy untuk simulasi penambahan order
 const dummyMenuItems = [
@@ -11,14 +12,50 @@ const dummyMenuItems = [
 ];
 
 export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }) => {
-  const { orders, completeOrder, addOrder } = useOrderStore();
+  const { orders, completeOrder, addOrder, setOrders } = useOrderStore();
   const [selectedTable, setSelectedTable] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   
   // Tab untuk Dashboard Utama (Monitor vs Global History)
   const [activeTab, setActiveTab] = useState<'monitor' | 'history'>('monitor');
   
   // Tab untuk Detail Meja (Aktif vs Riwayat Meja Ini)
   const [tableDetailTab, setTableDetailTab] = useState<'active' | 'history'>('active');
+
+  // --- REAL-TIME SYNC ENGINE (POLLING) ---
+  // Ini yang mengambil data pesanan dari backend setiap 3 detik
+  useEffect(() => {
+    const fetchPendingOrders = async () => {
+        try {
+            const response = await api.get('/orders');
+            // Transform data dari backend ke format frontend
+            const transformedOrders = response.data.map((order: any) => ({
+              ...order,
+              // Pastikan timestamp tersedia
+              timestamp: order.timestamp || (order.createdAt ? new Date(order.createdAt).getTime() : Date.now()),
+              createdAt: order.createdAt || new Date(order.timestamp || Date.now()).toISOString(),
+            }));
+            // Update state dengan data fresh dari server
+            setOrders(transformedOrders);
+        } catch (error: any) {
+            console.error("❌ Gagal sinkronisasi pesanan:", error);
+            if (error.response) {
+              console.error("Error response:", error.response.status, error.response.data);
+            }
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    // Panggil sekali saat komponen pertama kali dimuat
+    fetchPendingOrders();
+
+    // Set interval untuk polling setiap 3 detik (real-time feel)
+    const intervalId = setInterval(fetchPendingOrders, 3000);
+
+    // Cleanup: Hentikan interval saat komponen di-unmount
+    return () => clearInterval(intervalId);
+  }, [setOrders]);
 
   // Reset tab detail ke 'active' setiap kali ganti meja
   useEffect(() => {
@@ -51,7 +88,7 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
 
   const activeTablesCount = new Set(safeOrders.filter(o => o.status === 'pending').map(o => o.tableNumber)).size;
 
-  const handleSimulateOrder = () => {
+  const handleSimulateOrder = async () => {
     // Pilih meja dan item secara acak
     const randomTable = tables[Math.floor(Math.random() * tables.length)];
     const randomItem = dummyMenuItems[Math.floor(Math.random() * dummyMenuItems.length)];
@@ -59,8 +96,12 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
     // Tambahkan catatan acak untuk testing
     const randomNote = Math.random() > 0.5 ? "Extra pedas, saus dipisah" : "";
 
-    addOrder(randomTable, [{ ...randomItem, quantity: randomQuantity, notes: randomNote }]);
-    alert(`Order simulasi untuk ${randomQuantity}x ${randomItem.menuName} di Meja ${randomTable} telah ditambahkan.`);
+    try {
+        await addOrder(randomTable, [{ ...randomItem, quantity: randomQuantity, notes: randomNote }]);
+        alert(`✅ Order simulasi untuk ${randomQuantity}x ${randomItem.menuName} di Meja ${randomTable} berhasil dikirim ke server.`);
+    } catch (error) {
+        alert("❌ Gagal mengirim order simulasi.");
+    }
   };
 
   const calculateTotal = (items: any[]) => {
@@ -199,7 +240,15 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
                             ))}
                             </div>
                             <div className="pl-3 mt-4 pt-4 border-t border-gray-100">
-                            <button onClick={() => { if(window.confirm('Tandai pesanan ini sudah diantar/selesai?')) { completeOrder(order.id); } }} className="w-full bg-green-600 text-white font-bold py-3.5 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-green-600/20 hover:bg-green-700 active:scale-[0.98] transition-all font-sans">
+                            <button onClick={async () => { 
+                                if(window.confirm('Tandai pesanan ini sudah diantar/selesai?')) { 
+                                    try {
+                                        await completeOrder(order.id);
+                                    } catch (error) {
+                                        console.error("Error completing order:", error);
+                                    }
+                                } 
+                            }} className="w-full bg-green-600 text-white font-bold py-3.5 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-green-600/20 hover:bg-green-700 active:scale-[0.98] transition-all font-sans">
                                 <CheckCircle2 size={20} />
                                 <span>Selesaikan Pesanan</span>
                             </button>
@@ -316,6 +365,11 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
                 </button>
             </div>
 
+            {isLoading ? (
+                <div className="flex justify-center items-center py-20">
+                    <Loader2 className="animate-spin text-orange-500" size={32} />
+                </div>
+            ) : (
             <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 px-6">
                 {tables.map((tableNum) => {
                 const pendingOrders = getTableOrders(tableNum);
@@ -329,8 +383,9 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
                     {hasOrder && <div className="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold min-w-[24px] h-6 px-1.5 rounded-full flex items-center justify-center shadow-md border-2 border-white z-10 font-sans">{pendingOrders.length}</div>}
                     </button>
                 );
-                })}
+                    })}
             </div>
+            )}
         </>
       ) : (
           /* --- GLOBAL HISTORY TAB CONTENT --- */

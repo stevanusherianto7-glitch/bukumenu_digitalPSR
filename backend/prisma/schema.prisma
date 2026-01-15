@@ -52,3 +52,4 @@ model Order {
   @@index([status])
   @@index([createdAt])
 }
+

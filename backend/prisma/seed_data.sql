@@ -21,3 +21,4 @@ VALUES
     ('cat_004', 'Minuman', 4, NOW(), NOW()),
     ('cat_005', 'Snack', 5, NOW(), NOW())
 ON CONFLICT ("id") DO NOTHING;
+
