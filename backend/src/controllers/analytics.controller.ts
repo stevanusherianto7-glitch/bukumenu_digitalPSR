@@ -36,7 +36,6 @@ export const getSalesRecap = async (req: Request, res: Response) => {
     }
     // Note: Owner & Super Admin gets all data if restaurantId not specified in params
 
-    try {
     // 1. Hitung Total Revenue & Transaksi
     const aggregator = await prisma.order.aggregate({
       _sum: {
@@ -87,24 +86,13 @@ export const getSalesRecap = async (req: Request, res: Response) => {
       .sort((a, b) => b.qty - a.qty)
       .slice(0, 5); // Top 5
 
-      res.json({
-        totalRevenue,
-        totalTransactions,
-        avgTransaction,
-        sortedMenu,
-        period
-      });
-
-    } catch (error: any) {
-      if (error.name === 'ZodError') {
-        return res.status(400).json({ 
-          message: 'Parameter tidak valid', 
-          errors: error.errors 
-        });
-      }
-      console.error('Analytics Error:', error);
-      res.status(500).json({ message: 'Gagal mengambil data laporan penjualan' });
-    }
+    res.json({
+      totalRevenue,
+      totalTransactions,
+      avgTransaction,
+      sortedMenu,
+      period
+    });
   } catch (error: any) {
     if (error.name === 'ZodError') {
       return res.status(400).json({ 
