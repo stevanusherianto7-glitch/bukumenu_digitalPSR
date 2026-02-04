@@ -16,7 +16,7 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose, tableNumber }) => {
   const { addOrder } = useOrderStore();
   const [isSuccess, setIsSuccess] = useState(false);
 
-  const handleConfirmOrder = async () => {
+  const handleConfirmOrder = () => {
     if (totalItems === 0) return;
 
     // 1. Proses Data Pesanan
@@ -27,34 +27,19 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose, tableNumber }) => {
             price: item.price,
             notes: item.notes,
         }));
-        
-        try {
-            // Kirim pesanan ke backend (async)
-            await addOrder(tableNumber, orderItems);
-            
-            // 2. Ubah UI Button menjadi Sukses (Hijau & Teks Berubah)
-            setIsSuccess(true);
+        addOrder(tableNumber, orderItems);
+    } 
+    
+    // 2. Ubah UI Button menjadi Sukses (Hijau & Teks Berubah)
+    setIsSuccess(true);
 
-            // 3. Tunggu 2 detik agar user membaca pesan, lalu tutup & bersihkan
-            setTimeout(() => {
-                clearCart();
-                onClose();
-                // Reset state setelah modal tertutup agar siap untuk order berikutnya
-                setTimeout(() => setIsSuccess(false), 300); 
-            }, 2000);
-        } catch (error) {
-            // Error sudah di-handle di orderStore, tidak perlu alert lagi
-            console.error("Error confirming order:", error);
-        }
-    } else {
-        // Jika tidak ada tableNumber, tetap tampilkan success (untuk take away)
-        setIsSuccess(true);
-        setTimeout(() => {
-            clearCart();
-            onClose();
-            setTimeout(() => setIsSuccess(false), 300); 
-        }, 2000);
-    }
+    // 3. Tunggu 2 detik agar user membaca pesan, lalu tutup & bersihkan
+    setTimeout(() => {
+        clearCart();
+        onClose();
+        // Reset state setelah modal tertutup agar siap untuk order berikutnya
+        setTimeout(() => setIsSuccess(false), 300); 
+    }, 2000);
   };
 
   return (

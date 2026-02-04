@@ -1,8 +1,11 @@
 
 import { Request, Response } from 'express';
-import { prisma } from '../lib/prisma';
+// FIX: This error (Module '"@prisma/client"' has no exported member) is likely due to the Prisma client not being generated. Run `npx prisma generate`.
+import { PrismaClient } from '@prisma/client';
 import { AuthRequest } from '../middleware/auth.middleware';
 import bcrypt from 'bcryptjs';
+
+const prisma = new PrismaClient();
 
 // GET /api/employees
 // FIX: Changed signature to use base Request type for router compatibility.
@@ -11,7 +14,7 @@ export const getAllEmployees = async (req: Request, res: Response) => {
     const employees = await prisma.user.findMany({
       where: {
         role: {
-          in: ['STAFF_FOH'] // Hanya waiter
+          in: ['HR_MANAGER', 'RESTAURANT_MANAGER', 'FINANCE_MANAGER', 'MARKETING_MANAGER', 'STAFF_FOH', 'STAFF_BOH']
         }
       },
       include: {
@@ -32,7 +35,7 @@ export const getAllEmployees = async (req: Request, res: Response) => {
 
     res.json(employeesWithoutPassword);
   } catch (error) {
-    console.error('Get Employees Error:', error);
+    console.error(error);
     res.status(500).json({ message: 'Server error while fetching employees' });
   }
 };
@@ -80,11 +83,8 @@ export const createEmployee = async (req: Request, res: Response) => {
     const { passwordHash: _, ...userWithoutPassword } = newUser;
 
     res.status(201).json(userWithoutPassword);
-  } catch (error: any) {
-    if (error.code === 'P2002') {
-      return res.status(409).json({ message: 'Email sudah digunakan' });
-    }
-    console.error('Create Employee Error:', error);
+  } catch (error) {
+    console.error(error);
     res.status(500).json({ message: 'Server error while creating employee' });
   }
 };
@@ -108,11 +108,8 @@ export const getEmployeeById = async (req: Request, res: Response) => {
     
     const { passwordHash, ...employeeData } = employee;
     res.json(employeeData);
-  } catch (error: any) {
-    if (error.code === 'P2025') {
-      return res.status(404).json({ message: 'Employee not found' });
-    }
-    console.error('Get Employee Error:', error);
+  } catch (error) {
+    console.error(error);
     res.status(500).json({ message: 'Server error while fetching employee data' });
   }
 };
@@ -146,14 +143,8 @@ export const updateEmployee = async (req: Request, res: Response) => {
 
     const { passwordHash, ...userWithoutPassword } = updatedUser;
     res.json(userWithoutPassword);
-  } catch (error: any) {
-    if (error.code === 'P2025') {
-      return res.status(404).json({ message: 'Employee not found' });
-    }
-    if (error.code === 'P2002') {
-      return res.status(409).json({ message: 'Data conflict' });
-    }
-    console.error('Update Employee Error:', error);
+  } catch (error) {
+    console.error(error);
     res.status(500).json({ message: 'Server error while updating employee' });
   }
 };
@@ -169,11 +160,8 @@ export const deleteEmployee = async (req: Request, res: Response) => {
       data: { isActive: false }
     });
     res.status(200).json({ message: 'Employee deactivated successfully' });
-  } catch (error: any) {
-    if (error.code === 'P2025') {
-      return res.status(404).json({ message: 'Employee not found' });
-    }
-    console.error('Delete Employee Error:', error);
+  } catch (error) {
+    console.error(error);
     res.status(500).json({ message: 'Server error while deactivating employee' });
   }
 };

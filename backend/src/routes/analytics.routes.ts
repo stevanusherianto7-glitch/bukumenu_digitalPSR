@@ -9,7 +9,7 @@ router.use(authenticate);
 
 router.get(
   '/sales', 
-  authorize(['OWNER']), 
+  authorize(['SUPER_ADMIN', 'OWNER', 'RESTAURANT_MANAGER', 'FINANCE_MANAGER']), 
   getSalesRecap
 );
 

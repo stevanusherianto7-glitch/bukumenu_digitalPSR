@@ -8,34 +8,33 @@ const router = Router();
 // Semua rute di bawah ini memerlukan login
 router.use(authenticate);
 
-// Employee routes - hanya Owner yang bisa manage
 router.get(
   '/', 
-  authorize(['OWNER']), 
+  authorize(['SUPER_ADMIN', 'OWNER', 'HR_MANAGER', 'RESTAURANT_MANAGER']), 
   getAllEmployees
 );
 
 router.post(
   '/', 
-  authorize(['OWNER']), 
+  authorize(['HR_MANAGER', 'OWNER']), 
   createEmployee
 );
 
 router.get(
   '/:id', 
-  authorize(['OWNER']), 
+  authorize(['SUPER_ADMIN', 'OWNER', 'HR_MANAGER', 'RESTAURANT_MANAGER']), 
   getEmployeeById
 );
 
 router.patch(
   '/:id', 
-  authorize(['OWNER']), 
+  authorize(['HR_MANAGER', 'OWNER']), 
   updateEmployee
 );
 
 router.delete(
   '/:id', 
-  authorize(['OWNER']), 
+  authorize(['HR_MANAGER', 'OWNER']), 
   deleteEmployee
 );
 

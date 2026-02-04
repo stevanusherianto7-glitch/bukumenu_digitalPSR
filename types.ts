@@ -23,12 +23,8 @@ export interface CartItem extends MenuItem {
 }
 
 // Tipe kategori disederhanakan agar sesuai dengan data menu baru dari pengguna.
-export type Category = 
-  | 'Terlaris' 
-  | 'Menu Baru'
-  | 'Makanan'
-  | 'Minuman'
-  | 'Snack';
+// Tipe kategori disederhanakan agar sesuai dengan data menu baru dari pengguna.
+export type Category = string;
 
 // FIX: Add Order and OrderItem interfaces for WaiterTableSection component
 export interface OrderItem {

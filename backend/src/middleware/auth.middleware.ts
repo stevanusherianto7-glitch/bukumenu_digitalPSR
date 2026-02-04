@@ -1,17 +1,11 @@
 
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
+// FIX: This error (Module '"@prisma/client"' has no exported member) is likely due to the Prisma client not being generated. Run `npx prisma generate`.
+import { PrismaClient, Role } from '@prisma/client';
 
-// Define Role type - Simplified untuk buku menu digital (hanya pelanggan dan waiter)
-export type Role = 
-  | 'OWNER'      // Admin/Pemilik restoran
-  | 'STAFF_FOH'; // Waiter (Front of House)
-
-// Security: JWT_SECRET must be set in environment variables
-if (!process.env.JWT_SECRET) {
-  throw new Error('JWT_SECRET environment variable is required. Please set it in your .env file.');
-}
-const JWT_SECRET = process.env.JWT_SECRET;
+const prisma = new PrismaClient();
+const JWT_SECRET = process.env.JWT_SECRET || 'supersecretkey';
 
 export interface AuthRequest extends Request {
   user?: {
