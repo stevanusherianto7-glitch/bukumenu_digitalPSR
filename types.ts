@@ -41,3 +41,24 @@ export interface Order {
   timestamp: number;
   items: OrderItem[];
 }
+
+export type Role =
+  | 'SUPER_ADMIN'
+  | 'RESTAURANT_MANAGER'
+  | 'STAFF_FOH'
+  | 'STAFF_BOH'
+  | 'STAFF_KITCHEN'
+  | 'OWNER'
+  | 'FINANCE_MANAGER'
+  | 'HR_MANAGER'
+  | 'MARKETING_MANAGER';
+
+export interface User {
+  id: string;
+  email: string;
+  name?: string;
+  phone?: string;
+  role: Role;
+  isActive: boolean;
+  restaurantId?: string;
+}

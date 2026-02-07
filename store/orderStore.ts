@@ -7,6 +7,7 @@ interface OrderState {
   orders: Order[];
   addOrder: (tableNumber: string, items: OrderItem[]) => void;
   completeOrder: (orderId: string) => void;
+  setOrders: (orders: Order[]) => void;
 }
 
 export const useOrderStore = create<OrderState>()(
@@ -25,9 +26,13 @@ export const useOrderStore = create<OrderState>()(
         set({ orders: [newOrder, ...get().orders] });
       },
 
+      setOrders: (newOrders: Order[]) => {
+        set({ orders: newOrders });
+      },
+
       completeOrder: (orderId: string) => {
         set({
-          orders: get().orders.map(order => 
+          orders: get().orders.map(order =>
             order.id === orderId ? { ...order, status: 'completed' } : order
           ),
         });

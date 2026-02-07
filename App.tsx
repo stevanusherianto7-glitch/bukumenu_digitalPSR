@@ -16,13 +16,16 @@ import { WaiterTableSection } from './components/WaiterTableSection';
 import { TableMapSection } from './components/TableMapSection';
 import { SalesRecapSection } from './components/SalesRecapSection'; // Import Sales Recap
 import { SEED_VERSION } from './seed-version';
-import { InstallPWA } from './components/InstallPWA'; 
-import { WelcomeModal } from './components/WelcomeModal'; 
+import { InstallPWA } from './components/InstallPWA';
+import { WelcomeModal } from './components/WelcomeModal';
+import { LoginModal } from './components/LoginModal';
+import { useAuthStore } from './store/authStore';
+import { OrderManager } from './components/OrderManager';
 
 const App: React.FC = () => {
   const searchParams = new URLSearchParams(window.location.search);
   const urlMode = searchParams.get('mode');
-  const tableNumber = searchParams.get('meja'); 
+  const tableNumber = searchParams.get('meja');
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const { addItem, totalItems } = useCartStore();
@@ -31,26 +34,51 @@ const App: React.FC = () => {
   // State untuk Welcome Modal
   const [showWelcome, setShowWelcome] = useState(!!tableNumber);
 
+  // State untuk Login Modal
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const { isAuthenticated, logout } = useAuthStore();
+
   const [isAdminMode, setIsAdminMode] = useState(() => {
-    if (urlMode === 'admin') {
-      localStorage.setItem('pawon_admin_mode', 'true');
-      return true;
-    }
-    return localStorage.getItem('pawon_admin_mode') === 'true';
+    // Check if previously in admin mode AND authenticated
+    const localAdmin = localStorage.getItem('pawon_admin_mode') === 'true';
+    // We can't easily check zustand state here in initializer without hydration delay, 
+    // so we trust the flag initially but verify in useEffect
+    return localAdmin;
   });
+
+  // Verify auth on mount
+  useEffect(() => {
+    if (isAdminMode && !isAuthenticated()) {
+      // If flag says admin but no token, force login
+      setIsLoginModalOpen(true);
+      setIsAdminMode(false);
+    }
+  }, []);
+
+  // Handle URL mode
+  useEffect(() => {
+    if (urlMode === 'admin') {
+      if (isAuthenticated()) {
+        setIsAdminMode(true);
+        localStorage.setItem('pawon_admin_mode', 'true');
+      } else {
+        setIsLoginModalOpen(true);
+      }
+    }
+  }, [urlMode, isAuthenticated]);
 
   const [items, setItems] = useState<MenuItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [categories, setCategories] = useState<string[]>([]);
-  
+
   // Foto Header Utama: Soto Pindang Kudus (Hyperrealistic Quality)
   const DEFAULT_HEADER_IMG = "https://res.cloudinary.com/dwdaydzsh/image/upload/v1768368455/Soto_Pindang_Kudus_orwjnb.jpg";
-  
+
   const [headerImage, setHeaderImage] = useState<string>(DEFAULT_HEADER_IMG);
-  
+
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('Terlaris');
-  
+
   // Update Type Tab Active
   const [activeTab, setActiveTab] = useState<'meja' | 'peta' | 'laporan' | 'admin'>('meja');
 
@@ -79,17 +107,17 @@ const App: React.FC = () => {
       // Check version for cache invalidation
       if (localVersion !== SEED_VERSION) {
         console.log(`New version detected (${SEED_VERSION}). Resetting local database...`);
-        
+
         await resetDatabase();
-        
+
         // Clean up legacy localStorage keys
         Object.keys(localStorage).forEach(key => {
-           if (key.startsWith('pawon_db_seeded_')) {
-             localStorage.removeItem(key);
-           }
+          if (key.startsWith('pawon_db_seeded_')) {
+            localStorage.removeItem(key);
+          }
         });
         localStorage.removeItem('pawon_categories_custom');
-        
+
         localStorage.setItem('SEED_VERSION', SEED_VERSION);
         shouldSeed = true;
       } else {
@@ -104,10 +132,10 @@ const App: React.FC = () => {
         await Promise.all(MENU_ITEMS.map(async (item) => {
           try {
             if (item.imageUrl.startsWith('http')) {
-                const response = await fetch(item.imageUrl);
-                if (!response.ok) throw new Error(`Failed to fetch image: ${item.imageUrl}`);
-                const blob = await response.blob();
-                await saveAsset(`menu_image_${item.id}`, blob);
+              const response = await fetch(item.imageUrl);
+              if (!response.ok) throw new Error(`Failed to fetch image: ${item.imageUrl}`);
+              const blob = await response.blob();
+              await saveAsset(`menu_image_${item.id}`, blob);
             }
           } catch (error) {
             console.error(`Could not seed image for ${item.name}:`, error);
@@ -198,7 +226,7 @@ const App: React.FC = () => {
           restOfItem.imageUrl = originalItem.imageUrl;
         } else {
           if (restOfItem.imageUrl.startsWith('blob:') || restOfItem.imageUrl.startsWith('data:')) {
-             restOfItem.imageUrl = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80';
+            restOfItem.imageUrl = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80';
           }
         }
         return { ...restOfItem, updatedAt: new Date() };
@@ -211,28 +239,28 @@ const App: React.FC = () => {
       console.error("Gagal menyimpan:", error);
       alert('Terjadi kesalahan saat menyimpan.');
     } finally {
-       setIsLoading(false);
+      setIsLoading(false);
     }
   };
-  
+
   const handleDeleteItem = async (itemId: string) => {
     const itemToDelete = items.find(i => i.id === itemId);
     if (!itemToDelete) return;
 
     if (window.confirm(`Yakin ingin menghapus menu "${itemToDelete.name}"?`)) {
-        setIsLoading(true);
-        try {
-            const updatedItems = items.filter(item => item.id !== itemId);
-            await saveMenuItems(updatedItems);
-            await deleteAsset(`menu_image_${itemId}`);
-            setItems(updatedItems);
-            alert(`Menu "${itemToDelete.name}" berhasil dihapus.`);
-        } catch (error) {
-            console.error("Gagal menghapus:", error);
-            alert("Terjadi kesalahan.");
-        } finally {
-            setIsLoading(false);
-        }
+      setIsLoading(true);
+      try {
+        const updatedItems = items.filter(item => item.id !== itemId);
+        await saveMenuItems(updatedItems);
+        await deleteAsset(`menu_image_${itemId}`);
+        setItems(updatedItems);
+        alert(`Menu "${itemToDelete.name}" berhasil dihapus.`);
+      } catch (error) {
+        console.error("Gagal menghapus:", error);
+        alert("Terjadi kesalahan.");
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -243,7 +271,7 @@ const App: React.FC = () => {
         localStorage.removeItem('pawon_categories_custom');
         localStorage.removeItem('SEED_VERSION');
         await resetDatabase();
-        window.location.reload(); 
+        window.location.reload();
       } catch (error) {
         console.error("Reset failed:", error);
         alert('Gagal mereset data.');
@@ -254,27 +282,39 @@ const App: React.FC = () => {
   };
 
   const handleEnterAdmin = () => {
+    // Legacy logic is now handled by modal success
     setIsAdminMode(true);
     setActiveTab('meja');
     localStorage.setItem('pawon_admin_mode', 'true');
-    alert('Mode Kelola Diaktifkan!');
   };
 
   const exitSpecialMode = () => {
     localStorage.removeItem('pawon_admin_mode');
     setIsAdminMode(false);
+    logout(); // Clear auth session on exit
     const url = new URL(window.location.href);
     url.searchParams.delete('mode');
     window.history.replaceState({}, '', url.toString());
-    window.scrollTo(0,0);
+    window.scrollTo(0, 0);
   };
 
   const handleSecretTrigger = () => {
     if (isAdminMode) {
       exitSpecialMode();
     } else {
-      handleEnterAdmin();
+      if (isAuthenticated()) {
+        // Case: Token exists but admin mode not active (rare)
+        handleEnterAdmin();
+      } else {
+        // Case: Not logged in
+        setIsLoginModalOpen(true);
+      }
     }
+  };
+
+  // Login Success Handler
+  const handleLoginSuccess = () => {
+    handleEnterAdmin();
   };
 
   const filteredItems = useMemo(() => {
@@ -284,7 +324,7 @@ const App: React.FC = () => {
     }
     if (selectedCategory === 'Menu Baru') {
       return items.filter(item => item.isNew);
-    } 
+    }
     return items.filter(item => item.category === selectedCategory);
   }, [selectedCategory, items]);
 
@@ -292,7 +332,7 @@ const App: React.FC = () => {
     return (
       <div className="min-h-screen bg-pawon-bg flex justify-center">
         <div className="w-full max-w-[480px] bg-gray-50 h-screen shadow-2xl overflow-y-auto">
-           <WaiterTableSection onExit={exitSpecialMode} />
+          <WaiterTableSection onExit={exitSpecialMode} />
         </div>
       </div>
     );
@@ -303,41 +343,49 @@ const App: React.FC = () => {
       {/* PWA Install Prompt Component */}
       <InstallPWA />
 
+      {/* Login Modal */}
+      {isLoginModalOpen && (
+        <LoginModal
+          onClose={() => setIsLoginModalOpen(false)}
+          onSuccess={handleLoginSuccess}
+        />
+      )}
+
       {/* Welcome Modal when Table ID is detected */}
       {showWelcome && tableNumber && !isAdminMode && (
-        <WelcomeModal 
-          tableNumber={tableNumber} 
-          onDismiss={() => setShowWelcome(false)} 
+        <WelcomeModal
+          tableNumber={tableNumber}
+          onDismiss={() => setShowWelcome(false)}
         />
       )}
 
       {selectedItem && (
-        <ProductDetailModal 
-          item={selectedItem} 
-          onClose={() => setSelectedItem(null)} 
+        <ProductDetailModal
+          item={selectedItem}
+          onClose={() => setSelectedItem(null)}
           onAddToCart={handleAddToCart}
         />
       )}
 
-      <Cart 
-        isOpen={isCartOpen} 
-        onClose={() => setIsCartOpen(false)} 
+      <Cart
+        isOpen={isCartOpen}
+        onClose={() => setIsCartOpen(false)}
         tableNumber={tableNumber || undefined}
       />
 
       <div className="w-full max-w-[480px] bg-pawon-bg h-screen shadow-2xl overflow-hidden flex flex-col relative">
-        
+
         {!isAdminMode && (
           <div className="flex-none px-6 z-20 bg-pawon-bg pt-0 relative">
-             <PromoCarousel 
-                headerImage={headerImage}
-                onSecretAdminTrigger={handleSecretTrigger} 
-                tableNumber={tableNumber || undefined}
-             />
+            <PromoCarousel
+              headerImage={headerImage}
+              onSecretAdminTrigger={handleSecretTrigger}
+              tableNumber={tableNumber || undefined}
+            />
           </div>
         )}
 
-        <div 
+        <div
           ref={scrollContainerRef}
           className={`flex-1 overflow-y-auto no-scrollbar scroll-smooth ${isAdminMode ? 'pb-24' : 'pb-6 px-6'}`}
         >
@@ -350,15 +398,15 @@ const App: React.FC = () => {
               {!isAdminMode && (
                 <div>
                   <div className="sticky top-0 z-30 bg-pawon-bg/95 backdrop-blur-sm pt-2 pb-1 -mx-6 px-6">
-                    <CategoryFilter 
+                    <CategoryFilter
                       categories={SHORTCUT_CATEGORIES}
                       selectedCategory={selectedCategory}
                       onSelect={setSelectedCategory}
                     />
                   </div>
-                  
-                  <MenuSection 
-                    items={filteredItems} 
+
+                  <MenuSection
+                    items={filteredItems}
                     allItems={items}
                     onItemClick={setSelectedItem}
                     onAddToCart={(item) => addItem(item, 1)}
@@ -371,30 +419,31 @@ const App: React.FC = () => {
 
               {isAdminMode && (
                 <>
+                  <OrderManager />
                   <div className={activeTab === 'meja' ? 'block' : 'hidden'}>
                     <WaiterTableSection onExit={exitSpecialMode} />
                   </div>
                   <div className={activeTab === 'peta' ? 'block' : 'hidden'}>
-                     <TableMapSection />
+                    <TableMapSection />
                   </div>
                   {/* NEW TAB: Laporan */}
                   <div className={activeTab === 'laporan' ? 'block' : 'hidden'}>
-                     <SalesRecapSection />
+                    <SalesRecapSection />
                   </div>
                   <div className={activeTab === 'admin' ? 'block' : 'hidden'}>
-                     <div className="px-6">
-                        <AdminSection 
-                            items={items} 
-                            headerImage={headerImage}
-                            category={selectedCategory}
-                            categories={categories}
-                            onCategoryChange={setSelectedCategory} 
-                            onSaveAll={handleSaveAllItems}
-                            onResetData={handleResetData}
-                            onAddCategory={handleAddCategory}
-                            onDeleteItem={handleDeleteItem}
-                          />
-                     </div>
+                    <div className="px-6">
+                      <AdminSection
+                        items={items}
+                        headerImage={headerImage}
+                        category={selectedCategory}
+                        categories={categories}
+                        onCategoryChange={setSelectedCategory}
+                        onSaveAll={handleSaveAllItems}
+                        onResetData={handleResetData}
+                        onAddCategory={handleAddCategory}
+                        onDeleteItem={handleDeleteItem}
+                      />
+                    </div>
                   </div>
                 </>
               )}
@@ -403,10 +452,10 @@ const App: React.FC = () => {
         </div>
 
         {isAdminMode && (
-          <BottomNav 
-            activeTab={activeTab} 
-            onTabChange={setActiveTab} 
-            onExitAdmin={exitSpecialMode} 
+          <BottomNav
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+            onExitAdmin={exitSpecialMode}
           />
         )}
       </div>

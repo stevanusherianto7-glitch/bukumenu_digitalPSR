@@ -16,43 +16,68 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose, tableNumber }) => {
   const { addOrder } = useOrderStore();
   const [isSuccess, setIsSuccess] = useState(false);
 
-  const handleConfirmOrder = () => {
+  const handleConfirmOrder = async () => {
     if (totalItems === 0) return;
 
-    // 1. Proses Data Pesanan
-    if (tableNumber) {
-        const orderItems: OrderItem[] = items.map(item => ({
-            menuName: item.name,
-            quantity: item.quantity,
-            price: item.price,
-            notes: item.notes,
-        }));
-        addOrder(tableNumber, orderItems);
-    } 
-    
-    // 2. Ubah UI Button menjadi Sukses (Hijau & Teks Berubah)
-    setIsSuccess(true);
+    try {
+      const orderItems: OrderItem[] = items.map(item => ({
+        menuName: item.name,
+        quantity: item.quantity,
+        price: item.price,
+        notes: item.notes,
+      }));
 
-    // 3. Tunggu 2 detik agar user membaca pesan, lalu tutup & bersihkan
-    setTimeout(() => {
+      const payload = {
+        tableNumber: tableNumber || "Take Away",
+        items: orderItems,
+        notes: "Order via Digital Menu"
+      };
+
+      const response = await fetch('/api/orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        throw new Error('Gagal mengirim pesanan');
+      }
+
+      const data = await response.json();
+      console.log('Order success:', data);
+
+      // Update UI Sukses
+      setIsSuccess(true);
+      // Tambahkan ke store lokal jika perlu, tapi backend source of truth utama
+      if (tableNumber) {
+        addOrder(tableNumber, orderItems);
+      }
+
+      setTimeout(() => {
         clearCart();
         onClose();
-        // Reset state setelah modal tertutup agar siap untuk order berikutnya
-        setTimeout(() => setIsSuccess(false), 300); 
-    }, 2000);
+        setTimeout(() => setIsSuccess(false), 300);
+      }, 2000);
+
+    } catch (error) {
+      console.error('Error submitting order:', error);
+      alert('Maaf, terjadi kesalahan saat mengirim pesanan. Silakan coba lagi.');
+    }
   };
 
   return (
     <>
       {/* Backdrop */}
-      <div 
+      <div
         onClick={() => !isSuccess && onClose()}
         className={`fixed inset-0 z-[70] bg-black/60 transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
       />
 
       {/* Cart Panel */}
       <div className={`fixed top-0 right-0 bottom-0 z-[80] w-full max-w-md bg-pawon-bg flex flex-col shadow-2xl transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}>
-        
+
         {/* Header */}
         <div className="flex-none flex items-center justify-between p-5 border-b border-gray-200">
           <div>
@@ -63,13 +88,13 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose, tableNumber }) => {
                 Pesanan untuk Meja: {tableNumber}
               </p>
             ) : (
-               <p className="text-xs font-bold text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full mt-1.5 inline-block">
+              <p className="text-xs font-bold text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full mt-1.5 inline-block">
                 Take Away / Bungkus
               </p>
             )}
           </div>
-          <button 
-            onClick={onClose} 
+          <button
+            onClick={onClose}
             disabled={isSuccess}
             className="p-2 text-gray-400 hover:text-pawon-dark transition-colors rounded-full hover:bg-gray-100 disabled:opacity-50"
           >
@@ -87,27 +112,27 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose, tableNumber }) => {
                   <p className="font-bold text-sm text-pawon-dark line-clamp-1">{item.name}</p>
                   {item.notes && <p className="text-[10px] text-gray-500 italic mt-0.5 line-clamp-1">"{item.notes}"</p>}
                   <p className="font-bold text-pawon-accent text-xs mt-1">Rp {item.price.toLocaleString('id-ID')}</p>
-                  
+
                   <div className="mt-auto flex justify-between items-center pt-2">
                     {/* Quantity Stepper */}
                     <div className="flex items-center bg-gray-100 rounded-full px-1 py-0.5">
-                      <button 
-                        onClick={() => updateQuantity(item.id, item.quantity - 1)} 
+                      <button
+                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
                         disabled={isSuccess}
                         className="w-6 h-6 rounded-full flex items-center justify-center text-pawon-dark active:bg-gray-200 disabled:opacity-50"
                       >-</button>
                       <span className="w-8 text-center text-sm font-bold">{item.quantity}</span>
-                      <button 
-                        onClick={() => updateQuantity(item.id, item.quantity + 1)} 
+                      <button
+                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
                         disabled={isSuccess}
                         className="w-6 h-6 rounded-full flex items-center justify-center text-pawon-dark active:bg-gray-200 disabled:opacity-50"
                       >+</button>
                     </div>
                     {/* Remove Button */}
-                    <button 
-                        onClick={() => removeItem(item.id)} 
-                        disabled={isSuccess}
-                        className="text-gray-400 hover:text-red-500 p-1 disabled:opacity-50"
+                    <button
+                      onClick={() => removeItem(item.id)}
+                      disabled={isSuccess}
+                      className="text-gray-400 hover:text-red-500 p-1 disabled:opacity-50"
                     >
                       <Trash2 size={16} />
                     </button>
@@ -118,7 +143,7 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose, tableNumber }) => {
           </div>
         ) : (
           <div className="flex-1 flex flex-col items-center justify-center text-center text-gray-400 p-5">
-            <ShoppingBag size={48} strokeWidth={1} className="mb-4 opacity-50"/>
+            <ShoppingBag size={48} strokeWidth={1} className="mb-4 opacity-50" />
             <p className="font-bold text-pawon-dark">Keranjang Anda kosong</p>
             <p className="text-sm mt-1">Silakan pilih menu yang Anda inginkan.</p>
           </div>
@@ -131,26 +156,26 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose, tableNumber }) => {
               <span className="text-sm text-pawon-textGray">Total ({totalItems} item)</span>
               <span className="font-bold text-lg text-pawon-dark">Rp {totalPrice.toLocaleString('id-ID')}</span>
             </div>
-            
+
             <button
               onClick={handleConfirmOrder}
               disabled={isSuccess}
               className={`w-full py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg transition-all duration-300 active:scale-[0.98]
-                ${isSuccess 
-                    ? 'bg-green-600 text-white shadow-green-600/30 scale-100 cursor-default' 
-                    : 'bg-pawon-accent text-white shadow-pawon-accent/30 hover:bg-orange-700'
+                ${isSuccess
+                  ? 'bg-green-600 text-white shadow-green-600/30 scale-100 cursor-default'
+                  : 'bg-pawon-accent text-white shadow-pawon-accent/30 hover:bg-orange-700'
                 }`}
             >
               {isSuccess ? (
-                  <>
-                    <CheckCircle size={20} className="animate-bounce" />
-                    <span>Terima Kasih atas Pesanan Anda</span>
-                  </>
+                <>
+                  <CheckCircle size={20} className="animate-bounce" />
+                  <span>Terima Kasih atas Pesanan Anda</span>
+                </>
               ) : (
-                  <>
-                    <ShoppingBag size={18} />
-                    <span>Kirim Pesanan</span>
-                  </>
+                <>
+                  <ShoppingBag size={18} />
+                  <span>Kirim Pesanan</span>
+                </>
               )}
             </button>
           </div>
