@@ -1,6 +1,6 @@
 
-import React, { useState } from 'react';
-import { MapPin, Phone, Clock } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { MapPin, Phone, Clock, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Logo } from './Logo';
 
 interface PromoCarouselProps {
@@ -11,9 +11,24 @@ interface PromoCarouselProps {
 
 export const PromoCarousel: React.FC<PromoCarouselProps> = ({ onSecretAdminTrigger, tableNumber, headerImage }) => {
   const [tapCount, setTapCount] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
-  // Foto Default: Soto Pindang Kudus (Hyperrealistic)
-  const bgImage = headerImage || "https://res.cloudinary.com/dwdaydzsh/image/upload/v1768368455/Soto_Pindang_Kudus_orwjnb.jpg";
+  const CAROUSEL_IMAGES = [
+    headerImage || "https://res.cloudinary.com/dwdaydzsh/image/upload/v1768368455/Soto_Pindang_Kudus_orwjnb.jpg",
+    "https://res.cloudinary.com/dwdaydzsh/image/upload/v1768287617/Rawon_Semarang_vaxfch.webp",
+    "https://res.cloudinary.com/dwdaydzsh/image/upload/v1768287613/Tahu_Gimbal_Semarang_tjtpa0.webp",
+    "https://res.cloudinary.com/dwdaydzsh/image/upload/v1768368394/Es_Teler_vyc2aq.jpg",
+    "https://res.cloudinary.com/dwdaydzsh/image/upload/v1768368489/Nasi_Goreng_Mawut_Semarang_zijcjv.png",
+    "https://res.cloudinary.com/dwdaydzsh/image/upload/v1768368743/Pisang_Goreng_Keju_Karamel_lqjxrw.png"
+  ];
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentIndex((prevIndex) => (prevIndex + 1) % CAROUSEL_IMAGES.length);
+    }, 5000);
+
+    return () => clearInterval(timer);
+  }, [CAROUSEL_IMAGES.length]);
 
   const handleLogoClick = () => {
     if (!onSecretAdminTrigger) return;
@@ -31,68 +46,61 @@ export const PromoCarousel: React.FC<PromoCarouselProps> = ({ onSecretAdminTrigg
 
   return (
     <div className="mb-6 -mx-6">
-      {/* Inject Custom CSS for Animations */}
       <style>{`
         @keyframes marquee {
-          0% { transform: translateX(100%); }
-          100% { transform: translateX(-150%); }
+          0% { transform: translateX(0%); }
+          100% { transform: translateX(-50%); }
         }
         .animate-marquee-scrolling {
-          animation: marquee 20s linear infinite; /* Diperlambat sedikit agar lebih mudah dibaca */
-        }
-
-        @keyframes pulse-scale {
-          0%, 100% { transform: scale(1); opacity: 1; }
-          50% { transform: scale(1.05); opacity: 0.95; }
-        }
-        .animate-pulse-slow {
-          animation: pulse-scale 2s infinite ease-in-out;
+          animation: marquee 30s linear infinite;
         }
       `}</style>
 
-      <div className="relative aspect-[4/3] w-full overflow-hidden shadow-xl rounded-b-[32px] md:mx-auto md:w-full">
+      <div className="relative aspect-[4/3] w-full overflow-hidden shadow-xl rounded-b-[32px] md:mx-auto md:w-full group">
         
-        <img 
-          src={bgImage} 
-          alt="Pawon Salam Banner" 
-          className="absolute inset-0 w-full h-full object-cover animate-in fade-in duration-700"
-          onError={(e) => {
-             (e.target as HTMLImageElement).src = "https://res.cloudinary.com/dwdaydzsh/image/upload/v1768368455/Soto_Pindang_Kudus_orwjnb.jpg";
-          }}
-        />
+        <div className="absolute inset-0 transition-transform duration-700 ease-in-out">
+          {CAROUSEL_IMAGES.map((img, index) => (
+            <div
+              key={index}
+              className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+                index === currentIndex ? 'opacity-100' : 'opacity-0'
+              }`}
+            >
+              <img
+                src={img}
+                alt={`Banner ${index + 1}`}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                   (e.target as HTMLImageElement).src = "https://res.cloudinary.com/dwdaydzsh/image/upload/v1768368455/Soto_Pindang_Kudus_orwjnb.jpg";
+                }}
+              />
+            </div>
+          ))}
+        </div>
         
-        <div className="absolute inset-0 bg-gradient-to-t from-pawon-dark/95 via-pawon-dark/40 to-black/30"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-pawon-dark/95 via-pawon-dark/20 to-black/30"></div>
 
         {/* --- HEADER CONTENT --- */}
-        <div className="absolute top-0 left-0 w-full p-6 pt-[calc(1.5rem+env(safe-area-inset-top))] z-30 flex justify-between items-start">
-          <button 
-            onClick={handleLogoClick}
-            className="flex items-center gap-3 opacity-100 transition-opacity active:scale-95 duration-200 outline-none group text-left"
-          >
-            <div className="flex-shrink-0 drop-shadow-md">
-               <Logo size="md" variant="light" showText={false} />
-            </div>
-            <div className="flex flex-col items-start text-white drop-shadow-md">
-              {/* Teks "Pawon Salam" di atas */}
-              <h1 className="font-serif text-xl font-bold leading-tight tracking-tight group-active:text-gray-200 transition-colors">
-                Pawon Salam
-              </h1>
-              {/* Teks "Resto & Catering" di bawah */}
-              <span className="text-[10px] font-medium tracking-wider uppercase text-white/80 mt-0.5">
-                Resto & Catering
-              </span>
+        <div className="absolute top-0 left-0 w-full p-6 pt-[calc(1.5rem+env(safe-area-inset-top))] z-40 flex justify-between items-start">
+          <div className="flex flex-col items-start text-white drop-shadow-md">
+            <h1 className="font-serif text-2xl font-bold leading-tight tracking-tight">
+              Pawon Salam
+            </h1>
+            <span className="text-[10px] font-medium tracking-wider uppercase text-white/90 mt-0.5">
+              Resto & Catering
+            </span>
+          </div>
 
-              {/* Info Kontak (Phone) - Moved Here & Animated */}
-              <div className="flex items-center gap-1.5 mt-2 bg-white/20 px-2.5 py-1 rounded-full backdrop-blur-md border border-white/20 text-white shadow-sm animate-pulse-slow origin-left">
-                  <Phone size={10} className="text-white fill-white" />
-                  <span className="text-[10px] font-bold tracking-wider text-white">0823-2033-6007</span>
-              </div>
-            </div>
-          </button>
+          <div className="flex flex-col items-end gap-3">
+            <button
+              onClick={handleLogoClick}
+              className="flex-shrink-0 drop-shadow-lg active:scale-95 transition-transform mt-1"
+            >
+               <Logo size="sm" variant="light" showText={false} />
+            </button>
 
-          <div className="flex items-center gap-3">
             {tableNumber && (
-              <div className="bg-white/10 backdrop-blur-md border border-white/20 text-white px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-lg animate-in slide-in-from-right-2 fade-in">
+              <div className="bg-white/10 backdrop-blur-md border border-white/20 text-white px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-lg">
                 <MapPin size={12} className="text-red-400 fill-red-400" />
                 <div className="flex flex-col leading-none">
                   <span className="text-[8px] uppercase tracking-wider opacity-80 font-medium">Meja</span>
@@ -103,34 +111,39 @@ export const PromoCarousel: React.FC<PromoCarouselProps> = ({ onSecretAdminTrigg
           </div>
         </div>
 
-        <div className="absolute inset-0 flex flex-col justify-end items-center pb-6 z-20 pointer-events-none">
-          
-          {/* Running Text Jam Operasional (Marquee) */}
+        <div className="absolute inset-0 flex flex-col justify-end items-center pb-4 z-40 pointer-events-none">
           <div className="w-[85%] max-w-sm pointer-events-auto">
-             <div className="relative bg-black/50 backdrop-blur-md border border-white/10 rounded-full h-9 flex items-center overflow-hidden shadow-lg">
+             <div className="relative bg-black/60 backdrop-blur-md border border-white/10 rounded-full h-9 flex items-center overflow-hidden shadow-2xl">
                 
-                {/* Fixed Label Badge */}
-                <div className="bg-pawon-accent/90 h-full px-3 flex items-center gap-1.5 z-10 shrink-0 border-r border-white/10 shadow-md">
+                <div className="bg-pawon-accent h-full px-3 flex items-center gap-1.5 z-10 shrink-0 border-r border-white/10 shadow-md">
                    <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse shadow-[0_0_8px_rgba(74,222,128,0.8)]"/>
                    <span className="text-[9px] font-bold text-white uppercase tracking-wider">Buka</span>
                 </div>
 
-                {/* Scrolling Area */}
-                <div className="flex-1 relative overflow-hidden h-full flex items-center mask-linear-fade">
-                   <div className="whitespace-nowrap animate-marquee-scrolling text-[10px] text-white/90 font-medium flex items-center gap-4 pl-4">
+                <div className="flex-1 relative overflow-hidden h-full flex items-center">
+                   {/* Marquee Content Duplicated for seamless loop with no gap */}
+                   <div className="whitespace-nowrap animate-marquee-scrolling text-[10px] text-white font-medium flex items-center gap-4 pl-4">
                       <span>Senin - Jumat: <span className="text-green-300 font-bold">10.00 - 21.00</span></span>
                       <span className="text-white/40">•</span>
                       <span>Sabtu - Minggu: <span className="text-green-300 font-bold">08.00 - 21.00</span></span>
                       <span className="text-white/40">•</span>
-                      <span>Selamat Menikmati Hidangan Kami!</span>
+                      <div className="flex items-center gap-1 text-orange-200">
+                         <Phone size={10} className="fill-orange-200" />
+                         <span className="font-bold">0823-2033-6007</span>
+                      </div>
                       <span className="text-white/40">•</span>
-                      <span className="italic font-serif text-orange-200">"Hangat dari Rumah"</span>
+                      <span>Senin - Jumat: <span className="text-green-300 font-bold">10.00 - 21.00</span></span>
+                      <span className="text-white/40">•</span>
+                      <span>Sabtu - Minggu: <span className="text-green-300 font-bold">08.00 - 21.00</span></span>
+                      <span className="text-white/40">•</span>
+                      <div className="flex items-center gap-1 text-orange-200">
+                         <Phone size={10} className="fill-orange-200" />
+                         <span className="font-bold">0823-2033-6007</span>
+                      </div>
                    </div>
                 </div>
-
              </div>
           </div>
-
         </div>
       </div>
     </div>

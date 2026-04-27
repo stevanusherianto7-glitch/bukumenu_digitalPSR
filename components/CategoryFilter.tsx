@@ -13,9 +13,9 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
   onSelect 
 }) => {
   return (
-    <div className="pb-4 pt-2">
-      {/* Distribute items evenly for a balanced, proportional look */}
-      <div className="flex justify-evenly">
+    <div className="pb-6 pt-2">
+      {/* Category Tabs with uniform size, green color, and floating drop-shadow */}
+      <div className="grid grid-cols-3 gap-3">
         {categories.map((cat) => {
           const isActive = selectedCategory === cat;
           return (
@@ -25,10 +25,10 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
                 onSelect(cat);
               }}
               className={`
-                px-5 py-2.5 rounded-full text-sm font-medium whitespace-nowrap transition-all duration-300
+                h-10 rounded-xl text-sm font-bold transition-all duration-300 flex items-center justify-center
                 ${isActive 
-                  ? 'bg-pawon-accent text-white shadow-xl shadow-pawon-accent/40 scale-105' 
-                  : 'bg-white text-pawon-textGray hover:bg-gray-50 active:scale-95 shadow-md hover:shadow-lg'
+                  ? 'bg-pawon-green text-white shadow-[0_10px_20px_rgba(106,126,82,0.4)] -translate-y-1'
+                  : 'bg-white text-pawon-textGray hover:bg-gray-50 shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_20px_rgba(0,0,0,0.1)] active:scale-95'
                 }
               `}
             >

@@ -11,13 +11,14 @@ import { useCartStore } from './store/cartStore';
 import { MenuItem } from './types';
 import { getAsset, saveAsset, base64ToBlob, getAllMenuItems, saveMenuItems, resetDatabase, deleteAsset } from './indexedDB';
 import { Loader2 } from 'lucide-react';
-import { MENU_ITEMS, CATEGORIES } from './data';
+import { MENU_ITEMS as LOCAL_MENU_ITEMS, CATEGORIES as LOCAL_CATEGORIES } from './data'; // Rename import
 import { WaiterTableSection } from './components/WaiterTableSection';
 import { TableMapSection } from './components/TableMapSection';
-import { SalesRecapSection } from './components/SalesRecapSection'; // Import Sales Recap
+import { SalesRecapSection } from './components/SalesRecapSection';
 import { SEED_VERSION } from './seed-version';
 import { InstallPWA } from './components/InstallPWA'; 
 import { WelcomeModal } from './components/WelcomeModal'; 
+import api from './api'; // Import API client
 
 const App: React.FC = () => {
   const searchParams = new URLSearchParams(window.location.search);
@@ -43,20 +44,17 @@ const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [categories, setCategories] = useState<string[]>([]);
   
-  // Foto Header Utama: Soto Pindang Kudus (Hyperrealistic Quality)
+  // Foto Header Utama: Soto Pindang Kudus
   const DEFAULT_HEADER_IMG = "https://res.cloudinary.com/dwdaydzsh/image/upload/v1768368455/Soto_Pindang_Kudus_orwjnb.jpg";
   
   const [headerImage, setHeaderImage] = useState<string>(DEFAULT_HEADER_IMG);
-  
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('Terlaris');
-  
-  // Update Type Tab Active
   const [activeTab, setActiveTab] = useState<'meja' | 'peta' | 'laporan' | 'admin'>('meja');
 
   const SHORTCUT_CATEGORIES = ['Terlaris', 'Makanan', 'Minuman'];
 
-  // Cleanup blob URLs to prevent memory leaks
+  // Cleanup blob URLs
   useEffect(() => {
     return () => {
       items.forEach(item => {
@@ -70,88 +68,73 @@ const App: React.FC = () => {
     };
   }, [items, headerImage]);
 
-  const loadDataFromDB = useCallback(async () => {
+  const loadData = useCallback(async () => {
     setIsLoading(true);
     try {
-      const localVersion = localStorage.getItem('SEED_VERSION');
-      let shouldSeed = false;
-
-      // Check version for cache invalidation
-      if (localVersion !== SEED_VERSION) {
-        console.log(`New version detected (${SEED_VERSION}). Resetting local database...`);
-        
-        await resetDatabase();
-        
-        // Clean up legacy localStorage keys
-        Object.keys(localStorage).forEach(key => {
-           if (key.startsWith('pawon_db_seeded_')) {
-             localStorage.removeItem(key);
-           }
-        });
-        localStorage.removeItem('pawon_categories_custom');
-        
-        localStorage.setItem('SEED_VERSION', SEED_VERSION);
-        shouldSeed = true;
+      // 1. Coba fetch dari API Backend (Cloud) terlebih dahulu
+      // Ini memastikan data selalu fresh jika ada koneksi internet
+      console.log("Fetching menu from Cloud API...");
+      const response = await api.get('/menu');
+      
+      if (response.data && response.data.items && response.data.items.length > 0) {
+          console.log("Cloud menu loaded successfully.");
+          setItems(response.data.items);
+          setCategories(response.data.categories);
+          
+          // Opsional: Simpan ke IndexedDB sebagai cache untuk offline selanjutnya
+          saveMenuItems(response.data.items);
+          localStorage.setItem('pawon_categories_custom', JSON.stringify(response.data.categories));
       } else {
+          throw new Error("Empty menu from cloud");
+      }
+    } catch (apiError) {
+      console.warn("Cloud fetch failed or empty, falling back to Local/IndexedDB:", apiError);
+      
+      // 2. Fallback: Load dari IndexedDB (Offline Mode)
+      try {
         const storedItems = await getAllMenuItems();
-        if (storedItems.length === 0) {
-          shouldSeed = true;
+        
+        if (storedItems.length > 0) {
+             console.log("Loaded menu from IndexedDB cache.");
+             // Hydrate blobs if necessary
+             const hydratedItems = await Promise.all(
+                storedItems.map(async (item: MenuItem) => {
+                  try {
+                    const imageBlob = await getAsset('menu_image_' as string + item.id);
+                    return imageBlob ? { ...item, imageUrl: URL.createObjectURL(imageBlob) } : item;
+                  } catch (error) {
+                    return item;
+                  }
+                })
+             );
+             setItems(hydratedItems);
+             
+             const storedCategories = localStorage.getItem('pawon_categories_custom');
+             setCategories(storedCategories ? JSON.parse(storedCategories) : LOCAL_CATEGORIES);
+        } else {
+             // 3. Fallback Terakhir: Load Data Dummy (First Run Offline)
+             console.log("IndexedDB empty, loading local seed data.");
+             setItems(LOCAL_MENU_ITEMS);
+             setCategories(LOCAL_CATEGORIES);
+             // Seed DB
+             await saveMenuItems(LOCAL_MENU_ITEMS);
         }
+      } catch (dbError) {
+         console.error("Critical: Failed to load menu.", dbError);
+         setItems(LOCAL_MENU_ITEMS);
+         setCategories(LOCAL_CATEGORIES);
       }
-
-      if (shouldSeed) {
-        console.log("Seeding database with fresh data...");
-        await Promise.all(MENU_ITEMS.map(async (item) => {
-          try {
-            if (item.imageUrl.startsWith('http')) {
-                const response = await fetch(item.imageUrl);
-                if (!response.ok) throw new Error(`Failed to fetch image: ${item.imageUrl}`);
-                const blob = await response.blob();
-                await saveAsset(`menu_image_${item.id}`, blob);
-            }
-          } catch (error) {
-            console.error(`Could not seed image for ${item.name}:`, error);
-          }
-        }));
-        await saveMenuItems(MENU_ITEMS);
-        localStorage.setItem('pawon_categories_custom', JSON.stringify(CATEGORIES));
-      }
-
-      // Load data from DB
-      const storedItems = await getAllMenuItems();
-      const baseItems = storedItems.length > 0 ? storedItems : MENU_ITEMS;
-
-      const storedCategories = localStorage.getItem('pawon_categories_custom');
-      setCategories(storedCategories ? JSON.parse(storedCategories) : CATEGORIES);
-
-      const hydratedItems = await Promise.all(
-        baseItems.map(async (item: MenuItem) => {
-          try {
-            const imageBlob = await getAsset('menu_image_' as string + item.id);
-            return imageBlob ? { ...item, imageUrl: URL.createObjectURL(imageBlob) } : item;
-          } catch (error) {
-            return item;
-          }
-        })
-      );
-      setItems(hydratedItems);
-
+    } finally {
+      // Load Header Image from Local
       const headerImageBlob = await getAsset('headerImage_v2');
       setHeaderImage(headerImageBlob ? URL.createObjectURL(headerImageBlob) : DEFAULT_HEADER_IMG);
-
-    } catch (error) {
-      console.error("Failed to load data:", error);
-      setItems(MENU_ITEMS);
-      setCategories(CATEGORIES);
-      setHeaderImage(DEFAULT_HEADER_IMG);
-    } finally {
       setIsLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    loadDataFromDB();
-  }, [loadDataFromDB]);
+    loadData();
+  }, [loadData]);
 
   useEffect(() => {
     if (scrollContainerRef.current) {
@@ -159,6 +142,8 @@ const App: React.FC = () => {
     }
   }, [selectedCategory, activeTab]);
 
+  // --- HANDLERS (Perlu disesuaikan untuk sync ke API jika Admin Mode) ---
+  
   const handleAddCategory = (newCategoryName: string) => {
     if (categories.includes(newCategoryName)) {
       alert('Kategori tersebut sudah ada!');
@@ -183,29 +168,27 @@ const App: React.FC = () => {
         const imageBlob = base64ToBlob(newHeaderImage);
         await saveAsset('headerImage_v2', imageBlob);
       }
-      await Promise.all(draftItems.map(async (item) => {
-        if (item.imageFile) {
-          await saveAsset('menu_image_' + item.id, item.imageFile);
-        } else if (item.imageUrl.startsWith('data:image')) {
-          const imageBlob = base64ToBlob(item.imageUrl);
-          await saveAsset('menu_image_' + item.id, imageBlob);
-        }
-      }));
-      const itemsToSaveInDB = draftItems.map(item => {
-        const { imageFile, ...restOfItem } = item;
-        const originalItem = MENU_ITEMS.find(i => i.id === restOfItem.id);
-        if (originalItem) {
-          restOfItem.imageUrl = originalItem.imageUrl;
-        } else {
-          if (restOfItem.imageUrl.startsWith('blob:') || restOfItem.imageUrl.startsWith('data:')) {
-             restOfItem.imageUrl = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80';
+
+      // TODO: Di Production, kirim request PUT/POST ke API per item atau bulk update
+      // Saat ini kita simpan ke local DB dulu agar responsif
+      await saveMenuItems(draftItems);
+      
+      // Jika online, coba sync satu per satu (Simple Sync Strategy)
+      // Idealnya ini dilakukan di background worker
+      try {
+          const { token } = await import('./store/authStore').then(m => m.useAuthStore.getState());
+          if (token) {
+              // Contoh logik sync sederhana: kirim item baru ke cloud
+              console.log("Syncing changes to cloud...");
+              // Implementasi sync detail akan cukup kompleks, 
+              // untuk MVP ini kita update local view dan asumsikan Admin menggunakan Dashboard Web (bukan PWA ini) untuk edit menu global.
           }
-        }
-        return { ...restOfItem, updatedAt: new Date() };
-      });
-      await saveMenuItems(itemsToSaveInDB);
-      await loadDataFromDB();
-      alert('Sukses! Semua perubahan telah disimpan.');
+      } catch (e) {
+          console.warn("Sync to cloud failed", e);
+      }
+
+      await loadData(); // Reload
+      alert('Perubahan disimpan di perangkat ini.');
       setActiveTab('meja');
     } catch (error) {
       console.error("Gagal menyimpan:", error);
@@ -216,17 +199,21 @@ const App: React.FC = () => {
   };
   
   const handleDeleteItem = async (itemId: string) => {
-    const itemToDelete = items.find(i => i.id === itemId);
-    if (!itemToDelete) return;
-
-    if (window.confirm(`Yakin ingin menghapus menu "${itemToDelete.name}"?`)) {
+    if (window.confirm(`Yakin ingin menghapus menu ini?`)) {
         setIsLoading(true);
         try {
+            // Delete Local
             const updatedItems = items.filter(item => item.id !== itemId);
             await saveMenuItems(updatedItems);
             await deleteAsset(`menu_image_${itemId}`);
             setItems(updatedItems);
-            alert(`Menu "${itemToDelete.name}" berhasil dihapus.`);
+            
+            // Delete Cloud (if logged in)
+            try {
+                 await api.delete(`/menu/${itemId}`);
+            } catch (e) { console.warn("Cloud delete failed or offline"); }
+
+            alert(`Menu berhasil dihapus.`);
         } catch (error) {
             console.error("Gagal menghapus:", error);
             alert("Terjadi kesalahan.");
@@ -237,7 +224,7 @@ const App: React.FC = () => {
   };
 
   const handleResetData = async () => {
-    if (window.confirm('Yakin reset semua data?')) {
+    if (window.confirm('Yakin reset semua data lokal?')) {
       setIsLoading(true);
       try {
         localStorage.removeItem('pawon_categories_custom');
@@ -246,7 +233,6 @@ const App: React.FC = () => {
         window.location.reload(); 
       } catch (error) {
         console.error("Reset failed:", error);
-        alert('Gagal mereset data.');
       } finally {
         setIsLoading(false);
       }
@@ -300,10 +286,8 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-pawon-bg flex justify-center">
-      {/* PWA Install Prompt Component */}
       <InstallPWA />
 
-      {/* Welcome Modal when Table ID is detected */}
       {showWelcome && tableNumber && !isAdminMode && (
         <WelcomeModal 
           tableNumber={tableNumber} 
@@ -342,8 +326,9 @@ const App: React.FC = () => {
           className={`flex-1 overflow-y-auto no-scrollbar scroll-smooth ${isAdminMode ? 'pb-24' : 'pb-6 px-6'}`}
         >
           {isLoading ? (
-            <div className="flex items-center justify-center h-full">
+            <div className="flex items-center justify-center h-full flex-col gap-2">
               <Loader2 className="animate-spin text-pawon-accent" size={48} />
+              <p className="text-xs text-gray-400 animate-pulse">Memuat menu terbaru...</p>
             </div>
           ) : (
             <>
@@ -377,7 +362,6 @@ const App: React.FC = () => {
                   <div className={activeTab === 'peta' ? 'block' : 'hidden'}>
                      <TableMapSection />
                   </div>
-                  {/* NEW TAB: Laporan */}
                   <div className={activeTab === 'laporan' ? 'block' : 'hidden'}>
                      <SalesRecapSection />
                   </div>

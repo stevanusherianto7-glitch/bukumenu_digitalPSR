@@ -23,8 +23,12 @@ export interface CartItem extends MenuItem {
 }
 
 // Tipe kategori disederhanakan agar sesuai dengan data menu baru dari pengguna.
-// Tipe kategori disederhanakan agar sesuai dengan data menu baru dari pengguna.
-export type Category = string;
+export type Category = 
+  | 'Terlaris' 
+  | 'Menu Baru'
+  | 'Makanan'
+  | 'Minuman'
+  | 'Snack';
 
 // FIX: Add Order and OrderItem interfaces for WaiterTableSection component
 export interface OrderItem {
@@ -40,25 +44,4 @@ export interface Order {
   status: 'pending' | 'completed';
   timestamp: number;
   items: OrderItem[];
-}
-
-export type Role =
-  | 'SUPER_ADMIN'
-  | 'RESTAURANT_MANAGER'
-  | 'STAFF_FOH'
-  | 'STAFF_BOH'
-  | 'STAFF_KITCHEN'
-  | 'OWNER'
-  | 'FINANCE_MANAGER'
-  | 'HR_MANAGER'
-  | 'MARKETING_MANAGER';
-
-export interface User {
-  id: string;
-  email: string;
-  name?: string;
-  phone?: string;
-  role: Role;
-  isActive: boolean;
-  restaurantId?: string;
 }

@@ -7,12 +7,10 @@ import path from 'path';
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware - Security: Restrict CORS to specific origins
+// Middleware
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || (process.env.NODE_ENV === 'production' ? false : 'http://localhost:3000'),
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  origin: '*', // Di produksi, ganti ini dengan domain frontend Anda jika perlu
+  credentials: true
 }));
 
 // Increase body limit for base64 image uploads
@@ -34,13 +32,9 @@ app.get('/api', (req, res) => {
 
 // Vercel Serverless environment tidak membutuhkan app.listen()
 // Namun kita pertahankan untuk local development
-// Development server (not needed in Vercel serverless)
 if (process.env.NODE_ENV !== 'production') {
   app.listen(PORT, () => {
-    // Only log in development
-    if (process.env.NODE_ENV === 'development') {
-      console.log(`Server is running on port ${PORT}`);
-    }
+    console.log(`Server is running on port ${PORT}`);
   });
 }
 

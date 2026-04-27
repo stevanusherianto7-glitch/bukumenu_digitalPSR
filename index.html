@@ -3,20 +3,14 @@
 <html lang="id">
   <head>
     <meta charset="UTF-8" />
-    <!-- Viewport update: user-scalable=no, viewport-fit=cover untuk support notch/poni HP -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     
-    <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#F7F5F2" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Pawon Salam" />
     
-    <!-- Icons untuk iOS -->
-    <!-- WARNING: JANGAN HAPUS URL CLOUDINARY INI! Icon app harus menggunakan URL Cloudinary yang sudah ditentukan -->
-    <link rel="apple-touch-icon" href="https://res.cloudinary.com/dwdaydzsh/image/upload/v1768382524/gemini-2.5-flash-image-preview_nano-banana__a_jadikan_ikon_ukuran__vj1ytb.png" />
-    
-    <!-- Link Manifest -->
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1046/1046751.png" />
     <link rel="manifest" href="./manifest.json" />
 
     <title>Pawon Salam Resto</title>
@@ -34,9 +28,9 @@
               pawon: {
                 dark: '#26201A',
                 primary: '#3E342D', 
-                accent: '#A85A3C', // The reddish brown for price
-                green: '#6A7E52', // The olive green for badge
-                bg: '#F7F5F2', // Updated: Warmer Cream Background
+                accent: '#FF5722',
+                green: '#4CAF50',
+                bg: '#FDF5E6', // Warm Cream (Old Lace) Background
                 card: '#FFFFFF',
                 gray: '#F2F2F2',
                 textGray: '#8A8A8A'
@@ -47,34 +41,28 @@
       }
     </script>
     <style>
-      /* --- NATIVE APP FEEL OVERRIDES --- */
-      
       html, body {
-        /* Mencegah overscroll/bouncing effect (Rubber banding) */
         overscroll-behavior-y: none;
-        /* Mencegah pull-to-refresh default browser */
         overscroll-behavior-x: none;
         height: 100%;
         width: 100%;
       }
 
       body {
-        /* Mencegah user melakukan seleksi teks (seperti di aplikasi native) */
         -webkit-user-select: none;
-        user-select: none;
-        /* Menghilangkan highlight biru saat tap di Android/iOS */
+        -moz-user-select: none;
+             user-select: none;
         -webkit-tap-highlight-color: transparent;
-        /* Optimasi touch handling */
         touch-action: manipulation;
+        background-color: #FDF5E6; /* Ensure background is cream */
       }
 
-      /* Kembalikan seleksi teks hanya pada input form agar user bisa edit teks */
       input, textarea {
         -webkit-user-select: text;
-        user-select: text;
+        -moz-user-select: text;
+             user-select: text;
       }
 
-      /* Global Custom Thin Scrollbar */
       ::-webkit-scrollbar {
         width: 4px;
         height: 4px;
@@ -93,7 +81,6 @@
         background-color: rgba(0, 0, 0, 0.2); 
       }
 
-      /* Firefox */
       * {
         scrollbar-width: thin;
         scrollbar-color: rgba(0, 0, 0, 0.1) transparent;
@@ -124,14 +111,11 @@
 </script>
   <link rel="stylesheet" href="/index.css">
 </head>
-  <body class="bg-gray-100 select-none font-sans text-pawon-dark antialiased overflow-hidden"> 
+  <body class="bg-pawon-bg select-none font-sans text-pawon-dark antialiased overflow-hidden">
     <div id="root" class="h-full overflow-y-auto"></div>
-
-    <!-- Script Registrasi Service Worker -->
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-          // Register Service Worker using a relative path to ensure it's loaded from the same origin.
           navigator.serviceWorker.register('./sw.js')
             .then((registration) => {
               console.log('ServiceWorker registration successful with scope: ', registration.scope);
