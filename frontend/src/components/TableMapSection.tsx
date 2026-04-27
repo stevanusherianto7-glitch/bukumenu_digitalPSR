@@ -3,21 +3,20 @@ import React, { useState } from 'react';
 import { MapPin, QrCode, Download, Link as LinkIcon, ExternalLink, Info, CheckCircle2 } from 'lucide-react';
 
 export const TableMapSection: React.FC = () => {
-  // Update: Standardize to 9 tables to match WaiterTableSection logic
+  // Standardize to 9 tables
   const tables = Array.from({ length: 9 }, (_, i) => `A${i + 1}`);
   const [selectedTable, setSelectedTable] = useState<string>('A1');
   
-  // KONFIGURASI URL PRODUKSI
-  const PRODUCTION_URL = 'https://buku-menu-digital-psr.vercel.app';
+  // NEW PRODUCTION URL
+  const PRODUCTION_URL = 'https://bukumenu-digital-psr.vercel.app';
   
   const qrData = `${PRODUCTION_URL}?meja=${selectedTable}`;
   
-  // 1. Gunakan Logo Custom untuk Bagian Tengah QR Code
+  // 1. Updated Logo for QR Center (Green gradient style from screenshot)
   const labelUrl = 'https://res.cloudinary.com/dwdaydzsh/image/upload/v1768382524/gemini-2.5-flash-image-preview_nano-banana__a_jadikan_ikon_ukuran__vj1ytb.png';
 
-  // 2. Generate QR Code dengan Logo di Tengah (High Error Correction 'H')
-  // Menggunakan QuickChart API untuk menggabungkan QR + Logo secara server-side agar hasil download sesuai
-  const qrImageUrl = `https://quickchart.io/qr?text=${encodeURIComponent(qrData)}&centerImageUrl=${encodeURIComponent(labelUrl)}&centerImageSizeRatio=0.3&ecLevel=H&size=1000&margin=2&dark=3E342D&light=FFFFFF&format=png`;
+  // 2. Generate QR Code with QuickChart API
+  const qrImageUrl = `https://quickchart.io/qr?text=${encodeURIComponent(qrData)}&centerImageUrl=${encodeURIComponent(labelUrl)}&centerImageSizeRatio=0.25&ecLevel=H&size=1000&margin=2&dark=000000&light=FFFFFF&format=png`;
   
   const downloadName = `QR-Meja-${selectedTable}-PawonSalam.png`;
 
@@ -42,7 +41,7 @@ export const TableMapSection: React.FC = () => {
             </div>
         </div>
         
-        {/* Info Box - Updated Text */}
+        {/* Info Box */}
         <div className="mb-6 space-y-3">
             <div className="bg-green-50 p-3 rounded-lg border border-green-200 flex items-start gap-2 shadow-sm">
                 <CheckCircle2 size={16} className="text-green-600 shrink-0 mt-0.5" />
@@ -51,104 +50,117 @@ export const TableMapSection: React.FC = () => {
                 </p>
             </div>
             
-            <div className="bg-gray-50 p-3 rounded-lg border border-gray-200 flex items-start gap-2">
-                <ExternalLink size={16} className="text-gray-500 shrink-0 mt-0.5" />
-                <p className="text-xs text-gray-600 leading-snug">
-                    Link mengarah ke server produksi: <code className="bg-gray-200 px-1 py-0.5 rounded text-gray-800 font-bold">{PRODUCTION_URL}</code>
-                </p>
+            <div className="bg-white p-4 rounded-lg border border-gray-200 flex items-start gap-3 shadow-sm">
+                <ExternalLink size={18} className="text-gray-400 shrink-0 mt-0.5" />
+                <div className="flex flex-col gap-1">
+                   <p className="text-[11px] text-gray-500 font-medium">Link mengarah ke server produksi:</p>
+                   <code className="text-xs text-gray-800 font-bold break-all">{PRODUCTION_URL}</code>
+                </div>
             </div>
         </div>
 
         {/* Table Grid */}
-        <div className="mb-6">
-            <h3 className="font-bold text-sm text-pawon-dark uppercase tracking-wider mb-3">1. Pilih Meja</h3>
-            <div className="grid grid-cols-4 sm:grid-cols-5 gap-3">
+        <div className="mb-8">
+            <h3 className="font-bold text-sm text-pawon-dark uppercase tracking-wider mb-4">1. Pilih Meja</h3>
+            <div className="grid grid-cols-4 gap-3">
                 {tables.map(table => (
                     <button 
                         key={table}
                         onClick={() => setSelectedTable(table)}
                         className={`
-                            aspect-square rounded-xl flex flex-col items-center justify-center border-2 transition-all duration-200
+                            aspect-square rounded-2xl flex flex-col items-center justify-center border-2 transition-all duration-300
                             ${selectedTable === table 
-                                ? 'bg-pawon-accent text-white border-pawon-accent shadow-lg shadow-pawon-accent/30 scale-105'
-                                : 'bg-white text-pawon-dark border-gray-200 hover:border-pawon-accent hover:bg-orange-50'
+                                ? 'bg-pawon-accent text-white border-pawon-accent shadow-xl shadow-pawon-accent/30 scale-105'
+                                : 'bg-white text-pawon-dark border-gray-100 hover:border-pawon-accent/30 hover:bg-gray-50 shadow-sm'
                             }
                         `}
                     >
-                        <span className="text-xs opacity-80">Meja</span>
-                        <span className="text-2xl font-bold">{table}</span>
+                        <span className="text-[10px] opacity-70 mb-0.5">Meja</span>
+                        <span className="text-2xl font-black">{table}</span>
                     </button>
                 ))}
             </div>
         </div>
 
-        {/* QR Code Generator Section */}
-        <div className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm">
-            <div className="flex items-center gap-2 mb-4">
-               <QrCode size={16} className="text-pawon-accent" />
-               <h3 className="font-bold text-sm text-pawon-dark uppercase tracking-wider">
-                 2. Preview & Download QR: <span className="text-pawon-accent">Meja {selectedTable}</span>
-               </h3>
+        {/* QR Code Generator Section - UI Adjusted to match screenshot */}
+        <div className="bg-white rounded-[32px] p-6 border border-gray-100 shadow-[0_10px_40px_rgba(0,0,0,0.04)]">
+            <div className="flex items-center gap-3 mb-6">
+               <div className="w-8 h-8 rounded-lg bg-orange-50 flex items-center justify-center text-pawon-accent">
+                  <QrCode size={18} />
+               </div>
+               <div className="flex flex-col">
+                  <h3 className="font-bold text-xs text-gray-400 uppercase tracking-widest leading-none mb-1">
+                    2. Preview & Download QR:
+                  </h3>
+                  <span className="text-pawon-accent font-black text-sm uppercase tracking-wider">
+                    Meja {selectedTable}
+                  </span>
+               </div>
             </div>
         
             <div className="flex flex-col items-center">
               {/* Card Preview Cetak */}
-              <div className="bg-white p-6 rounded-xl border-2 border-dashed border-gray-300 mb-4 flex flex-col items-center text-center relative w-full max-w-[280px]">
-                 <div className="absolute top-0 left-0 bg-gray-100 text-[10px] px-2 py-0.5 rounded-br-lg text-gray-500 font-bold border-b border-r border-gray-200">
+              <div className="bg-white p-8 rounded-2xl border-2 border-dashed border-gray-200 mb-6 flex flex-col items-center text-center relative w-full shadow-inner">
+                 <div className="absolute top-0 left-0 bg-gray-100 text-[9px] px-3 py-1 rounded-br-xl text-gray-400 font-bold border-b border-r border-gray-200 tracking-wider">
                     AREA CETAK
                  </div>
 
-                 {/* Desain Sticker Meja Sederhana */}
-                 <div className="mt-4 mb-2">
-                    <h3 className="font-serif font-bold text-pawon-dark text-xl leading-none">Pawon Salam</h3>
-                    <p className="text-[9px] uppercase tracking-[0.2em] text-gray-400 mt-1">Scan to Order</p>
+                 {/* Sticker Design */}
+                 <div className="mt-4 mb-4">
+                    <h3 className="font-serif font-bold text-pawon-dark text-2xl leading-none">Pawon Salam</h3>
+                    <p className="text-[10px] uppercase tracking-[0.3em] text-gray-400 mt-2 font-medium">Scan to Order</p>
                  </div>
                  
-                 {/* QR Code dengan Label di Tengah */}
-                 <div className="relative w-40 h-40 my-2">
+                 {/* QR Code */}
+                 <div className="relative w-48 h-48 my-4 bg-white p-1 rounded-lg">
                     <img 
                         src={qrImageUrl} 
                         alt={`QR Code Meja ${selectedTable}`} 
-                        className="w-full h-full object-contain mix-blend-multiply" 
+                        className="w-full h-full object-contain"
                         loading="lazy"
                     />
                  </div>
                  
-                 <div className="mt-2 text-[10px] text-gray-400 font-mono">
+                 <div className="mt-2 text-xs text-gray-300 font-mono tracking-widest">
                     {selectedTable}
                  </div>
               </div>
               
-              <div className="text-center mb-4 w-full">
-                <p className="text-xs text-gray-500 mb-1">Target URL:</p>
+              {/* URL Display */}
+              <div className="w-full mb-6">
+                <p className="text-[11px] text-center text-gray-400 mb-2 font-medium">Target URL:</p>
                 <div className="flex items-center gap-2">
-                    <div className="flex-1 bg-gray-50 px-3 py-2 rounded-lg text-[10px] text-gray-600 break-all font-mono border border-gray-200 truncate">
+                    <div className="flex-1 bg-gray-50 px-4 py-3 rounded-xl text-[11px] text-gray-400 font-mono border border-gray-100 truncate shadow-sm">
                       {qrData}
                     </div>
                     <button 
                         onClick={copyToClipboard}
-                        className="p-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-600 transition-colors"
-                        title="Salin Link"
+                        className="p-3 bg-gray-100 hover:bg-gray-200 rounded-xl text-gray-500 transition-all active:scale-90"
                     >
-                        <LinkIcon size={16} />
+                        <LinkIcon size={18} />
                     </button>
                 </div>
               </div>
 
-              <a 
+              {/* Action Button */}
+              <a
                 href={qrImageUrl} 
                 download={downloadName}
                 target="_blank"
                 rel="noreferrer"
-                className="w-full bg-pawon-dark text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-black transition-colors shadow-lg shadow-gray-200"
+                className="w-full bg-[#1A1614] text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-3 hover:bg-black transition-all active:scale-[0.98] shadow-xl shadow-gray-200"
               >
-                <Download size={18} /> Download High-Res QR
+                <Download size={20} /> Download High-Res QR
               </a>
-              <p className="text-[10px] text-gray-400 mt-2 text-center px-4">
+
+              <p className="text-[10px] text-gray-400 mt-4 text-center leading-relaxed px-6 opacity-70">
                 *File PNG High-Res termasuk logo Pawon Salam di tengah.
               </p>
             </div>
         </div>
+
+        {/* Safe Area Padding */}
+        <div className="h-20" />
     </div>
   );
 };
