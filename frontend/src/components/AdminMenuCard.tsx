@@ -119,23 +119,23 @@ export const AdminMenuCard: React.FC<AdminMenuCardProps> = ({ item, onUpdate, on
                   <label className="flex items-center gap-1 text-[10px] font-bold text-pawon-textGray uppercase mb-1">
                     <ImageIcon size={12} /> URL Foto
                   </label>
-                  <div className="flex gap-1">
+                  <div className="flex flex-col gap-2">
                     <input
                       type="url"
                       value={urlInput}
                       onChange={(e) => { setUrlInput(e.target.value); setUrlError(false); }}
                       onBlur={handleUrlApply}
                       onKeyDown={(e) => e.key === 'Enter' && handleUrlApply()}
-                      className={`flex-1 text-[10px] text-pawon-dark border rounded-md p-2 focus:outline-none focus:ring-1 focus:ring-pawon-accent ${
+                      className={`w-full text-[10px] text-pawon-dark border rounded-md p-2 focus:outline-none focus:ring-1 focus:ring-pawon-accent ${
                         urlError ? 'border-red-400 bg-red-50' : 'border-gray-300 focus:border-pawon-accent'
                       }`}
                       placeholder="https://supabase.co/storage/v1/..."
                     />
                     <button
                       onClick={handleUrlApply}
-                      className="px-2 py-1 bg-pawon-accent text-white rounded-md text-[10px] font-bold flex items-center gap-1 hover:bg-orange-700 transition-colors shrink-0"
+                      className="w-full py-2 bg-pawon-accent text-white rounded-md text-[10px] font-bold flex items-center justify-center gap-1 hover:bg-orange-700 transition-colors"
                     >
-                      <Link size={10}/> Terapkan
+                      <Link size={10}/> Terapkan URL
                     </button>
                   </div>
                   {urlError && <p className="text-[9px] text-red-500 mt-1">URL tidak valid. Harus dimulai dengan https://</p>}
