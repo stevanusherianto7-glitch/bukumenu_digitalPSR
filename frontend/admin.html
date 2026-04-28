@@ -5,7 +5,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     
-    <meta name="theme-color" content="#1A1614" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#FDF5E6" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1A1614" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Pawon Manager" />
@@ -81,9 +82,11 @@
         background-color: rgba(0, 0, 0, 0.2); 
       }
 
-      * {
-        scrollbar-width: thin;
-        scrollbar-color: rgba(0, 0, 0, 0.1) transparent;
+      @supports (scrollbar-width: thin) {
+        * {
+          scrollbar-width: thin;
+          scrollbar-color: rgba(0, 0, 0, 0.1) transparent;
+        }
       }
     </style>
     <script type="importmap">
