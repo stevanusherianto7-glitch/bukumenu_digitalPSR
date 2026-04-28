@@ -37,7 +37,7 @@ export const useOrderStore = create<OrderState>((set, get) => ({
         .from('orders')
         .select('*, items:order_items(*)')
         .in('status', ['pending', 'completed'])
-        .gte('created_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString())
+        .gte('created_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString())
         .order('created_at', { ascending: true }); // Assume created_at is snake_case
 
       if (error) throw error;
