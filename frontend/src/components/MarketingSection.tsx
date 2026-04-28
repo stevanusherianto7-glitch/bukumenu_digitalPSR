@@ -15,6 +15,10 @@ import { useSettingsStore } from '../store/settingsStore';
 export const MarketingSection: React.FC = () => {
   const settings = useSettingsStore();
 
+  React.useEffect(() => {
+    console.log("MarketingSection Mounted. Current Settings:", settings);
+  }, []);
+
   const programs = [
     {
       id: 'isAddonEnabled',

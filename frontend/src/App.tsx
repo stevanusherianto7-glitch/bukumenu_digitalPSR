@@ -369,39 +369,25 @@ const App: React.FC = () => {
               )}
 
               {isAdminMode && (
-                <>
-                  <div className={activeTab === 'meja' ? 'block' : 'hidden'}>
-                    <WaiterTableSection onExit={exitSpecialMode} />
-                  </div>
-                  <div className={activeTab === 'peta' ? 'block' : 'hidden'}>
-                     <TableMapSection />
-                  </div>
-                  {/* NEW TAB: Laporan */}
-                  <div className={activeTab === 'laporan' ? 'block' : 'hidden'}>
-                     <SalesRecapSection />
-                  </div>
-                  {/* NEW TAB: Marketing */}
-                  {activeTab === 'marketing' && (
-                     <div className="px-6 py-4 animate-in fade-in duration-500">
-                        <MarketingSection />
-                     </div>
+                <div className="px-6 py-4">
+                  {activeTab === 'meja' && <WaiterTableSection onExit={exitSpecialMode} />}
+                  {activeTab === 'peta' && <TableMapSection />}
+                  {activeTab === 'laporan' && <SalesRecapSection />}
+                  {activeTab === 'marketing' && <MarketingSection />}
+                  {activeTab === 'admin' && (
+                    <AdminSection 
+                      items={items} 
+                      headerImage={headerImage}
+                      category={selectedCategory}
+                      categories={categories}
+                      onCategoryChange={setSelectedCategory} 
+                      onSaveAll={handleSaveAllItems}
+                      onResetData={handleResetData}
+                      onAddCategory={handleAddCategory}
+                      onDeleteItem={handleDeleteItem}
+                    />
                   )}
-                  <div className={activeTab === 'admin' ? 'block' : 'hidden'}>
-                     <div className="px-6">
-                        <AdminSection 
-                            items={items} 
-                            headerImage={headerImage}
-                            category={selectedCategory}
-                            categories={categories}
-                            onCategoryChange={setSelectedCategory} 
-                            onSaveAll={handleSaveAllItems}
-                            onResetData={handleResetData}
-                            onAddCategory={handleAddCategory}
-                            onDeleteItem={handleDeleteItem}
-                          />
-                     </div>
-                  </div>
-                </>
+                </div>
               )}
             </>
           )}
