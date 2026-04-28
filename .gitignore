@@ -22,3 +22,10 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Environment variables - JANGAN DI-PUSH KE GITHUB
+.env
+.env.*
+!.env.example
+backend/.env
+frontend/.env

@@ -17,16 +17,27 @@
       "dest": "/backend/src/index.ts"
     },
     {
-      "src": "/(.*)",
-      "dest": "/frontend/$1",
-      "headers": { "Cache-Control": "s-maxage=0" }
-    },
-    {
       "handle": "filesystem"
     },
     {
+      "src": "/waiter",
+      "dest": "/frontend/dist/waiter.html"
+    },
+    {
+      "src": "/waiter\\.html",
+      "dest": "/frontend/dist/waiter.html"
+    },
+    {
+      "src": "/admin",
+      "dest": "/frontend/dist/admin.html"
+    },
+    {
+      "src": "/admin\\.html",
+      "dest": "/frontend/dist/admin.html"
+    },
+    {
       "src": "/(.*)",
-      "dest": "/frontend/index.html"
+      "dest": "/frontend/dist/index.html"
     }
   ]
 }

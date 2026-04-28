@@ -18,6 +18,15 @@ export default defineConfig(({ mode }) => {
         alias: {
           '@': path.resolve(__dirname, '.'),
         }
+      },
+      build: {
+        rollupOptions: {
+          input: {
+            main: path.resolve(__dirname, 'index.html'),
+            waiter: path.resolve(__dirname, 'waiter.html'),
+            admin: path.resolve(__dirname, 'admin.html'),
+          }
+        }
       }
     };
 });
