@@ -75,11 +75,17 @@ export const MarketingSection: React.FC = () => {
   ];
 
   return (
-    <div className="space-y-4 pb-10">
+    <div className="space-y-4 pb-24">
+      {/* Header Module */}
+      <div className="mb-6">
+        <h2 className="font-serif text-2xl font-bold text-pawon-dark">Marketing Engine</h2>
+        <p className="text-xs text-gray-400 font-bold uppercase tracking-widest mt-1">Pawon Salam . Staff Console</p>
+      </div>
+
       <div className="bg-gradient-to-br from-pawon-dark to-gray-800 p-6 rounded-[24px] text-white shadow-xl mb-6 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-32 h-32 bg-pawon-accent/20 rounded-full -mr-16 -mt-16 blur-2xl"></div>
         <h3 className="font-serif text-xl font-bold mb-1 flex items-center gap-2">
-          <Sparkles className="text-pawon-accent" /> Marketing Engine
+          <Sparkles className="text-pawon-accent" /> Program Promo
         </h3>
         <p className="text-[10px] text-white/60 uppercase tracking-widest font-bold">Tingkatkan Omzet & Up-Selling</p>
       </div>

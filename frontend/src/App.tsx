@@ -381,11 +381,11 @@ const App: React.FC = () => {
                      <SalesRecapSection />
                   </div>
                   {/* NEW TAB: Marketing */}
-                  <div className={activeTab === 'marketing' ? 'block' : 'hidden'}>
-                     <div className="px-6">
+                  {activeTab === 'marketing' && (
+                     <div className="px-6 py-4 animate-in fade-in duration-500">
                         <MarketingSection />
                      </div>
-                  </div>
+                  )}
                   <div className={activeTab === 'admin' ? 'block' : 'hidden'}>
                      <div className="px-6">
                         <AdminSection 
