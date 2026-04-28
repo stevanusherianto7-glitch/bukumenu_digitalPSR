@@ -127,13 +127,6 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
   return (
     <div className="mt-2 relative">
       
-      {showHeaderEditor && headerEditorSource && (
-        <ImageEditor 
-          imageSrc={headerEditorSource}
-          onSave={handleHeaderEditorSave}
-          onCancel={() => { setShowHeaderEditor(false); setHeaderEditorSource(null); }}
-        />
-      )}
 
       <div className="sticky top-0 z-40 mb-4">
         <div className={`p-3 rounded-xl shadow-xl flex items-center justify-between gap-3 transition-colors duration-300 ${hasUnsavedChanges ? 'bg-pawon-dark text-white' : 'bg-white text-pawon-dark border border-gray-100'}`}>
