@@ -33,7 +33,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ item, on
   };
 
   return (
-    <div className="fixed inset-0 z-[60] bg-white flex flex-col animate-in slide-in-from-bottom-4 duration-300">
+    <div className="fixed inset-0 z-[60] bg-pawon-bg flex flex-col animate-in slide-in-from-bottom-4 duration-300">
       
       {/* 1. New Navigation Header (Updated: Added padding-top for safe area) */}
       <div className="absolute top-0 left-0 right-0 p-4 pt-[calc(1rem+env(safe-area-inset-top))] z-20 flex justify-between items-start">
@@ -74,7 +74,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ item, on
       </div>
 
       {/* 3. Scrollable Content */}
-      <div className="flex-1 overflow-y-auto bg-white -mt-8 rounded-t-[32px] relative z-10 px-6 pt-8 pb-32 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
+      <div className="flex-1 overflow-y-auto bg-pawon-bg -mt-8 rounded-t-[32px] relative z-10 px-6 pt-8 pb-32 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
         
         {/* Title & Price Header */}
         <div className="flex justify-between items-start mb-4">
@@ -141,7 +141,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ item, on
       </div>
 
       {/* 4. Fixed Bottom Action Bar (Updated: Removed Quantity Stepper) */}
-      <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-100 p-4 pb-[calc(1.5rem+env(safe-area-inset-bottom))] px-6 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] z-30">
+      <div className="absolute bottom-0 left-0 right-0 bg-pawon-bg border-t border-gray-100/50 p-4 pb-[calc(1.5rem+env(safe-area-inset-bottom))] px-6 shadow-[0_-10px_30px_rgba(0,0,0,0.04)] z-30">
         <div className="w-full max-w-[480px] mx-auto">
           
           {/* Add to Cart Button - Full Width */}
