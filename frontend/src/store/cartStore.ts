@@ -32,7 +32,7 @@ export const useCartStore = create<CartState>()(
         items: [],
         totalItems: 0,
         totalPrice: 0,
-
+        addItem: (item, quantity, notes = '', selectedAddons = []) => {
           // Validation
           if (quantity < 1 || item.price < 0) return;
 
