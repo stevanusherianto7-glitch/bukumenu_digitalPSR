@@ -291,12 +291,24 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
         <div className="absolute bottom-0 left-0 w-32 h-32 bg-blue-500/5 rounded-full -ml-16 -mb-16 blur-2xl"></div>
         
         <div className="relative z-10 flex justify-between items-center mb-8">
-          <div>
-             <div className="flex items-center gap-2 mb-1">
-                <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-                <h2 className="text-xl font-serif font-bold tracking-tight">Waiter Terminal</h2>
+          <div className="flex items-center gap-4">
+             {onExit && (
+                <button 
+                    onClick={onExit}
+                    className="w-10 h-10 rounded-2xl bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-colors border border-white/10 shadow-lg backdrop-blur-md"
+                    title="Keluar ke Menu Utama"
+                    aria-label="Keluar"
+                >
+                    <ChevronLeft size={24} />
+                </button>
+             )}
+             <div>
+                <div className="flex items-center gap-2 mb-1">
+                    <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                    <h2 className="text-xl font-serif font-bold tracking-tight">Waiter Terminal</h2>
+                </div>
+                <p className="text-[10px] text-white/50 font-bold uppercase tracking-[0.2em]">Pawon Salam • Terminal 01</p>
              </div>
-             <p className="text-[10px] text-white/50 font-bold uppercase tracking-[0.2em]">Pawon Salam • Terminal 01</p>
           </div>
           <div className="text-right">
              <div className="text-2xl font-mono font-bold text-white leading-none mb-1">
