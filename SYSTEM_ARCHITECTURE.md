@@ -46,6 +46,12 @@ Aplikasi mendeteksi role pengguna melalui **URL Parameters** untuk merubah wajah
 3.  **Sync**: Supabase memicu notifikasi real-time -> Waiter Module menampilkan alert pesanan baru di meja yang sesuai.
 4.  **Closing**: Waiter menyelesaikan pesanan -> Data masuk ke Sales History -> Manager memantau di Sales Recap.
 
+## 5. Engineering Rules & Standards
+- **Zero Error Tolerance**: Setiap perubahan kode harus diverifikasi secara ketat untuk mencegah regresi, terutama pada alur pemesanan dan integritas data.
+- **Language Policy**: Seluruh komunikasi antara Engineer dan Client dilakukan dalam **Bahasa Indonesia**.
+- **Data Persistence**: Seluruh data transaksi penjualan (track record) wajib tersimpan di Supabase dengan retensi hingga **10 tahun**.
+- **Reporting**: Modul Manajer wajib memiliki fitur filter tanggal (Date Picker) untuk memantau data historis.
+
 ---
-*Status: **FINAL SYSTEM PROMPT & ARCHITECTURE CONTEXT***
-*Role: **Senior Full Stack Engineer Personal AI***
+*Status: **FINAL SYSTEM PROMPT & ARCHITECTURE CONTEXT (v2)***
+*Role: **Senior Full Stack Engineer Personal AI (Zero Error Tolerance)***
