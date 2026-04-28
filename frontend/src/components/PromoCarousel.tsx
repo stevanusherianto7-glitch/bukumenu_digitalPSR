@@ -31,28 +31,29 @@ export const PromoCarousel: React.FC<PromoCarouselProps> = ({ onSecretAdminTrigg
     return () => clearInterval(timer);
   }, [CAROUSEL_IMAGES.length]);
 
-  const handleLogoClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
+  const [isTapping, setIsTapping] = useState(false);
+
+  const handleAction = (e: React.MouseEvent | React.TouchEvent) => {
+    // Prevent double triggers on devices that fire both touch and mouse
+    if (e.type === 'touchstart') {
+       // We'll let touch handle it
+    } else if (e.type === 'click' && 'ontouchstart' in window) {
+       // If touch is supported, skip click to avoid double counts
+       return;
+    }
+
     if (!onSecretAdminTrigger) return;
 
-    // Visual feedback: brief scale up
-    const target = e.currentTarget as HTMLElement;
-    target.style.transform = 'scale(1.2)';
-    setTimeout(() => {
-      target.style.transform = '';
-    }, 150);
+    // Visual feedback
+    setIsTapping(true);
+    setTimeout(() => setIsTapping(false), 150);
 
     // Reset timer
     if (timerRef.current) clearTimeout(timerRef.current);
     
     setTapCount(prev => {
       const newCount = prev + 1;
-      console.log(`Tap count: ${newCount}`);
-      
       if (newCount >= 5) {
-        console.log("Secret trigger activated!");
         onSecretAdminTrigger();
         return 0;
       }
@@ -114,8 +115,9 @@ export const PromoCarousel: React.FC<PromoCarouselProps> = ({ onSecretAdminTrigg
 
           <div className="flex flex-col items-end gap-3">
             <button
-              onClick={handleLogoClick}
-              className="flex-shrink-0 drop-shadow-xl active:scale-90 transition-all mt-1 bg-white/5 p-2 rounded-full border border-white/10 backdrop-blur-sm z-50 cursor-pointer"
+              onClick={handleAction}
+              onTouchStart={handleAction}
+              className={`flex-shrink-0 drop-shadow-xl transition-all mt-1 bg-white/10 p-2 rounded-full border border-white/20 backdrop-blur-md z-50 cursor-pointer touch-manipulation ${isTapping ? 'scale-125 bg-white/30' : 'scale-100'}`}
               aria-label="Admin Access Logo"
             >
                <Logo size="sm" variant="light" showText={false} />
