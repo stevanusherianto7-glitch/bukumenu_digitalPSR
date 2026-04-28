@@ -291,27 +291,41 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose, tableNumber }) => {
                </div>
             </div>
             
-            <button
-              onClick={handleConfirmOrder}
-              disabled={isSuccess}
-              className={`w-full py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg transition-all duration-300 active:scale-[0.98]
-                ${isSuccess 
-                    ? 'bg-green-600 text-white shadow-green-600/30 scale-100 cursor-default' 
-                    : 'bg-pawon-accent text-white shadow-pawon-accent/30 hover:bg-orange-700'
-                }`}
-            >
-              {isSuccess ? (
-                  <>
-                    <CheckCircle size={20} className="animate-bounce" />
-                    <span>Terima Kasih atas Pesanan Anda</span>
-                  </>
-              ) : (
-                  <>
-                    <ShoppingBag size={18} />
-                    <span>Kirim Pesanan</span>
-                  </>
-              )}
-            </button>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => {
+                    if (window.confirm('Yakin ingin membatalkan semua pesanan di keranjang?')) {
+                        clearCart();
+                        onClose();
+                    }
+                }}
+                disabled={isSuccess}
+                className="px-5 py-3.5 rounded-xl font-bold text-gray-500 bg-gray-100 hover:bg-gray-200 transition-colors border border-gray-200 active:scale-[0.98]"
+              >
+                Batalkan
+              </button>
+              <button
+                onClick={handleConfirmOrder}
+                disabled={isSuccess}
+                className={`flex-1 py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg transition-all duration-300 active:scale-[0.98]
+                  ${isSuccess 
+                      ? 'bg-green-600 text-white shadow-green-600/30 scale-100 cursor-default' 
+                      : 'bg-pawon-accent text-white shadow-pawon-accent/30 hover:bg-orange-700'
+                  }`}
+              >
+                {isSuccess ? (
+                    <>
+                      <CheckCircle size={20} className="animate-bounce" />
+                      <span>Terima Kasih atas Pesanan Anda</span>
+                    </>
+                ) : (
+                    <>
+                      <ShoppingBag size={18} />
+                      <span>Kirim Pesanan</span>
+                    </>
+                )}
+              </button>
+            </div>
           </div>
         )}
 
