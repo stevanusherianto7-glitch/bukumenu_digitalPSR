@@ -136,6 +136,8 @@ export const TableMapSection: React.FC = () => {
                     <button 
                         onClick={copyToClipboard}
                         className="p-3 bg-gray-100 hover:bg-gray-200 rounded-xl text-gray-500 transition-all active:scale-90"
+                        title="Salin Link"
+                        aria-label="Salin Link"
                     >
                         <LinkIcon size={18} />
                     </button>
