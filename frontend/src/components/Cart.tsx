@@ -291,7 +291,7 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose, tableNumber }) => {
                <div className="flex justify-between items-center pt-2 border-t border-gray-100">
                  <span className="font-bold text-pawon-dark">Total Akhir</span>
                  <span className="font-bold text-xl text-pawon-dark">
-                   Rp {Math.round(totalPrice * (1 - (marketing.isBirthdayPromoEnabled ? marketing.birthdayDiscountPercent/100 : 0) - (marketing.isBuffetPromoEnabled && totalPrice > 500000 ? marketing.buffetDiscountPercent/100 : 0))).toLocaleString('id-ID')}
+                   Rp {useCartStore.getState().getDiscountedTotal(marketing).toLocaleString('id-ID')}
                  </span>
                </div>
             </div>

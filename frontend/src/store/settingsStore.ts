@@ -19,6 +19,7 @@ interface MarketingSettings {
 
 interface SettingsState extends MarketingSettings {
   setMarketingSetting: (key: keyof MarketingSettings, value: any) => void;
+  resetSettings: () => void;
 }
 
 export const useSettingsStore = create<SettingsState>()(
@@ -39,7 +40,31 @@ export const useSettingsStore = create<SettingsState>()(
       buffetDiscountPercent: 10,
       birthdayDiscountPercent: 15,
 
-      setMarketingSetting: (key, value) => set((state) => ({ ...state, [key]: value })),
+      setMarketingSetting: (key, value) => set((state) => {
+        // Validation logic
+        let validatedValue = value;
+        if (key.endsWith('Percent')) {
+          validatedValue = Math.max(0, Math.min(100, Number(value)));
+        }
+        if (key === 'progressBarTarget') {
+          validatedValue = Math.max(1000, Number(value));
+        }
+        return { ...state, [key]: validatedValue };
+      }),
+
+      resetSettings: () => set({
+        isAddonEnabled: false,
+        isCrossSellEnabled: false,
+        isBundleEnabled: false,
+        isProgressBarEnabled: false,
+        isBestMatchEnabled: false,
+        isBirthdayPromoEnabled: false,
+        isBuffetPromoEnabled: false,
+        progressBarTarget: 100000,
+        progressBarReward: 'Gratis Kerupuk Kaleng',
+        buffetDiscountPercent: 10,
+        birthdayDiscountPercent: 15,
+      }),
     }),
     {
       name: 'pawon-salam-settings-storage',

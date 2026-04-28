@@ -10,7 +10,8 @@ interface CartState {
   updateQuantity: (itemId: string, quantity: number) => void;
   clearCart: () => void;
   totalPrice: number;
-  totalItems: number; // Re-add totalItems for badge
+  totalItems: number;
+  getDiscountedTotal: (settings: any) => number;
   orderType: 'dine-in' | 'take-away';
   setOrderType: (type: 'dine-in' | 'take-away') => void;
 }
@@ -32,11 +33,12 @@ export const useCartStore = create<CartState>()(
         totalItems: 0,
         totalPrice: 0,
 
-        addItem: (item, quantity, notes = '', selectedAddons = []) => {
+          // Validation
+          if (quantity < 1 || item.price < 0) return;
+
           const { items } = get();
           
           // Generate a unique key for the item based on ID, Notes, and ADDONS
-          // This allows multiple instances of the same dish with different toppings
           const addonIds = [...selectedAddons].map(a => a.id).sort().join('-');
           const itemKey = `${item.id}-${notes}-${addonIds}`;
 
@@ -55,6 +57,20 @@ export const useCartStore = create<CartState>()(
           
           const { totalItems, totalPrice } = calculateTotals(updatedItems);
           set({ items: updatedItems, totalItems, totalPrice });
+        },
+
+        getDiscountedTotal: (settings) => {
+          const { totalPrice } = get();
+          let discount = 0;
+          
+          if (settings.isBirthdayPromoEnabled) {
+            discount += settings.birthdayDiscountPercent / 100;
+          }
+          if (settings.isBuffetPromoEnabled && totalPrice > 500000) {
+            discount += settings.buffetDiscountPercent / 100;
+          }
+          
+          return Math.round(totalPrice * (1 - Math.min(discount, 1)));
         },
 
         removeItem: (cartId: string) => {
