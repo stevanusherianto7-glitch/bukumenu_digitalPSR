@@ -307,7 +307,7 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
                     <div className="w-2 h-2 bg-violet-400 rounded-full animate-pulse shadow-[0_0_8px_rgba(167,139,250,0.8)]"></div>
                     <h2 className="text-xl font-serif font-bold tracking-tight">Waiter Dashboard</h2>
                 </div>
-                <p className="text-[10px] text-white/50 font-bold uppercase tracking-[0.2em]">Pawon Salam • Dashboard Access</p>
+                <p className="text-[10px] text-white/50 font-bold uppercase tracking-[0.2em]">Pawon Salam • Staff Console</p>
              </div>
           </div>
           <div className="text-right">
