@@ -113,6 +113,8 @@ export const MarketingSection: React.FC = () => {
             <button 
               onClick={() => settings.setMarketingSetting(prog.id as any, !settings[prog.id as keyof typeof settings])}
               className={`w-12 h-6 rounded-full relative transition-colors duration-300 ${settings[prog.id as keyof typeof settings] ? 'bg-green-500' : 'bg-gray-200'}`}
+              title={`Aktifkan ${prog.title}`}
+              aria-label={`Aktifkan ${prog.title}`}
             >
               <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all duration-300 ${settings[prog.id as keyof typeof settings] ? 'left-7' : 'left-1'}`}></div>
             </button>

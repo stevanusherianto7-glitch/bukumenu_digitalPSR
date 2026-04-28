@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { X, Trash2, ShoppingBag, CheckCircle, Zap, Gift, Plus, Box, Cake, UtensilsCrossed } from 'lucide-react';
 import { useCartStore } from '../store/cartStore';
 import { useOrderStore } from '../store/orderStore';
@@ -18,6 +18,14 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose, tableNumber }) => {
   const { addOrder } = useOrderStore();
   const marketing = useSettingsStore();
   const [isSuccess, setIsSuccess] = useState(false);
+  const progressBarRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (progressBarRef.current && marketing.isProgressBarEnabled) {
+      const progress = Math.min((totalPrice / marketing.progressBarTarget) * 100, 100);
+      progressBarRef.current.style.width = `${progress}%`;
+    }
+  }, [totalPrice, marketing.isProgressBarEnabled, marketing.progressBarTarget]);
 
   const handleConfirmOrder = () => {
     if (totalItems === 0) return;
@@ -131,8 +139,8 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose, tableNumber }) => {
               </div>
               <div className="w-full bg-gray-200 h-1.5 rounded-full overflow-hidden">
                 <div 
+                  ref={progressBarRef}
                   className="h-full bg-pawon-accent transition-all duration-1000"
-                  style={{ width: `${Math.min((totalPrice / marketing.progressBarTarget) * 100, 100)}%` }}
                 />
               </div>
               <p className="text-[9px] text-gray-500 mt-2 italic flex items-center gap-1">
@@ -182,12 +190,16 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose, tableNumber }) => {
                           onClick={() => updateQuantity(item.cartId, item.quantity - 1)} 
                           disabled={isSuccess}
                           className="w-6 h-6 rounded-full flex items-center justify-center text-pawon-dark active:bg-gray-200 disabled:opacity-50"
+                          title="Kurangi"
+                          aria-label="Kurangi Jumlah"
                         >-</button>
                         <span className="w-8 text-center text-sm font-bold">{item.quantity}</span>
                         <button 
                           onClick={() => updateQuantity(item.cartId, item.quantity + 1)} 
                           disabled={isSuccess}
                           className="w-6 h-6 rounded-full flex items-center justify-center text-pawon-dark active:bg-gray-200 disabled:opacity-50"
+                          title="Tambah"
+                          aria-label="Tambah Jumlah"
                         >+</button>
                       </div>
                       {/* Remove Button */}
@@ -195,6 +207,8 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose, tableNumber }) => {
                           onClick={() => removeItem(item.cartId)} 
                           disabled={isSuccess}
                           className="text-gray-400 hover:text-red-500 p-1 transition-colors"
+                          title="Hapus"
+                          aria-label="Hapus Item"
                       >
                         <Trash2 size={16} />
                       </button>
