@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { Settings, RotateCcw, Save, X, AlertCircle, Plus, Utensils, Image as ImageIcon, Camera, ChevronDown, Check } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Settings, RotateCcw, Save, X, AlertCircle, Plus, Utensils, Image as ImageIcon, Link, ChevronDown, Check } from 'lucide-react';
 import { MenuItem } from '../types';
 import { AdminMenuCard } from './AdminMenuCard';
 import { CategoryFilter } from './CategoryFilter'; 
@@ -29,9 +29,8 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
   onDeleteItem
 }) => {
   // Header Editor State
-  const [showHeaderEditor, setShowHeaderEditor] = useState(false);
-  const [headerEditorSource, setHeaderEditorSource] = useState<string | null>(null);
-  const headerInputRef = useRef<HTMLInputElement>(null);
+  const [headerUrlInput, setHeaderUrlInput] = useState(headerImage);
+  const [headerUrlError, setHeaderUrlError] = useState(false);
 
   // Add Category State
   const [isAddingCategory, setIsAddingCategory] = useState(false);
@@ -48,6 +47,7 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
   
   useEffect(() => {
     setDraftHeaderImage(null);
+    setHeaderUrlInput(headerImage);
   }, [headerImage]);
 
   // Check for unsaved changes (now includes header image)
@@ -59,28 +59,14 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
 
   const SHORTCUT_CATEGORIES = ['Terlaris', 'Makanan', 'Minuman'];
 
-  // --- HEADER IMAGE HANDLERS ---
-  const handleHeaderFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        if (event.target?.result) {
-          setHeaderEditorSource(event.target.result as string);
-          setShowHeaderEditor(true);
-        }
-      };
-      reader.readAsDataURL(file);
+  const handleHeaderUrlApply = () => {
+    const trimmed = headerUrlInput.trim();
+    if (!trimmed.startsWith('http')) {
+      setHeaderUrlError(true);
+      return;
     }
-    if (headerInputRef.current) {
-      headerInputRef.current.value = '';
-    }
-  };
-
-  const handleHeaderEditorSave = (base64: string) => {
-    setDraftHeaderImage(base64); // Update local draft state
-    setShowHeaderEditor(false);
-    setHeaderEditorSource(null);
+    setHeaderUrlError(false);
+    setDraftHeaderImage(trimmed);
   };
 
   // --- MENU HANDLERS ---
@@ -214,30 +200,37 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
            <h3 className="font-bold text-sm text-pawon-dark uppercase tracking-wider">Foto Header Utama</h3>
         </div>
         
-        <div className="relative w-full h-32 rounded-lg overflow-hidden group">
+        <div className="relative w-full h-32 rounded-lg overflow-hidden mb-3">
            <img 
               src={draftHeaderImage || headerImage} 
               alt="Current Header" 
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+              className="w-full h-full object-cover"
            />
-           <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors flex items-center justify-center">
-              <input 
-                type="file" 
-                ref={headerInputRef}
-                onChange={handleHeaderFileChange}
-                accept="image/*"
-                className="hidden" 
-              />
-              <button 
-                 onClick={() => headerInputRef.current?.click()}
-                 className="bg-white text-pawon-dark px-4 py-2 rounded-full font-bold text-xs flex items-center gap-2 hover:bg-pawon-accent hover:text-white transition-colors shadow-lg"
-              >
-                 <Camera size={14} /> Ganti Foto Header
-              </button>
-           </div>
         </div>
+
+        {/* URL Input untuk Header */}
+        <div className="flex gap-2">
+          <input
+            type="url"
+            value={headerUrlInput}
+            onChange={(e) => { setHeaderUrlInput(e.target.value); setHeaderUrlError(false); }}
+            onBlur={handleHeaderUrlApply}
+            onKeyDown={(e) => e.key === 'Enter' && handleHeaderUrlApply()}
+            className={`flex-1 text-[10px] text-pawon-dark border rounded-lg p-2 focus:outline-none focus:ring-1 focus:ring-pawon-accent ${
+              headerUrlError ? 'border-red-400 bg-red-50' : 'border-gray-200 focus:border-pawon-accent'
+            }`}
+            placeholder="https://...supabase.co/storage/v1/object/public/menu-images/..."
+          />
+          <button
+            onClick={handleHeaderUrlApply}
+            className="px-3 py-2 bg-pawon-accent text-white rounded-lg text-[10px] font-bold flex items-center gap-1 hover:bg-orange-700 transition-colors shrink-0"
+          >
+            <Link size={10}/> Terapkan
+          </button>
+        </div>
+        {headerUrlError && <p className="text-[9px] text-red-500 mt-1">URL tidak valid. Harus dimulai dengan https://</p>}
         <p className="text-[10px] text-gray-400 mt-2 text-center">
-          Disarankan menggunakan foto landscape (lebar) resolusi tinggi.
+          Upload foto ke Supabase Storage → salin URL Public → paste di atas
         </p>
       </div>
 

@@ -1,9 +1,7 @@
 
-import React, { useState, useRef } from 'react';
-import { Edit2, DollarSign, Check, Type, AlignLeft, Tag, Heart, Package, Crop, Sparkles, Trash2 } from 'lucide-react';
+import React, { useState } from 'react';
+import { Edit2, DollarSign, Check, Type, AlignLeft, Tag, Heart, Package, Image as ImageIcon, Sparkles, Trash2, Link } from 'lucide-react';
 import { MenuItem } from '../types';
-import ImageUploader from './ImageUploader';
-import { ImageEditor } from './ImageEditor'; // Import ImageEditor
 
 interface AdminMenuCardProps {
   item: MenuItem;
@@ -14,7 +12,8 @@ interface AdminMenuCardProps {
 
 export const AdminMenuCard: React.FC<AdminMenuCardProps> = ({ item, onUpdate, onDelete, availableCategories }) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [editorSource, setEditorSource] = useState<string | null>(null);
+  const [urlInput, setUrlInput] = useState(item.imageUrl);
+  const [urlError, setUrlError] = useState(false);
 
   const assignableCategories = availableCategories.filter(c => c !== 'Semua' && c !== 'Terlaris');
 
@@ -22,40 +21,19 @@ export const AdminMenuCard: React.FC<AdminMenuCardProps> = ({ item, onUpdate, on
     onUpdate(item.id, { [field]: value });
   };
 
-  const handleImageSelected = (file: File) => {
-    const newImageUrl = URL.createObjectURL(file);
-    if (item.imageUrl.startsWith('blob:')) {
-      URL.revokeObjectURL(item.imageUrl);
+  const handleUrlApply = () => {
+    const trimmed = urlInput.trim();
+    if (!trimmed) return;
+    // Validasi sederhana: harus dimulai dengan http
+    if (!trimmed.startsWith('http')) {
+      setUrlError(true);
+      return;
     }
-    // When uploading a new file, the file object is the source of truth
-    onUpdate(item.id, { imageUrl: newImageUrl, imageFile: file });
-  };
-  
-  const handleEditorSave = (base64: string) => {
-    // The base64 string IS the new image source for the draft.
-    // We also clear imageFile, because the base64 string is now the source of truth for this draft.
-    onUpdate(item.id, { imageUrl: base64, imageFile: undefined });
-    setEditorSource(null); // Close editor
-  };
-
-  const openImageEditor = () => {
-    // We need to convert the current image URL (which can be http or blob) to base64
-    const img = new Image();
-    img.crossOrigin = "Anonymous";
-    img.onload = () => {
-      const canvas = document.createElement('canvas');
-      canvas.width = img.width;
-      canvas.height = img.height;
-      const ctx = canvas.getContext('2d');
-      ctx?.drawImage(img, 0, 0);
-      const dataURL = canvas.toDataURL('image/jpeg');
-      setEditorSource(dataURL);
-    };
-    img.src = item.imageUrl;
+    setUrlError(false);
+    onUpdate(item.id, { imageUrl: trimmed, imageFile: undefined });
   };
 
   const handleDelete = () => {
-    // Konfirmasi sekarang ditangani oleh parent handler di App.tsx
     onDelete(item.id);
   };
 
@@ -63,24 +41,17 @@ export const AdminMenuCard: React.FC<AdminMenuCardProps> = ({ item, onUpdate, on
 
   return (
     <>
-      {editorSource && (
-        <ImageEditor
-          imageSrc={editorSource}
-          onSave={handleEditorSave}
-          onCancel={() => setEditorSource(null)}
-        />
-      )}
-
       <div className={`bg-white rounded-[20px] p-3 shadow-sm transition-all duration-300 flex flex-col h-full border ${isEditing ? 'border-pawon-accent ring-1 ring-pawon-accent relative z-10' : 'border-transparent'}`}>
         
+        {/* Foto Preview */}
         <div className={`relative aspect-square rounded-[16px] overflow-hidden mb-3 bg-gray-100 group transition-all`}>
           <img 
             src={item.imageUrl} 
             alt={item.name}
             onError={(e) => {
-              (e.target as HTMLImageElement).src = 'https://via.placeholder.com/400?text=No+Image';
+              (e.target as HTMLImageElement).src = 'https://placehold.co/400x400/f3f4f6/9ca3af?text=No+Image';
             }}
-            className={`w-full h-full object-cover transition-opacity ${isEditing ? 'opacity-90' : ''} ${!isAvailable && !isEditing ? 'grayscale' : ''}`}
+            className={`w-full h-full object-cover transition-opacity ${isEditing ? 'opacity-70' : ''} ${!isAvailable && !isEditing ? 'grayscale' : ''}`}
           />
           
           {!isEditing && (
@@ -98,7 +69,6 @@ export const AdminMenuCard: React.FC<AdminMenuCardProps> = ({ item, onUpdate, on
             </div>
           )}
 
-
           {!isEditing && !isAvailable && (
             <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
               <span className="bg-white text-pawon-dark text-[10px] font-bold px-2 py-1 rounded-full shadow-md">HABIS</span>
@@ -107,23 +77,11 @@ export const AdminMenuCard: React.FC<AdminMenuCardProps> = ({ item, onUpdate, on
 
           {!isEditing && (
             <button 
-              onClick={() => setIsEditing(true)}
+              onClick={() => { setIsEditing(true); setUrlInput(item.imageUrl); setUrlError(false); }}
               className="absolute top-2 right-2 bg-white/90 text-pawon-dark p-2 rounded-full shadow-lg backdrop-blur-sm hover:text-pawon-accent transition-colors z-10"
             >
               <Edit2 size={16} />
             </button>
-          )}
-
-          {isEditing && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-black/40 backdrop-blur-[1px]">
-              <ImageUploader 
-                itemId={item.id}
-                onImageSelected={handleImageSelected}
-              />
-              <button onClick={openImageEditor} className="bg-white/90 text-pawon-dark p-2 rounded-full shadow-lg hover:bg-white flex items-center justify-center transition-colors text-xs font-bold gap-1 px-3">
-                 <Crop size={12}/> Edit Foto
-              </button>
-            </div>
           )}
         </div>
 
@@ -149,6 +107,35 @@ export const AdminMenuCard: React.FC<AdminMenuCardProps> = ({ item, onUpdate, on
             </>
           ) : (
             <div className="space-y-3 animate-in fade-in duration-200 pb-2">
+
+               {/* INPUT URL FOTO */}
+               <div>
+                  <label className="flex items-center gap-1 text-[10px] font-bold text-pawon-textGray uppercase mb-1">
+                    <ImageIcon size={12} /> URL Foto
+                  </label>
+                  <div className="flex gap-1">
+                    <input
+                      type="url"
+                      value={urlInput}
+                      onChange={(e) => { setUrlInput(e.target.value); setUrlError(false); }}
+                      onBlur={handleUrlApply}
+                      onKeyDown={(e) => e.key === 'Enter' && handleUrlApply()}
+                      className={`flex-1 text-[10px] text-pawon-dark border rounded-md p-2 focus:outline-none focus:ring-1 focus:ring-pawon-accent ${
+                        urlError ? 'border-red-400 bg-red-50' : 'border-gray-300 focus:border-pawon-accent'
+                      }`}
+                      placeholder="https://supabase.co/storage/v1/..."
+                    />
+                    <button
+                      onClick={handleUrlApply}
+                      className="px-2 py-1 bg-pawon-accent text-white rounded-md text-[10px] font-bold flex items-center gap-1 hover:bg-orange-700 transition-colors shrink-0"
+                    >
+                      <Link size={10}/> Terapkan
+                    </button>
+                  </div>
+                  {urlError && <p className="text-[9px] text-red-500 mt-1">URL tidak valid. Harus dimulai dengan https://</p>}
+                  <p className="text-[9px] text-gray-400 mt-1">Upload foto ke Supabase Storage → salin URL Public → paste di sini</p>
+               </div>
+
                <div>
                   <label className="flex items-center gap-1 text-[10px] font-bold text-pawon-textGray uppercase mb-1">
                     <Type size={12} /> Nama Menu
