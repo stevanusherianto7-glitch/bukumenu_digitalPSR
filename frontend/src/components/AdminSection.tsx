@@ -218,23 +218,25 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
         </div>
 
         {/* URL Input untuk Header */}
-        <div className="flex gap-2">
+        <div className="flex flex-col gap-2">
           <input
             type="url"
             value={headerUrlInput}
             onChange={(e) => { setHeaderUrlInput(e.target.value); setHeaderUrlError(false); }}
             onBlur={handleHeaderUrlApply}
             onKeyDown={(e) => e.key === 'Enter' && handleHeaderUrlApply()}
-            className={`flex-1 text-[10px] text-pawon-dark border rounded-lg p-2 focus:outline-none focus:ring-1 focus:ring-pawon-accent ${
+            className={`w-full text-[10px] text-pawon-dark border rounded-lg p-2 focus:outline-none focus:ring-1 focus:ring-pawon-accent ${
               headerUrlError ? 'border-red-400 bg-red-50' : 'border-gray-200 focus:border-pawon-accent'
             }`}
             placeholder="https://...supabase.co/storage/v1/object/public/menu-images/..."
+            title="URL Foto Header Utama"
           />
           <button
             onClick={handleHeaderUrlApply}
-            className="px-3 py-2 bg-pawon-accent text-white rounded-lg text-[10px] font-bold flex items-center gap-1 hover:bg-orange-700 transition-colors shrink-0"
+            className="w-full py-2 bg-pawon-accent text-white rounded-lg text-[10px] font-bold flex items-center justify-center gap-1 hover:bg-orange-700 transition-colors"
+            title="Terapkan URL Header"
           >
-            <Link size={10}/> Terapkan
+            <Link size={10}/> Terapkan URL Baru
           </button>
         </div>
         {headerUrlError && <p className="text-[9px] text-red-500 mt-1">URL tidak valid. Harus dimulai dengan https://</p>}
