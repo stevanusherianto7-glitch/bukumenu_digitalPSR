@@ -1,18 +1,22 @@
 
 import React, { useEffect, useState } from 'react';
-import { ChevronLeft, Share2, Clock, Flame, Star, Heart } from 'lucide-react';
-import { MenuItem } from '../types';
+import { ChevronLeft, Share2, Clock, Flame, Star, Heart, Check, Sparkles } from 'lucide-react';
+import { MenuItem, Addon } from '../types';
+import { useSettingsStore } from '../store/settingsStore';
 
 interface ProductDetailModalProps {
   item: MenuItem;
   onClose: () => void;
-  onAddToCart?: (item: MenuItem, qty: number, notes: string) => void;
+  onAddToCart?: (item: MenuItem, qty: number, notes: string, addons?: Addon[]) => void;
 }
 
 export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ item, onClose, onAddToCart }) => {
   // Quantity state removed from UI, defaults to 1 for logic
+  // Quantity state removed from UI, defaults to 1 for logic
   const [notes, setNotes] = useState('');
+  const [selectedAddons, setSelectedAddons] = useState<Addon[]>([]);
   const isAvailable = item.isAvailable !== false; // Treat undefined as true
+  const { isAddonEnabled, isBestMatchEnabled } = useSettingsStore();
 
   // Prevent body scroll when modal is open
   useEffect(() => {
@@ -25,11 +29,19 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ item, on
   const handleAddToCartClick = () => {
     if (onAddToCart && isAvailable) {
         // Always add 1 item, quantity can be adjusted in Cart
-        onAddToCart(item, 1, notes);
+        onAddToCart(item, 1, notes, selectedAddons);
     } else if (isAvailable) {
         alert('Fitur pemesanan belum tersedia.');
         onClose();
     }
+  };
+
+  const toggleAddon = (addon: Addon) => {
+    setSelectedAddons(prev => 
+      prev.find(a => a.id === addon.id)
+        ? prev.filter(a => a.id !== addon.id)
+        : [...prev, addon]
+    );
   };
 
   return (
@@ -133,7 +145,42 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ item, on
             <p className="text-pawon-textGray leading-relaxed text-sm">
               {item.description}
             </p>
+            {isBestMatchEnabled && (
+              <div className="mt-3 flex items-center gap-2 p-2 px-3 bg-pawon-accent/5 rounded-xl border border-pawon-accent/10">
+                <Sparkles size={14} className="text-pawon-accent animate-pulse" />
+                <span className="text-[11px] font-bold text-pawon-accent/80 leading-none">Best Match: Pas dinikmati dengan Kerupuk Udang</span>
+              </div>
+            )}
           </section>
+
+          {isAddonEnabled && item.addons && item.addons.length > 0 && (
+            <section className="animate-in fade-in slide-in-from-top-2 duration-500">
+               <div className="flex items-center justify-between mb-3">
+                 <h3 className="font-bold text-sm text-pawon-dark uppercase tracking-wider">Ekstra Topping</h3>
+                 <span className="text-[10px] font-bold text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">Pilihan</span>
+               </div>
+               <div className="grid grid-cols-1 gap-2">
+                 {item.addons.map((addon) => {
+                   const isSelected = selectedAddons.find(a => a.id === addon.id);
+                   return (
+                     <button
+                       key={addon.id}
+                       onClick={() => toggleAddon(addon)}
+                       className={`flex items-center justify-between p-3 rounded-2xl border transition-all duration-300 ${isSelected ? 'border-pawon-accent bg-pawon-accent/5 shadow-sm' : 'border-gray-100 bg-white hover:border-gray-200'}`}
+                     >
+                       <div className="flex items-center gap-3">
+                         <div className={`w-5 h-5 rounded-md flex items-center justify-center transition-colors ${isSelected ? 'bg-pawon-accent text-white' : 'bg-gray-100 text-transparent'}`}>
+                           <Check size={14} strokeWidth={4} />
+                         </div>
+                         <span className={`text-sm font-bold ${isSelected ? 'text-pawon-accent' : 'text-pawon-dark'}`}>{addon.name}</span>
+                       </div>
+                       <span className={`text-xs font-bold ${isSelected ? 'text-pawon-accent' : 'text-gray-400'}`}>+Rp {addon.price.toLocaleString('id-ID')}</span>
+                     </button>
+                   );
+                 })}
+               </div>
+            </section>
+          )}
 
           <section>
             <h3 className="font-bold text-sm text-pawon-dark uppercase tracking-wider mb-3">Catatan Khusus (Opsional)</h3>

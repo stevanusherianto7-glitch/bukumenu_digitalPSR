@@ -1,4 +1,10 @@
 
+export interface Addon {
+  id: string;
+  name: string;
+  price: number;
+}
+
 export interface MenuItem {
   id: string;
   name: string;
@@ -6,20 +12,22 @@ export interface MenuItem {
   price: number;
   imageUrl: string;
   isFavorite?: boolean;
-  isAvailable?: boolean; // New: true for available, false for out of stock
-  isNew?: boolean; // New: To mark new menu items
-  // FIX: Improved type safety by using the Category union type instead of a generic string.
+  isAvailable?: boolean; 
+  isNew?: boolean; 
   category: Category;
-  rating?: number; // New: 4.5, 4.8 etc
-  prepTime?: number; // New: in minutes
-  calories?: number; // New: in kcal
+  rating?: number; 
+  prepTime?: number; 
+  calories?: number; 
   updatedAt?: Date;
-  imageFile?: File; // For handling new image uploads
+  imageFile?: File; 
+  addons?: Addon[]; // New: List of possible addons for this item
 }
 
 export interface CartItem extends MenuItem {
+  cartId: string; // Unique ID for this specific configuration
   quantity: number;
   notes?: string;
+  selectedAddons?: Addon[]; // New: Addons chosen by the user
 }
 
 // Tipe kategori disederhanakan agar sesuai dengan data menu baru dari pengguna.

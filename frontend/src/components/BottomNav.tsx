@@ -1,11 +1,11 @@
 
 import React from 'react';
-import { MapPin, Settings, LogOut, Bell, BarChart3 } from 'lucide-react';
+import { MapPin, Settings, LogOut, Bell, BarChart3, Sparkles } from 'lucide-react';
 import { useOrderStore } from '../store/orderStore';
 
 interface BottomNavProps {
-  activeTab: 'meja' | 'peta' | 'laporan' | 'admin';
-  onTabChange: (tab: 'meja' | 'peta' | 'laporan' | 'admin') => void;
+  activeTab: 'meja' | 'peta' | 'laporan' | 'marketing' | 'admin';
+  onTabChange: (tab: 'meja' | 'peta' | 'laporan' | 'marketing' | 'admin') => void;
   onExitAdmin: () => void;
 }
 
@@ -17,6 +17,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onTabChange, on
     { id: 'meja', label: 'Monitor', icon: Bell, badge: hasPendingOrders },
     { id: 'peta', label: 'QR Meja', icon: MapPin },
     { id: 'laporan', label: 'Report', icon: BarChart3 },
+    { id: 'marketing', label: 'Promo', icon: Sparkles },
     { id: 'admin', label: 'Catalog', icon: Settings },
   ] as const;
 

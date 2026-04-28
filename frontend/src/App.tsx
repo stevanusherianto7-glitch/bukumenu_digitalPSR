@@ -14,7 +14,8 @@ import { Loader2 } from 'lucide-react';
 import { MENU_ITEMS, CATEGORIES } from './data';
 import { WaiterTableSection } from './components/WaiterTableSection';
 import { TableMapSection } from './components/TableMapSection';
-import { SalesRecapSection } from './components/SalesRecapSection'; // Import Sales Recap
+import { SalesRecapSection } from './components/SalesRecapSection'; 
+import { MarketingSection } from './components/MarketingSection'; // New Import
 import { SEED_VERSION } from './seed-version';
 import { InstallPWA } from './components/InstallPWA'; 
 import { WelcomeModal } from './components/WelcomeModal'; 
@@ -52,7 +53,7 @@ const App: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('Terlaris');
   
   // Update Type Tab Active
-  const [activeTab, setActiveTab] = useState<'meja' | 'peta' | 'laporan' | 'admin'>('meja');
+  const [activeTab, setActiveTab] = useState<'meja' | 'peta' | 'laporan' | 'marketing' | 'admin'>('meja');
 
   const SHORTCUT_CATEGORIES = ['Terlaris', 'Makanan', 'Minuman'];
 
@@ -378,6 +379,12 @@ const App: React.FC = () => {
                   {/* NEW TAB: Laporan */}
                   <div className={activeTab === 'laporan' ? 'block' : 'hidden'}>
                      <SalesRecapSection />
+                  </div>
+                  {/* NEW TAB: Marketing */}
+                  <div className={activeTab === 'marketing' ? 'block' : 'hidden'}>
+                     <div className="px-6">
+                        <MarketingSection />
+                     </div>
                   </div>
                   <div className={activeTab === 'admin' ? 'block' : 'hidden'}>
                      <div className="px-6">

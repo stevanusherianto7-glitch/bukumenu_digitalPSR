@@ -92,7 +92,13 @@ export const MENU_ITEMS: MenuItem[] = [
     category: 'Makanan',
     rating: 4.8,
     prepTime: 15,
-    calories: 600
+    calories: 600,
+    addons: [
+      { id: 'ad1', name: 'Telur Ceplok', price: 5000 },
+      { id: 'ad2', name: 'Telur Dadar', price: 5000 },
+      { id: 'ad3', name: 'Pete', price: 7000 },
+      { id: 'ad4', name: 'Extra Kerupuk', price: 3000 }
+    ]
   },
   {
     id: '10',
@@ -131,7 +137,12 @@ export const MENU_ITEMS: MenuItem[] = [
     category: 'Makanan',
     rating: 4.8,
     prepTime: 15,
-    calories: 560
+    calories: 560,
+    addons: [
+      { id: 'ad5', name: 'Extra Ati Ampela', price: 10000 },
+      { id: 'ad6', name: 'Extra Sosis', price: 7000 },
+      { id: 'ad7', name: 'Extra Bakso', price: 7000 }
+    ]
   },
   {
     id: '13',
