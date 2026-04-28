@@ -41,7 +41,7 @@ export const AdminMenuCard: React.FC<AdminMenuCardProps> = ({ item, onUpdate, on
 
   return (
     <>
-      <div className={`bg-white rounded-[20px] p-3 shadow-sm transition-all duration-300 flex flex-col h-full border ${isEditing ? 'border-pawon-accent ring-1 ring-pawon-accent relative z-10' : 'border-transparent'}`}>
+      <div className={`bg-white rounded-[28px] p-4 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_50px_rgba(0,0,0,0.1)] transition-all duration-500 flex flex-col h-full border hover:-translate-y-2 group/card ${isEditing ? 'border-pawon-accent ring-1 ring-pawon-accent relative z-10' : 'border-gray-50/50'}`}>
         
         {/* Foto Preview */}
         <div className={`relative aspect-square rounded-[16px] overflow-hidden mb-3 bg-gray-100 group transition-all`}>
@@ -102,7 +102,7 @@ export const AdminMenuCard: React.FC<AdminMenuCardProps> = ({ item, onUpdate, on
                 {item.description || 'Tidak ada deskripsi.'}
               </p>
               <div className="mt-auto pt-3 border-t border-gray-50 flex items-center justify-between">
-                 <div className="flex flex-col">
+                 <div className="flex flex-col items-start text-left">
                     <span className="text-[8px] text-gray-400 font-bold uppercase tracking-[0.2em] mb-0.5">Price</span>
                     <span className="font-bold text-gray-900 text-lg">
                       Rp {item.price.toLocaleString('id-ID')}

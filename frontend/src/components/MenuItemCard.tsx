@@ -88,9 +88,9 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onClick }) => 
       </div>
 
       {/* Footer: Orange Block at the very bottom of the card */}
-      <div className="mt-auto bg-pawon-accent py-2.5 px-4 flex justify-center items-center">
+      <div className="mt-auto bg-pawon-accent py-2.5 px-4 flex justify-start items-center">
          <span className="font-bold text-white text-[15px] whitespace-nowrap leading-none flex items-center drop-shadow-sm">
-            <span className="text-[10px] opacity-90 mr-2 font-medium italic">Rp</span>
+            <span className="text-[10px] opacity-90 mr-1.5 font-bold">Rp</span>
             {item.price.toLocaleString('id-ID')}
          </span>
       </div>
