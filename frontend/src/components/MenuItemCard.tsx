@@ -23,8 +23,7 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onClick }) => 
         {item.isNew && (
           <div className="absolute top-0 left-1/2 -translate-x-1/2 z-20 filter drop-shadow-md">
             <div
-              className="w-8 bg-[#D32F2F] flex flex-col items-center pt-2 pb-3 shadow-inner"
-              style={{ clipPath: 'polygon(0 0, 100% 0, 100% 100%, 50% 80%, 0 100%)' }}
+              className="w-8 bg-[#D32F2F] flex flex-col items-center pt-2 pb-3 shadow-inner ribbon-clip"
             >
               <div className="w-full h-[1px] bg-amber-200/50 absolute top-0 left-0"></div>
               <span className="text-[6px] text-amber-100 uppercase tracking-widest font-medium mb-0.5">

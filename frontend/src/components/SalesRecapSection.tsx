@@ -238,12 +238,12 @@ export const SalesRecapSection: React.FC = () => {
                                  </div>
                              </div>
                              
-                             <div className="w-full bg-gray-50 rounded-full h-1.5 overflow-hidden">
-                                 <div 
-                                    className={`h-full rounded-full transition-all duration-1000 ease-out shadow-sm ${index === 0 ? 'bg-pawon-accent' : 'bg-gray-300'}`}
-                                    style={{ width: `${percentage}%` }}
-                                 />
-                             </div>
+                              <div className="w-full bg-gray-50 rounded-full h-1.5 overflow-hidden">
+                                  <div 
+                                     className={`h-full rounded-full transition-all duration-1000 ease-out shadow-sm progress-bar-fill ${index === 0 ? 'bg-pawon-accent' : 'bg-gray-300'}`}
+                                     style={{ '--progress-width': `${percentage}%` } as React.CSSProperties}
+                                  />
+                              </div>
                          </div>
                      );
                  })}

@@ -1,0 +1,19 @@
+
+/* Global Utilities */
+.ribbon-clip {
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 80%, 0 100%);
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Custom progress bar width utility */
+.progress-bar-fill {
+  width: var(--progress-width, 0%);
+}
