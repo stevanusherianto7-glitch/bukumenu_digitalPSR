@@ -94,16 +94,19 @@ const AdminApp: React.FC = () => {
       }));
       const itemsToSaveInDB = draftItems.map(item => {
         const { imageFile, ...restOfItem } = item;
-        const originalItem = MENU_ITEMS.find(i => i.id === restOfItem.id);
-        if (originalItem) {
-          restOfItem.imageUrl = originalItem.imageUrl;
-        } else {
-          if (restOfItem.imageUrl.startsWith('blob:') || restOfItem.imageUrl.startsWith('data:')) {
-             restOfItem.imageUrl = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80';
-          }
-        }
+        
+        // Jika imageUrl adalah URL publik (bukan data: atau blob:), biarkan apa adanya.
+        // Tapi kita perlu memastikan bahwa jika ada aset lokal lama, itu dihapus agar tidak menimpa URL ini saat load.
         return { ...restOfItem, updatedAt: new Date() };
       });
+
+      // Cleanup local assets if item now uses a public URL
+      await Promise.all(draftItems.map(async (item) => {
+          if (item.imageUrl.startsWith('http') && !item.imageUrl.startsWith('blob:')) {
+              await deleteAsset('menu_image_' + item.id);
+          }
+      }));
+
       await saveMenuItems(itemsToSaveInDB);
       await loadDataFromDB();
       alert('Sukses! Semua perubahan telah disimpan.');

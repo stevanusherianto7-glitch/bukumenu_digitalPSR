@@ -13,63 +13,61 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onTabChange, on
   const { orders } = useOrderStore();
   const hasPendingOrders = orders.some(o => o.status === 'pending');
 
+  const tabs = [
+    { id: 'meja', label: 'Monitor', icon: Bell, badge: hasPendingOrders },
+    { id: 'peta', label: 'QR Meja', icon: MapPin },
+    { id: 'laporan', label: 'Report', icon: BarChart3 },
+    { id: 'admin', label: 'Catalog', icon: Settings },
+  ] as const;
+
   return (
-    // Updated padding-bottom to handle safe area (iPhone home indicator)
-    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] px-2 flex justify-around items-center z-50 max-w-[480px] mx-auto shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
-      
-      {/* Tab Meja (Monitor Pesanan) */}
-      <button 
-        type="button"
-        onClick={() => onTabChange('meja')}
-        className={`relative flex-1 flex flex-col items-center gap-1 transition-colors duration-300 ${activeTab === 'meja' ? 'text-pawon-accent' : 'text-gray-400'}`}
-      >
-        {hasPendingOrders && (
-          <span className="absolute top-0 right-1/2 translate-x-[14px] w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white animate-pulse"></span>
-        )}
-        <Bell size={22} strokeWidth={activeTab === 'meja' ? 2.5 : 2} />
-        <span className="text-[9px] font-bold tracking-wide uppercase">Pesanan</span>
-      </button>
-      
-      {/* Tab Peta Meja & QR */}
-      <button 
-        type="button"
-        onClick={() => onTabChange('peta')}
-        className={`relative flex-1 flex flex-col items-center gap-1 transition-colors duration-300 ${activeTab === 'peta' ? 'text-pawon-accent' : 'text-gray-400'}`}
-      >
-        <MapPin size={22} strokeWidth={activeTab === 'peta' ? 2.5 : 2} />
-        <span className="text-[9px] font-bold tracking-wide uppercase">QR Meja</span>
-      </button>
+    <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] z-[100] px-4 pb-4">
+      <div className="bg-gray-900/90 backdrop-blur-xl border border-white/10 rounded-[28px] h-20 shadow-2xl shadow-black/40 flex items-center justify-around px-2 relative overflow-hidden">
+        {/* Active Indicator Background */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+            <div className="absolute top-0 left-0 w-24 h-24 bg-pawon-accent/10 rounded-full blur-2xl -ml-12 -mt-12"></div>
+        </div>
 
-       {/* Tab Laporan (NEW) */}
-       <button 
-        type="button"
-        onClick={() => onTabChange('laporan')}
-        className={`relative flex-1 flex flex-col items-center gap-1 transition-colors duration-300 ${activeTab === 'laporan' ? 'text-pawon-accent' : 'text-gray-400'}`}
-      >
-        <BarChart3 size={22} strokeWidth={activeTab === 'laporan' ? 2.5 : 2} />
-        <span className="text-[9px] font-bold tracking-wide uppercase">Laporan</span>
-      </button>
+        {tabs.map((tab) => {
+          const Icon = tab.icon;
+          const isActive = activeTab === tab.id;
+          
+          return (
+            <button 
+              key={tab.id}
+              onClick={() => onTabChange(tab.id)}
+              className={`relative flex-1 flex flex-col items-center justify-center gap-1 transition-all duration-300 ${isActive ? 'scale-110' : 'opacity-40 grayscale hover:opacity-100 hover:grayscale-0'}`}
+            >
+              {tab.badge && (
+                <span className="absolute top-0.5 right-1/2 translate-x-[12px] w-2 h-2 bg-red-500 rounded-full shadow-[0_0_8px_rgba(239,68,68,0.8)] animate-pulse z-10"></span>
+              )}
+              <div className={`p-2 rounded-xl transition-colors ${isActive ? 'text-pawon-accent bg-white/5 shadow-inner' : 'text-white'}`}>
+                <Icon size={20} strokeWidth={isActive ? 2.5 : 2} />
+              </div>
+              <span className={`text-[8px] font-black uppercase tracking-[0.15em] transition-colors ${isActive ? 'text-pawon-accent' : 'text-white'}`}>
+                {tab.label}
+              </span>
+              
+              {isActive && (
+                <div className="absolute -bottom-2 w-1.5 h-1.5 bg-pawon-accent rounded-full shadow-[0_0_12px_rgba(255,107,0,0.8)]"></div>
+              )}
+            </button>
+          );
+        })}
 
-      {/* Tab Kelola (Admin) */}
-      <button 
-        type="button"
-        onClick={() => onTabChange('admin')}
-        className={`flex-1 flex flex-col items-center gap-1 transition-colors duration-300 ${activeTab === 'admin' ? 'text-pawon-accent' : 'text-gray-400'}`}
-      >
-        <Settings size={22} strokeWidth={activeTab === 'admin' ? 2.5 : 2} />
-        <span className="text-[9px] font-bold tracking-wide uppercase">Menu</span>
-      </button>
-
-      {/* Tombol Keluar (Exit Admin) */}
-      <button 
-        type="button"
-        onClick={onExitAdmin}
-        className="flex-1 flex flex-col items-center gap-1 text-gray-400 hover:text-red-600 transition-colors duration-300 group"
-      >
-        <LogOut size={22} strokeWidth={2} className="group-hover:stroke-red-600" />
-        <span className="text-[9px] font-bold tracking-wide uppercase group-hover:text-red-600">Keluar</span>
-      </button>
-
+        {/* Exit Button - Styled differently */}
+        <div className="w-[1px] h-8 bg-white/10 mx-1"></div>
+        
+        <button 
+          onClick={onExitAdmin}
+          className="flex-1 flex flex-col items-center justify-center gap-1 opacity-40 hover:opacity-100 hover:text-red-400 transition-all group"
+        >
+          <div className="p-2 rounded-xl group-hover:bg-red-500/10 transition-colors">
+            <LogOut size={20} strokeWidth={2} />
+          </div>
+          <span className="text-[8px] font-black uppercase tracking-[0.15em]">Exit</span>
+        </button>
+      </div>
     </div>
   );
 };

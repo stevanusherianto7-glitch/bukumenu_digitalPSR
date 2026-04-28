@@ -90,21 +90,25 @@ export const AdminMenuCard: React.FC<AdminMenuCardProps> = ({ item, onUpdate, on
         <div className="flex flex-col flex-grow">
           {!isEditing ? (
             <>
-              <h3 className="font-serif text-pawon-dark font-bold text-base leading-tight mb-1 line-clamp-1">
-                {item.name}
-              </h3>
-              <p className="text-[10px] text-pawon-textGray line-clamp-2 mb-2 leading-relaxed">
-                {item.description}
+              <div className="flex justify-between items-start mb-2">
+                <h3 className="font-serif text-gray-900 font-bold text-lg leading-tight line-clamp-1">
+                  {item.name}
+                </h3>
+                <span className="text-[9px] font-bold text-pawon-accent bg-orange-50 px-2 py-0.5 rounded-lg border border-orange-100 uppercase tracking-wider">
+                  {item.category}
+                </span>
+              </div>
+              <p className="text-[10px] text-gray-500 line-clamp-2 mb-4 leading-relaxed flex-grow">
+                {item.description || 'Tidak ada deskripsi.'}
               </p>
-              <div className="mt-auto pt-2 border-t border-gray-100 flex items-center justify-between">
+              <div className="mt-auto pt-3 border-t border-gray-50 flex items-center justify-between">
                  <div className="flex flex-col">
-                    <span className="text-[9px] text-pawon-textGray font-medium uppercase tracking-wider">
-                      {item.category}
-                    </span>
-                    <span className="font-bold text-pawon-accent text-lg">
+                    <span className="text-[8px] text-gray-400 font-bold uppercase tracking-[0.2em] mb-0.5">Price</span>
+                    <span className="font-bold text-gray-900 text-lg">
                       Rp {item.price.toLocaleString('id-ID')}
                     </span>
                  </div>
+                 <div className={`w-2.5 h-2.5 rounded-full ${isAvailable ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]'}`}></div>
               </div>
             </>
           ) : (

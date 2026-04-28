@@ -173,25 +173,41 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
         </div>
       </div>
 
-      <div className="flex items-center justify-between mb-4 bg-orange-50 p-4 rounded-xl border border-orange-100">
-        <div className="flex items-center gap-3 text-pawon-dark">
-          <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-pawon-accent shadow-sm">
-            <Settings size={20} />
+      <div className="flex items-center justify-between mb-6 bg-gradient-to-br from-gray-900 to-gray-800 p-6 rounded-[24px] shadow-xl border border-white/10 relative overflow-hidden group">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-pawon-accent/10 rounded-full -mr-16 -mt-16 blur-2xl group-hover:bg-pawon-accent/20 transition-all duration-700"></div>
+        <div className="relative z-10 flex items-center gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-pawon-accent border border-white/10 shadow-inner backdrop-blur-md">
+            <Settings size={24} strokeWidth={2.5} />
           </div>
           <div>
-            <h2 className="font-serif text-lg font-bold leading-none">Kelola Menu & Header</h2>
-            <p className="text-xs text-pawon-accent/80 mt-1 font-medium">Edit data menu, kategori & foto</p>
+            <h2 className="font-serif text-xl font-bold text-white leading-none mb-1">Manager Dashboard</h2>
+            <p className="text-[10px] text-white/50 font-bold uppercase tracking-[0.2em]">Pawon Salam • Admin Console</p>
           </div>
         </div>
         
         <button 
           onClick={onResetData}
-          className="flex flex-col items-center justify-center w-12 text-pawon-accent hover:text-red-600 transition-colors"
-          title="Reset Data ke Awal"
+          className="relative z-10 w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-white/40 hover:text-red-400 hover:bg-red-500/10 transition-all duration-300 border border-white/5"
+          title="Reset Data"
         >
           <RotateCcw size={18} />
-          <span className="text-[9px] font-bold uppercase mt-1">Reset</span>
         </button>
+      </div>
+
+      {/* Stats Quick View */}
+      <div className="grid grid-cols-3 gap-3 mb-6">
+          <div className="bg-white p-3 rounded-2xl border border-gray-100 shadow-sm">
+              <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Total Menu</span>
+              <span className="text-xl font-bold text-gray-900">{draftItems.length}</span>
+          </div>
+          <div className="bg-white p-3 rounded-2xl border border-gray-100 shadow-sm">
+              <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Habis</span>
+              <span className="text-xl font-bold text-red-500">{draftItems.filter(i => !i.isAvailable).length}</span>
+          </div>
+          <div className="bg-white p-3 rounded-2xl border border-gray-100 shadow-sm">
+              <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Kategori</span>
+              <span className="text-xl font-bold text-pawon-accent">{categories.length}</span>
+          </div>
       </div>
 
       <div className="bg-white rounded-xl p-4 mb-6 shadow-sm border border-gray-100">
@@ -320,15 +336,16 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
         )}
       </div>
 
-      <button 
-        onClick={handleAddDraftItem}
-        className="w-full border-2 border-dashed border-gray-200 rounded-[20px] py-4 flex items-center justify-center gap-2 text-pawon-textGray font-medium hover:border-pawon-accent hover:text-pawon-accent transition-colors mb-6 group active:scale-[0.98]"
-      >
-        <div className="w-6 h-6 rounded-full bg-gray-100 group-hover:bg-pawon-accent/10 flex items-center justify-center transition-colors">
-          <Plus size={14} />
-        </div>
-        Tambah Menu (Draft)
-      </button>
+      {/* Floating Action Button for Adding Menu */}
+      <div className="fixed bottom-28 right-6 z-50">
+        <button 
+          onClick={handleAddDraftItem}
+          className="w-16 h-16 rounded-full bg-pawon-accent text-white flex items-center justify-center shadow-[0_8px_25px_rgba(255,107,0,0.4)] hover:bg-orange-700 active:scale-90 transition-all duration-300"
+          title="Tambah Menu Baru (Draft)"
+        >
+          <Plus size={32} strokeWidth={3} />
+        </button>
+      </div>
 
       <div className="grid grid-cols-2 gap-4 pb-32">
         {displayItems.length > 0 ? (
