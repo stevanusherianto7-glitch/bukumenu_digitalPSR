@@ -24,3 +24,9 @@
 .progress-bar-fill {
   width: var(--progress-width, 0%);
 }
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
