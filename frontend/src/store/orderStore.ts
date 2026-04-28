@@ -36,7 +36,8 @@ export const useOrderStore = create<OrderState>((set, get) => ({
       const { data, error } = await supabase
         .from('orders')
         .select('*, items:order_items(*)')
-        .eq('status', 'pending')
+        .in('status', ['pending', 'completed'])
+        .gte('created_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString())
         .order('created_at', { ascending: true }); // Assume created_at is snake_case
 
       if (error) throw error;
@@ -96,7 +97,7 @@ export const useOrderStore = create<OrderState>((set, get) => ({
       if (error) throw error;
       
       set({
-        orders: get().orders.filter(order => order.id !== orderId),
+        orders: get().orders.map(order => order.id === orderId ? { ...order, status: 'completed' } : order),
       });
     } catch (error) {
       console.error('Error completing order:', error);
@@ -131,12 +132,19 @@ export const useOrderStore = create<OrderState>((set, get) => ({
                window.dispatchEvent(new CustomEvent('new-order-ping', { detail: mappedOrder }));
             }
           } else if (payload.eventType === 'UPDATE') {
-            if (payload.new.status === 'completed' || payload.new.status === 'cancelled') {
+            if (payload.new.status === 'cancelled') {
                set({ orders: get().orders.filter(o => o.id !== payload.new.id) });
             } else {
-               const mappedUpdate = mapOrderFromDB(payload.new);
                set({ 
-                 orders: get().orders.map(o => o.id === payload.new.id ? { ...o, ...mappedUpdate } : o) 
+                 orders: get().orders.map(o => {
+                   if (o.id === payload.new.id) {
+                     const mappedUpdate = mapOrderFromDB(payload.new);
+                     // Preserve existing items if the real-time payload doesn't include joined items
+                     mappedUpdate.items = payload.new.items ? mappedUpdate.items : o.items;
+                     return { ...o, ...mappedUpdate };
+                   }
+                   return o;
+                 }) 
                });
             }
           }
