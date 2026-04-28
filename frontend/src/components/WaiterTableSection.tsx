@@ -232,7 +232,7 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
                                                 <div className="flex-1">
                                                     <div className="flex justify-between items-start mb-1">
                                                         <p className="font-bold text-gray-900 text-lg leading-tight">{item.menuName}</p>
-                                                        <p className="text-sm font-bold text-gray-400 font-mono">{(item.price * item.quantity).toLocaleString('id-ID')}</p>
+                                                        <p className="text-sm font-bold text-red-600 font-mono">{(item.price * item.quantity).toLocaleString('id-ID')}</p>
                                                     </div>
                                                     
                                                     {item.notes && item.notes.trim() !== '' && (
@@ -333,16 +333,6 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
         
         <div className="relative z-10 flex justify-between items-center mb-8">
           <div className="flex items-center gap-4">
-             {onExit && (
-                <button 
-                    onClick={onExit}
-                    className="w-10 h-10 rounded-2xl bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-colors border border-white/10 shadow-lg backdrop-blur-md"
-                    title="Keluar ke Menu Utama"
-                    aria-label="Keluar"
-                >
-                    <ChevronLeft size={24} />
-                </button>
-             )}
              <div>
                 <div className="flex items-center gap-2 mb-1">
                     <div className="w-2 h-2 bg-violet-400 rounded-full animate-pulse shadow-[0_0_8px_rgba(167,139,250,0.8)]"></div>
