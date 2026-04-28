@@ -1,5 +1,6 @@
 {
   "version": 2,
+  "cleanUrls": true,
   "builds": [
     {
       "src": "backend/src/index.ts",
@@ -12,7 +13,7 @@
     }
   ],
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "backend/src/index.ts" },
+    { "source": "/api/(.*)", "destination": "/backend/src/index.ts" },
     { "source": "/waiter", "destination": "/waiter.html" },
     { "source": "/admin", "destination": "/admin.html" },
     { "source": "/((?!api/).*)", "destination": "/index.html" }
