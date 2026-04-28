@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { MapPin, Phone, Clock, ChevronLeft, ChevronRight } from 'lucide-react';
+import { MapPin, Phone, Clock, ChevronLeft, ChevronRight, Share2 } from 'lucide-react';
 import { Logo } from './Logo';
 
 interface PromoCarouselProps {
@@ -34,14 +34,7 @@ export const PromoCarousel: React.FC<PromoCarouselProps> = ({ onSecretAdminTrigg
   const [isTapping, setIsTapping] = useState(false);
 
   const handleAction = (e: React.MouseEvent | React.TouchEvent) => {
-    // Prevent double triggers on devices that fire both touch and mouse
-    if (e.type === 'touchstart') {
-       // We'll let touch handle it
-    } else if (e.type === 'click' && 'ontouchstart' in window) {
-       // If touch is supported, skip click to avoid double counts
-       return;
-    }
-
+    // Zero Error Tolerance: Check if onSecretAdminTrigger exists
     if (!onSecretAdminTrigger) return;
 
     // Visual feedback
@@ -60,11 +53,35 @@ export const PromoCarousel: React.FC<PromoCarouselProps> = ({ onSecretAdminTrigg
       return newCount;
     });
 
-    // Reset count after 2 seconds of inactivity
+    // Step 3.3: 5-tap secret with strict 500ms threshold
     timerRef.current = setTimeout(() => {
       setTapCount(0);
-    }, 2000);
+    }, 500); 
   };
+
+  const handleShare = async () => {
+    const shareData = {
+      title: 'Pawon Salam Resto',
+      text: 'Lihat menu digital Pawon Salam Resto & Catering!',
+      url: window.location.href,
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(window.location.href);
+        alert('Link menu berhasil disalin!');
+      }
+    } catch (err) {
+      console.log('Share failed:', err);
+    }
+  };
+
+  // Step 3.2: Header & Logo Rules
+  // If tableNumber exists (Guest Mode) and it's not a secret trigger from Admin view, hide it.
+  // Note: We check if onSecretAdminTrigger is passed to determine if it should be interactive.
+  const isLogoVisible = onSecretAdminTrigger !== undefined;
 
   return (
     <div className="mb-6 -mx-6">
@@ -114,14 +131,28 @@ export const PromoCarousel: React.FC<PromoCarouselProps> = ({ onSecretAdminTrigg
           </div>
 
           <div className="flex flex-col items-end gap-3">
-            <button
-              onClick={handleAction}
-              onTouchStart={handleAction}
-              className={`flex-shrink-0 drop-shadow-xl transition-all mt-1 bg-white/10 p-2 rounded-full border border-white/20 backdrop-blur-md z-50 cursor-pointer touch-manipulation ${isTapping ? 'scale-125 bg-white/30' : 'scale-100'}`}
-              aria-label="Admin Access Logo"
-            >
-               <Logo size="sm" variant="light" showText={false} />
-            </button>
+            <div className="flex items-center gap-2">
+                {/* Share Button */}
+                <button
+                  onClick={handleShare}
+                  className="p-2 rounded-full bg-white/10 border border-white/20 backdrop-blur-md text-white hover:bg-white/20 transition-all shadow-lg active:scale-95"
+                  title="Bagikan Menu"
+                  aria-label="Bagikan Menu"
+                >
+                  <Share2 size={16} />
+                </button>
+
+                {isLogoVisible && (
+                  <button
+                    onClick={handleAction}
+                    onTouchStart={handleAction}
+                    className={`flex-shrink-0 drop-shadow-xl transition-all bg-white/10 p-2 rounded-full border border-white/20 backdrop-blur-md z-50 cursor-pointer touch-manipulation ${isTapping ? 'scale-125 bg-white/30' : 'scale-100'}`}
+                    aria-label="Admin Access Logo"
+                  >
+                     <Logo size="sm" variant="light" showText={false} />
+                  </button>
+                )}
+            </div>
 
             {tableNumber && (
               <div className="bg-white/10 backdrop-blur-md border border-white/20 text-white px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-lg">

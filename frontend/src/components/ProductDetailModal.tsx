@@ -44,6 +44,25 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ item, on
     );
   };
 
+  const handleShare = async () => {
+    const shareData = {
+      title: `Pawon Salam - ${item.name}`,
+      text: `Cobain ${item.name} di Pawon Salam Resto! Cuma Rp ${item.price.toLocaleString('id-ID')}.`,
+      url: window.location.href,
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(window.location.href);
+        alert('Link menu berhasil disalin!');
+      }
+    } catch (err) {
+      console.log('Share failed:', err);
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-[60] bg-pawon-bg flex flex-col animate-in slide-in-from-bottom-4 duration-300">
       
@@ -67,6 +86,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ item, on
               <Heart size={20} />
             </button>
             <button 
+              onClick={handleShare}
               className="w-10 h-10 rounded-full bg-white/90 backdrop-blur-md flex items-center justify-center text-pawon-dark shadow-lg hover:text-blue-500 transition-colors active:scale-90"
               title="Bagikan Menu"
               aria-label="Bagikan Menu"

@@ -1,21 +1,53 @@
-# Project Credentials - Pawon Salam Digital Menu
+# PAWON SALAM DIGITAL MENU - SYSTEM CREDENTIALS
 
-## 1. Source Control (GitHub)
-- **Repository**: https://github.com/stevanusherianto7-glitch/bukumenu_digitalPSR
+Dokumen ini berisi daftar credential, API keys, dan URL akses untuk ekosistem Pawon Salam Digital Menu. **Simpan dokumen ini dengan aman.**
 
-## 2. Hosting & Deployment (Vercel)
-- **Deployment URL**: https://bukumenu-digital-psr.vercel.app/
-- **Project Dashboard**: https://vercel.com/antos-projects-b975a4ca/bukumenu-digital-psr/GHwcXYPM3Hi7CtU73akEX7aXMDJc
+## 1. Modul Akses (URL Produksi)
+Gunakan URL ini untuk mengakses berbagai antarmuka sistem:
 
-## 3. Database & Backend (Supabase - Project zyalxogxdxeoisuwwmic)
-- **Project URL**: `https://zyalxogxdxeoisuwwmic.supabase.co`
-- **SUPABASE_ANON_KEY**: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp5YWx4b2d4ZHhlb2lzdXd3bWljIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcyOTUzMDYsImV4cCI6MjA5Mjg3MTMwNn0.avSQvcqYV9IGe_zgr9sxAAvZ89a44Xf9oAyJC8LtWp8`
-- **SUPABASE_SERVICE_ROLE_KEY**: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp5YWx4b2d4ZHhlb2lzdXd3bWljIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NzI5NTMwNiwiZXhwIjoyMDkyODcxMzA2fQ.TpL_oxu9hin7_xFUwgUXHZTws_mfXPbMJXziCslMt5U`
-- **SUPABASE_JWT_SECRET**: `UFSArvIz6+bZKgIxTxyQltSGLfvIM2+mRhmNUfWy0z3p28fM0TGLOnwwO9G1QfWzbvyTXPHIqBTHcPkPGoSaZA==`
-- **POSTGRES_PASSWORD**: `uaX6c97H8atyMdcV`
-- **DATABASE_URL (Pooling)**: `postgres://postgres.zyalxogxdxeoisuwwmic:uaX6c97H8atyMdcV@aws-1-us-east-1.pooler.supabase.com:6543/postgres?sslmode=require&pgbouncer=true`
-- **POSTGRES_URL_NON_POOLING**: `postgres://postgres.zyalxogxdxeoisuwwmic:uaX6c97H8atyMdcV@aws-1-us-east-1.pooler.supabase.com:5432/postgres?sslmode=require`
+- **Modul Tamu (Guest)**: `https://bukumenu-digital-psr.vercel.app/?table=A1`
+- **Modul Waiter (Staff)**: `https://bukumenu-digital-psr.vercel.app/?mode=waiter`
+- **Modul Manager (Admin)**: `https://bukumenu-digital-psr.vercel.app/?mode=admin`
 
 ---
-> [!IMPORTANT]
-> Seluruh sistem operasional kini terikat pada project Supabase `zyalxogxdxeoisuwwmic`.
+
+## 2. Supabase Cloud Configuration
+Konfigurasi database PostgreSQL dan Real-time engine.
+
+| Parameter | Value |
+|-----------|-------|
+| **Project Reference** | `zyalxogxdxeoisuwwmic` |
+| **Supabase URL** | `https://zyalxogxdxeoisuwwmic.supabase.co` |
+| **PostgreSQL Host** | `aws-1-us-east-1.pooler.supabase.com` |
+| **Database Name** | `postgres` |
+| **User** | `postgres` |
+| **Password** | `uaX6c97H8atyMdcV` |
+| **Port** | `6543` (Pooling) / `5432` (Direct) |
+
+### API Keys
+- **Anon Public Key**: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...LtWp8`
+- **Service Role Key**: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...Mt5U` (Secret)
+
+---
+
+## 3. Backend & Security Envs
+Konfigurasi server Node.js / Prisma.
+
+- **JWT Secret**: `UFSArvIz6+bZKgIxTxyQltSGLfvIM2+mRhmNUfWy0z3p28fM0TGLOnwwO9G1QfWzbvyTXPHIqBTHcPkPGoSaZA==`
+- **Direct Database URL**: `postgres://postgres.zyalxogxdxeoisuwwmic:uaX6c97H8atyMdcV@aws-1-us-east-1.pooler.supabase.com:5432/postgres?sslmode=require`
+
+---
+
+## 4. Struktur Database (Prisma)
+Sistem menggunakan model berikut untuk persistensi 10 tahun:
+- `User` (Role: Owner, Manager, Waiter)
+- `Category` (Kategori Menu)
+- `MenuItem` (Detail Menu, Harga, Gambar)
+- `Order` (Header Transaksi, Status, OrderType)
+- `OrderItem` (Line items pesanan)
+- `Table` (Manajemen Meja)
+
+---
+
+> [!CAUTION]
+> **KEAMANAN DATA**: Jangan membagikan file ini kepada pihak luar. Jika terjadi kebocoran, segera ganti `SUPABASE_JWT_SECRET` di dashboard Supabase dan update file `.env`.

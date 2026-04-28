@@ -19,9 +19,9 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onClick }) => 
       className={`group relative bg-white rounded-[24px] shadow-[0_12px_40px_rgba(0,0,0,0.12)] border border-[#F2F2F2] transition-all duration-500 flex flex-col h-full overflow-hidden ${isAvailable ? 'hover:shadow-[0_20px_50px_rgba(0,0,0,0.18)] hover:-translate-y-1 cursor-pointer active:scale-[0.98]' : 'opacity-60 cursor-not-allowed'}`}
     >
       <div className="p-2.5 flex flex-col h-full">
-        {/* Premium "New Menu" Ribbon */}
+        {/* Premium "New Menu" Ribbon (Moved to Top-Left) */}
         {item.isNew && (
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 z-20 filter drop-shadow-md">
+          <div className="absolute top-0 left-0 z-30 filter drop-shadow-md">
             <div
               className="w-8 bg-[#D32F2F] flex flex-col items-center pt-2 pb-3 shadow-inner ribbon-clip"
             >
@@ -57,21 +57,21 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onClick }) => 
             </div>
           )}
 
-          {/* Badges */}
-          <div className="absolute top-2.5 left-2.5 right-2.5 flex justify-between items-start z-20">
-              {item.rating ? (
-                 <div className="bg-white/90 backdrop-blur-md px-2 py-1 rounded-full flex items-center gap-1 shadow-sm border border-white/50">
-                   <Star size={10} className="text-orange-400 fill-orange-400"/>
-                   <span className="text-[10px] font-bold text-pawon-dark leading-none pt-0.5">{item.rating}</span>
-                 </div>
-              ) : <div></div>}
-
+          {/* Badges (Star moved to bottom-left, Favorite at top-right) */}
+          <div className="absolute top-2.5 right-2.5 z-20">
               {item.isFavorite && (
                 <div className="w-6 h-6 rounded-full bg-white/90 backdrop-blur-md flex items-center justify-center shadow-sm border border-white/50 text-red-500">
                   <Heart size={12} fill="currentColor" />
                 </div>
               )}
           </div>
+
+          {item.rating && (
+            <div className="absolute bottom-2.5 left-2.5 z-20 bg-white/90 backdrop-blur-md px-2 py-1 rounded-full flex items-center gap-1 shadow-sm border border-white/50 animate-in fade-in zoom-in-90 duration-500">
+               <Star size={10} className="text-orange-400 fill-orange-400"/>
+               <span className="text-[10px] font-bold text-pawon-dark leading-none pt-0.5">{item.rating}</span>
+            </div>
+          )}
         </div>
 
         {/* Content Area */}

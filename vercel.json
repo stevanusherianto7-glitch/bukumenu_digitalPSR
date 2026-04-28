@@ -19,14 +19,6 @@
       "dest": "backend/src/index.ts"
     },
     {
-      "src": "/waiter",
-      "dest": "/waiter.html"
-    },
-    {
-      "src": "/admin",
-      "dest": "/admin.html"
-    },
-    {
       "src": "/(.*)",
       "dest": "/index.html"
     }

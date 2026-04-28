@@ -14,7 +14,10 @@ const useClock = () => {
 };
 
 // Hitung berapa menit sejak order masuk
-const getMinutesAgo = (timestamp: number) => Math.floor((Date.now() - timestamp) / 60000);
+const getMinutesAgo = (createdAt: string | number) => {
+  const time = typeof createdAt === 'string' ? new Date(createdAt).getTime() : createdAt;
+  return Math.floor((Date.now() - time) / 60000);
+};
 
 // Warna urgency berdasarkan waktu tunggu
 const getUrgencyColor = (mins: number) => {
@@ -25,8 +28,37 @@ const getUrgencyColor = (mins: number) => {
 
 export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }) => {
   const now = useClock();
-  const { orders, completeOrder } = useOrderStore();
+  const { orders, completeOrder, subscribeToOrders, fetchOrders } = useOrderStore();
   const [selectedTable, setSelectedTable] = useState<string | null>(null);
+  const [pingingTables, setPingingTables] = useState<Set<string>>(new Set());
+  
+  // Real-time Subscription - Zero Error Tolerance
+  useEffect(() => {
+    fetchOrders(); // Initial fetch
+    const unsubscribe = subscribeToOrders();
+    
+    // Step 3.4: Listen for "Orange Ping" event
+    const handlePing = (e: any) => {
+      const newOrder = e.detail;
+      if (newOrder.tableNumber) {
+        setPingingTables(prev => new Set([...prev, newOrder.tableNumber]));
+        // Remove ping after 5 seconds
+        setTimeout(() => {
+          setPingingTables(prev => {
+            const next = new Set(prev);
+            next.delete(newOrder.tableNumber);
+            return next;
+          });
+        }, 5000);
+      }
+    };
+
+    window.addEventListener('new-order-ping', handlePing);
+    return () => {
+      unsubscribe();
+      window.removeEventListener('new-order-ping', handlePing);
+    };
+  }, [subscribeToOrders, fetchOrders]);
   
   // Tab untuk Dashboard Utama (Monitor vs Global History)
   const [activeTab, setActiveTab] = useState<'monitor' | 'history'>('monitor');
@@ -55,13 +87,13 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
   const getTableHistory = (tableNum: string) => {
       return safeOrders
         .filter(o => o.tableNumber === tableNum && o.status === 'completed')
-        .sort((a, b) => b.timestamp - a.timestamp);
+        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   };
   
   // Ambil global order history (status completed), urutkan dari yang terbaru
   const globalHistoryOrders = safeOrders
     .filter(o => o.status === 'completed')
-    .sort((a, b) => b.timestamp - a.timestamp);
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
   const activeTablesCount = new Set(safeOrders.filter(o => o.status === 'pending').map(o => o.tableNumber)).size;
   const totalPendingItems = safeOrders
@@ -74,7 +106,7 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
 
   // --- Tampilan Detail Meja (Fullscreen) ---
   if (selectedTable) {
-    const activeOrders = getTableOrders(selectedTable).sort((a, b) => a.timestamp - b.timestamp);
+    const activeOrders = getTableOrders(selectedTable).sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
     const tableHistory = getTableHistory(selectedTable);
 
     return (
@@ -158,7 +190,7 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
                 ) : (
                     <div className="space-y-6">
                         {activeOrders.map((order) => {
-                          const minsAgo = getMinutesAgo(order.timestamp);
+                          const minsAgo = getMinutesAgo(order.createdAt);
                           const urgency = getUrgencyColor(minsAgo);
                           
                           return (
@@ -220,7 +252,7 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
                                     <div className="mt-4 flex items-center justify-center gap-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
                                         <div className="flex items-center gap-1">
                                             <Clock size={12} />
-                                            {new Date(order.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                            {new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                         </div>
                                         <div className="w-1 h-1 bg-gray-300 rounded-full"></div>
                                         <div className="flex items-center gap-1">
@@ -254,7 +286,7 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
                                     <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Selesai</span>
                                     <div className="flex items-center gap-1.5 text-xs font-bold text-gray-700">
                                         <Clock size={12} />
-                                        {new Date(order.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                        {new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                     </div>
                                 </div>
                                 <span className="bg-gray-100 text-gray-600 text-[10px] font-bold px-2 py-0.5 rounded">#{order.id.slice(-4)}</span>
@@ -382,7 +414,7 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
                 
                 // Cari order paling lama untuk menentukan urgency di grid
                 const oldestOrderTime = hasOrder 
-                    ? Math.min(...pendingOrders.map(o => o.timestamp))
+                    ? Math.min(...pendingOrders.map(o => new Date(o.createdAt).getTime()))
                     : Date.now();
                 const minsAgo = hasOrder ? getMinutesAgo(oldestOrderTime) : 0;
                 const urgency = getUrgencyColor(minsAgo);
@@ -395,8 +427,15 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
                             hasOrder 
                             ? `bg-white border-yellow-500 shadow-xl shadow-gray-200` 
                             : 'bg-white border-yellow-400/30 hover:border-yellow-400 hover:bg-yellow-50/10'
-                        }`}
+                        } ${pingingTables.has(tableNum) ? 'animate-[orange-ping_1s_infinite] border-orange-500' : ''}`}
                     >
+                    <style>{`
+                        @keyframes orange-ping {
+                          0% { background-color: white; }
+                          50% { background-color: #FFEDD5; border-color: #F97316; }
+                          100% { background-color: white; }
+                        }
+                    `}</style>
                     {hasOrder && (
                         <div className={`absolute -top-1 -right-1 w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold text-white shadow-lg z-10 ${urgency.bg} ${urgency.pulse ? 'animate-bounce' : ''}`}>
                             {pendingOrders.length}
@@ -449,7 +488,7 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
                                          <p className="text-[10px] text-gray-400 uppercase tracking-[0.2em] font-bold mb-0.5">Order Verified</p>
                                          <div className="flex items-center gap-1.5 text-xs font-bold text-gray-800">
                                              <Clock size={12} className="text-gray-400" />
-                                             {new Date(order.timestamp).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
+                                             {new Date(order.createdAt).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
                                          </div>
                                      </div>
                                  </div>

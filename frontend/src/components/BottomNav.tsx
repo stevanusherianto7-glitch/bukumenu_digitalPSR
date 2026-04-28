@@ -61,12 +61,13 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onTabChange, on
         
         <button 
           onClick={onExitAdmin}
-          className="flex-1 flex flex-col items-center justify-center gap-1 opacity-40 hover:opacity-100 hover:text-red-400 transition-all group"
+          className="flex-1 flex flex-col items-center justify-center gap-1 opacity-70 hover:opacity-100 text-red-500 hover:text-red-400 transition-all group"
+          title="Keluar dari Mode Admin"
         >
           <div className="p-2 rounded-xl group-hover:bg-red-500/10 transition-colors">
-            <LogOut size={20} strokeWidth={2} />
+            <LogOut size={20} strokeWidth={2.5} />
           </div>
-          <span className="text-[8px] font-black uppercase tracking-[0.15em]">Exit</span>
+          <span className="text-[8px] font-black uppercase tracking-[0.15em]">Keluar</span>
         </button>
       </div>
     </div>

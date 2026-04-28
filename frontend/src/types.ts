@@ -49,7 +49,9 @@ export interface OrderItem {
 export interface Order {
   id: string;
   tableNumber: string;
-  status: 'pending' | 'completed';
-  timestamp: number;
+  status: 'pending' | 'preparing' | 'ready' | 'completed' | 'cancelled';
+  orderType?: 'DINE_IN' | 'TAKE_AWAY';
+  totalAmount: number;
+  createdAt: string;
   items: OrderItem[];
 }

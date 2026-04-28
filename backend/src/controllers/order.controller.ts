@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 
 // 1. Terima Pesanan dari Tablet/HP Pelanggan
 export const createOrder = async (req: Request, res: Response) => {
-  const { tableNumber, items } = req.body;
+  const { tableNumber, items, orderType } = req.body;
 
   if (!items || items.length === 0) {
     return res.status(400).json({ message: 'Pesanan kosong' });
@@ -15,11 +15,15 @@ export const createOrder = async (req: Request, res: Response) => {
   // Hitung total di server untuk keamanan
   const totalAmount = items.reduce((sum: number, item: any) => sum + (item.price * item.quantity), 0);
 
+  // Map orderType string to Prisma Enum
+  const type = orderType === 'take-away' ? 'TAKE_AWAY' : 'DINE_IN';
+
   try {
     const newOrder = await prisma.order.create({
       data: {
         tableNumber,
         totalAmount,
+        orderType: type,
         status: 'pending', // Status awal selalu 'pending'
         items: {
           create: items.map((item: any) => ({
@@ -50,7 +54,7 @@ export const getOrders = async (req: Request, res: Response) => {
         status: 'pending' // Kunci: Hanya ambil pesanan yang masih aktif
       },
       include: { items: true },
-      orderBy: { timestamp: 'asc' }, // Tampilkan yang paling lama masuk di atas
+      orderBy: { createdAt: 'asc' }, // Tampilkan yang paling lama masuk di atas
     });
     res.json(pendingOrders);
   } catch (error) {
@@ -84,7 +88,7 @@ export const getSalesAnalytics = async (req: Request, res: Response) => {
       _sum: { totalAmount: true },
       _count: { id: true },
       where: {
-        timestamp: { gte: today },
+        createdAt: { gte: today },
         status: 'completed'
       }
     });

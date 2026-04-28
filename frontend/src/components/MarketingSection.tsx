@@ -94,41 +94,106 @@ export const MarketingSection: React.FC = () => {
         <p className="text-[10px] text-white/60 uppercase tracking-widest font-bold">Tingkatkan Omzet & Up-Selling</p>
       </div>
 
-      <div className="grid gap-3">
-        {programs.map((prog) => (
-          <div 
-            key={prog.id}
-            className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex items-center justify-between group hover:border-pawon-accent/30 transition-all duration-300"
-          >
-            <div className="flex items-center gap-3">
-              <div className={`w-10 h-10 ${prog.bg} ${prog.color} rounded-xl flex items-center justify-center shadow-inner`}>
-                {prog.icon}
-              </div>
-              <div>
-                <h4 className="text-sm font-bold text-pawon-dark leading-none mb-1">{prog.title}</h4>
-                <p className="text-[10px] text-gray-400 font-medium">{prog.desc}</p>
+      <div className="grid gap-4">
+        {programs.map((prog) => {
+          const isActive = settings[prog.id as keyof typeof settings];
+          
+          return (
+            <div 
+              key={prog.id}
+              className={`bg-white rounded-[28px] border transition-all duration-500 overflow-hidden ${isActive ? 'border-pawon-accent/30 shadow-lg' : 'border-gray-100 shadow-sm'}`}
+            >
+              <div className="p-5">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-4">
+                    <div className={`w-12 h-12 ${prog.bg} ${prog.color} rounded-[18px] flex items-center justify-center shadow-inner`}>
+                      {prog.icon}
+                    </div>
+                    <div>
+                      <h4 className="text-base font-bold text-pawon-dark leading-none mb-1">{prog.title}</h4>
+                      <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">{isActive ? 'Aktif' : 'Nonaktif'}</p>
+                    </div>
+                  </div>
+
+                  <button 
+                    onClick={() => settings.setMarketingSetting(prog.id as any, !isActive)}
+                    className={`w-14 h-7 rounded-full relative transition-all duration-300 ${isActive ? 'bg-green-500 shadow-[0_0_12px_rgba(34,197,94,0.4)]' : 'bg-gray-200'}`}
+                    title={`Toggle ${prog.title}`}
+                  >
+                    <div className={`absolute top-1 w-5 h-5 bg-white rounded-full transition-all duration-300 shadow-md ${isActive ? 'left-8' : 'left-1'}`}></div>
+                  </button>
+                </div>
+
+                <p className="text-xs text-gray-500 leading-relaxed mb-4 font-medium">{prog.desc}</p>
+
+                {/* Configuration Fields (Visible when active) */}
+                {isActive && (
+                  <div className="pt-4 border-t border-gray-50 space-y-4 animate-in slide-in-from-top-2 duration-500">
+                    {prog.id === 'isProgressBarEnabled' && (
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-1">
+                          <label className="text-[9px] font-black text-gray-400 uppercase ml-1">Target (Rp)</label>
+                          <input 
+                            type="number"
+                            value={settings.progressBarTarget}
+                            onChange={(e) => settings.setMarketingSetting('progressBarTarget', e.target.value)}
+                            className="w-full bg-gray-50 border border-gray-100 rounded-xl px-3 py-2 text-xs font-bold outline-none focus:ring-1 focus:ring-pawon-accent"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-[9px] font-black text-gray-400 uppercase ml-1">Reward</label>
+                          <input 
+                            type="text"
+                            value={settings.progressBarReward}
+                            onChange={(e) => settings.setMarketingSetting('progressBarReward', e.target.value)}
+                            className="w-full bg-gray-50 border border-gray-100 rounded-xl px-3 py-2 text-xs font-bold outline-none focus:ring-1 focus:ring-pawon-accent"
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {prog.id === 'isBirthdayPromoEnabled' && (
+                      <div className="space-y-1">
+                        <label className="text-[9px] font-black text-gray-400 uppercase ml-1">Diskon Ultah (%)</label>
+                        <input 
+                          type="number"
+                          value={settings.birthdayDiscountPercent}
+                          onChange={(e) => settings.setMarketingSetting('birthdayDiscountPercent', e.target.value)}
+                          className="w-full bg-gray-50 border border-gray-100 rounded-xl px-3 py-2 text-xs font-bold outline-none focus:ring-1 focus:ring-pawon-accent"
+                        />
+                      </div>
+                    )}
+
+                    {prog.id === 'isBuffetPromoEnabled' && (
+                      <div className="space-y-1">
+                        <label className="text-[9px] font-black text-gray-400 uppercase ml-1">Diskon Buffet (%)</label>
+                        <input 
+                          type="number"
+                          value={settings.buffetDiscountPercent}
+                          onChange={(e) => settings.setMarketingSetting('buffetDiscountPercent', e.target.value)}
+                          className="w-full bg-gray-50 border border-gray-100 rounded-xl px-3 py-2 text-xs font-bold outline-none focus:ring-1 focus:ring-pawon-accent"
+                        />
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
-
-            <button 
-              onClick={() => settings.setMarketingSetting(prog.id as any, !settings[prog.id as keyof typeof settings])}
-              className={`w-12 h-6 rounded-full relative transition-colors duration-300 ${settings[prog.id as keyof typeof settings] ? 'bg-green-500' : 'bg-gray-200'}`}
-              title={`Aktifkan ${prog.title}`}
-              aria-label={`Aktifkan ${prog.title}`}
-            >
-              <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all duration-300 ${settings[prog.id as keyof typeof settings] ? 'left-7' : 'left-1'}`}></div>
-            </button>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
-      <div className="mt-6 p-4 bg-orange-50 rounded-2xl border border-orange-100 flex gap-3">
-        <div className="text-orange-500 shrink-0">
-          <Info size={18} />
+      <div className="mt-8 p-6 bg-pawon-dark rounded-[32px] border border-white/5 flex gap-4 shadow-2xl relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-24 h-24 bg-pawon-accent/10 rounded-full -mr-8 -mt-8 blur-2xl"></div>
+        <div className="text-pawon-accent shrink-0">
+          <Info size={24} />
         </div>
-        <p className="text-[11px] text-orange-800 leading-relaxed">
-          <strong>Tip Strategis:</strong> Aktifkan "Fitur Add-ons" dan "Smart Recommendation" bersamaan untuk meningkatkan rata-rata nilai keranjang hingga 15-20%.
-        </p>
+        <div>
+           <p className="text-xs font-bold text-white mb-1 uppercase tracking-widest">Tip Strategis</p>
+           <p className="text-[11px] text-white/60 leading-relaxed italic">
+              "Aktifkan **Fitur Add-ons** dan **Smart Recommendation** bersamaan untuk meningkatkan rata-rata nilai keranjang hingga 15-20% melalui strategi psikologi belanja impulsif."
+           </p>
+        </div>
       </div>
     </div>
   );

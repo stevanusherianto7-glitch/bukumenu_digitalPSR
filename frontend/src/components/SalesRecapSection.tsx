@@ -1,85 +1,101 @@
-
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BarChart3, TrendingUp, Calendar, Wallet, ShoppingBag, ArrowUpRight, Award, Search, Filter } from 'lucide-react';
-import { useOrderStore } from '../store/orderStore';
+import { supabase } from '../lib/supabase';
 
 type TimeRange = 'today' | '7days' | '30days' | 'custom';
 
 export const SalesRecapSection: React.FC = () => {
-  const { orders } = useOrderStore();
   const [timeRange, setTimeRange] = useState<TimeRange>('today');
+  const [isLoading, setIsLoading] = useState(false);
+  const [analyticsData, setAnalyticsData] = useState({
+    totalRevenue: 0,
+    totalTransactions: 0,
+    avgTransaction: 0,
+    sortedMenu: [] as any[],
+    topItem: null as any
+  });
 
   // State untuk Custom Date Picker
   const [startDate, setStartDate] = useState<string>(new Date().toISOString().split('T')[0]);
   const [endDate, setEndDate] = useState<string>(new Date().toISOString().split('T')[0]);
 
-  // Logic Pengolahan Data
-  const analyticsData = useMemo(() => {
-    const now = new Date();
-    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-    
-    let startCutoff = startOfDay;
-    let endCutoff = Date.now();
+  // Step 4.1: Fetching Live Data from Supabase
+  useEffect(() => {
+    const fetchAnalytics = async () => {
+      setIsLoading(true);
+      try {
+        let startCutoff = new Date();
+        startCutoff.setHours(0, 0, 0, 0);
+        let endCutoff = new Date();
+        endCutoff.setHours(23, 59, 59, 999);
 
-    if (timeRange === '7days') {
-        const d = new Date();
-        d.setDate(d.getDate() - 7);
-        d.setHours(0,0,0,0);
-        startCutoff = d.getTime();
-    } else if (timeRange === '30days') {
-        const d = new Date();
-        d.setDate(d.getDate() - 30);
-        d.setHours(0,0,0,0);
-        startCutoff = d.getTime();
-    } else if (timeRange === 'custom') {
-        const s = new Date(startDate);
-        s.setHours(0,0,0,0);
-        startCutoff = s.getTime();
+        if (timeRange === '7days') {
+          startCutoff.setDate(startCutoff.getDate() - 7);
+        } else if (timeRange === '30days') {
+          startCutoff.setDate(startCutoff.getDate() - 30);
+        } else if (timeRange === 'custom') {
+          startCutoff = new Date(startDate);
+          startCutoff.setHours(0, 0, 0, 0);
+          endCutoff = new Date(endDate);
+          endCutoff.setHours(23, 59, 59, 999);
+        }
 
-        const e = new Date(endDate);
-        e.setHours(23,59,59,999);
-        endCutoff = e.getTime();
-    }
+        const { data: orders, error } = await supabase
+          .from('orders')
+          .select('*, items:order_items(*)')
+          .eq('status', 'completed')
+          .gte('created_at', startCutoff.toISOString())
+          .lte('created_at', endCutoff.toISOString());
 
-    // 1. Filter Orders (Completed & Within Time Range)
-    const validOrders = orders.filter(o => {
-        const orderTime = o.createdAt ? new Date(o.createdAt).getTime() : o.timestamp || 0;
-        return o.status === 'completed' && orderTime >= startCutoff && orderTime <= endCutoff;
-    });
+        if (error) throw error;
 
-    // 2. Calculate Totals
-    const totalRevenue = validOrders.reduce((sum, order) => {
-        return sum + (order.total || 0);
-    }, 0);
+        // Map data from DB snake_case to Frontend camelCase
+        const validOrders = (orders || []).map((dbOrder: any) => ({
+          ...dbOrder,
+          totalAmount: dbOrder.total || dbOrder.totalAmount || 0,
+          items: (dbOrder.items || []).map((item: any) => ({
+            ...item,
+            menuName: item.menu_name || item.menuName,
+          }))
+        }));
 
-    const totalTransactions = validOrders.length;
-    const avgTransaction = totalTransactions > 0 ? totalRevenue / totalTransactions : 0;
+        // Processing Data (Zero Error Tolerance)
+        const totalRevenue = validOrders.reduce((sum, o) => sum + (o.totalAmount || 0), 0);
+        const totalTransactions = validOrders.length;
+        const avgTransaction = totalTransactions > 0 ? totalRevenue / totalTransactions : 0;
 
-    // 3. Aggregate Menu Sales
-    const menuStats: Record<string, { name: string; qty: number; revenue: number }> = {};
-
-    validOrders.forEach(order => {
-        const items = Array.isArray(order.items) ? order.items : [];
-        items.forEach((item: any) => {
-            const name = item.menuName || item.name;
+        const menuStats: Record<string, { name: string; qty: number; revenue: number }> = {};
+        validOrders.forEach(order => {
+          const items = order.items || [];
+          items.forEach((item: any) => {
+            const name = item.menuName;
             if (!menuStats[name]) {
-                menuStats[name] = { name, qty: 0, revenue: 0 };
+              menuStats[name] = { name, qty: 0, revenue: 0 };
             }
             menuStats[name].qty += item.quantity;
             menuStats[name].revenue += (item.price * item.quantity);
+          });
         });
-    });
 
-    const sortedMenu = Object.values(menuStats).sort((a, b) => b.qty - a.qty);
+        const sortedMenu = Object.values(menuStats).sort((a, b) => b.qty - a.qty);
+        
+        setAnalyticsData({
+          totalRevenue,
+          totalTransactions,
+          avgTransaction,
+          sortedMenu,
+          topItem: sortedMenu.length > 0 ? sortedMenu[0] : null
+        });
 
-    return {
-        totalRevenue,
-        totalTransactions,
-        avgTransaction,
-        sortedMenu,
-        topItem: sortedMenu.length > 0 ? sortedMenu[0] : null
+      } catch (error) {
+        console.error('Failed to fetch analytics:', error);
+      } finally {
+        setIsLoading(false);
+      }
     };
-  }, [orders, timeRange, startDate, endDate]);
+
+    fetchAnalytics();
+  }, [timeRange, startDate, endDate]);
 
   return (
     <div className="p-6 pb-24 animate-in fade-in duration-500">

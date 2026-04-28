@@ -8,10 +8,28 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
+// 1. Strict CORS Whitelist - Zero Error Tolerance
+const allowedOrigins = [process.env.FRONTEND_URL || 'http://localhost:3000'];
 app.use(cors({
-  origin: '*', // Di produksi, ganti ini dengan domain frontend Anda jika perlu
-  credentials: true
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS - Zero Error Tolerance Policy'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
+// 2. Security Verification
+if (!process.env.JWT_SECRET) {
+  console.error("FATAL ERROR: JWT_SECRET is not defined in environment variables.");
+  if (process.env.NODE_ENV === 'production') {
+    process.exit(1); 
+  }
+}
 
 // Increase body limit for base64 image uploads
 app.use(express.json({ limit: '10mb' }));

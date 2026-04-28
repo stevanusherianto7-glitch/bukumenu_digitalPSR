@@ -2,6 +2,7 @@ import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { WaiterTableSection } from '../../components/WaiterTableSection';
 import { TableMapSection } from '../../components/TableMapSection';
 import { SalesRecapSection } from '../../components/SalesRecapSection';
+import { MarketingSection } from '../../components/MarketingSection';
 import { AdminSection } from '../../components/AdminSection';
 import { BottomNav } from '../../components/BottomNav';
 import { InstallPWA } from '../../components/InstallPWA';
@@ -11,7 +12,7 @@ import { MENU_ITEMS, CATEGORIES } from '../../data';
 import { Loader2 } from 'lucide-react';
 
 const AdminApp: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'meja' | 'peta' | 'laporan' | 'admin'>('laporan');
+  const [activeTab, setActiveTab] = useState<'meja' | 'peta' | 'laporan' | 'marketing' | 'admin'>('laporan');
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const [items, setItems] = useState<MenuItem[]>([]);
@@ -175,6 +176,11 @@ const AdminApp: React.FC = () => {
               </div>
               <div className={activeTab === 'laporan' ? 'block' : 'hidden'}>
                  <SalesRecapSection />
+              </div>
+              <div className={activeTab === 'marketing' ? 'block' : 'hidden'}>
+                 <div className="px-6 py-4">
+                   <MarketingSection />
+                 </div>
               </div>
               <div className={activeTab === 'admin' ? 'block' : 'hidden'}>
                  <div className="px-6">

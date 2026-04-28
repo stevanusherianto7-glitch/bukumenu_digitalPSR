@@ -31,24 +31,23 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose, tableNumber }) => {
     if (totalItems === 0) return;
 
     // 1. Proses Data Pesanan
-    if (tableNumber) {
-        const orderItems: OrderItem[] = items.map(item => {
-            const addonNames = item.selectedAddons?.map(a => a.name).join(', ');
-            const fullNotes = [
-              orderType === 'take-away' ? '[TAKE AWAY]' : '',
-              addonNames ? `[ADDONS: ${addonNames}]` : '',
-              item.notes
-            ].filter(Boolean).join(' ');
+    const effectiveTable = tableNumber || 'TAKE-AWAY';
+    const orderItems: OrderItem[] = items.map(item => {
+        const addonNames = item.selectedAddons?.map(a => a.name).join(', ');
+        const fullNotes = [
+          orderType === 'take-away' ? '[TAKE AWAY]' : '',
+          addonNames ? `[ADDONS: ${addonNames}]` : '',
+          item.notes
+        ].filter(Boolean).join(' ');
 
-            return {
-                menuName: item.name,
-                quantity: item.quantity,
-                price: item.price + (item.selectedAddons?.reduce((s, a) => s + a.price, 0) || 0),
-                notes: fullNotes,
-            };
-        });
-        addOrder(tableNumber, orderItems);
-    } 
+        return {
+            menuName: item.name,
+            quantity: item.quantity,
+            price: item.price + (item.selectedAddons?.reduce((s, a) => s + a.price, 0) || 0),
+            notes: fullNotes,
+        };
+    });
+    addOrder(effectiveTable, orderItems, orderType);
     
     // 2. Ubah UI Button menjadi Sukses (Hijau & Teks Berubah)
     setIsSuccess(true);
@@ -77,14 +76,10 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose, tableNumber }) => {
         <div className="flex-none flex items-center justify-between p-5 border-b border-gray-200">
           <div>
             <h2 className="font-serif text-xl font-bold text-pawon-dark">Keranjang Saya</h2>
-            {tableNumber ? (
+            {tableNumber && (
               <p className="text-xs font-bold text-pawon-accent bg-orange-50 px-2 py-0.5 rounded-full mt-1.5 inline-block border border-orange-100 flex items-center gap-1">
                 <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
                 Pesanan untuk Meja: {tableNumber}
-              </p>
-            ) : (
-               <p className="text-xs font-bold text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full mt-1.5 inline-block">
-                Take Away / Bungkus
               </p>
             )}
           </div>

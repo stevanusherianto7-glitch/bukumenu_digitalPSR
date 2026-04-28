@@ -1,11 +1,9 @@
 
 import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
-// FIX: This error (Module '"@prisma/client"' has no exported member) is likely due to the Prisma client not being generated. Run `npx prisma generate`.
 import { PrismaClient, Role } from '@prisma/client';
+import { verifyToken } from '../lib/auth';
 
 const prisma = new PrismaClient();
-const JWT_SECRET = process.env.JWT_SECRET || 'supersecretkey';
 
 export interface AuthRequest extends Request {
   user?: {
@@ -26,7 +24,7 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
   const token = authHeader.split(' ')[1];
 
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as any;
+    const decoded = verifyToken(token) as any;
     // FIX: Cast req to AuthRequest to attach the custom 'user' property.
     (req as AuthRequest).user = {
       id: decoded.userId,
@@ -35,7 +33,7 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
     };
     next();
   } catch (error) {
-    return res.status(401).json({ message: 'Invalid token' });
+    return res.status(401).json({ message: 'Invalid or expired token' });
   }
 };
 

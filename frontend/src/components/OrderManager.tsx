@@ -1,10 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useRef } from 'react';
-import { useOrderStore } from '../store/orderStore';
-import { api } from '../lib/api';
 
 export const OrderManager: React.FC = () => {
-    const { orders, setOrders } = useOrderStore();
     const audioContextRef = useRef<AudioContext | null>(null);
 
     // Function to play sound (Ting-Tung effect)
@@ -60,55 +57,19 @@ export const OrderManager: React.FC = () => {
         }
     };
 
-    // Polling Logic
+    // Event Listener for new orders
     useEffect(() => {
-        const fetchOrders = async () => {
-            try {
-                const response = await api.get('/api/orders');
-                const serverOrders = response.data;
-
-                // Check for NEW pending orders
-                // We compare the incoming server data with our current store state.
-                // Specifically, we look for any order with status 'pending' that we don't already have locally as 'pending'
-                // OR simpler: check if server has MORE pending orders than we do.
-
-                const currentPendingIDs = new Set(orders.filter(o => o.status === 'pending').map(o => o.id));
-                const serverPendingOrders = serverOrders.filter((o: any) => o.status === 'pending');
-
-                let hasNewOrder = false;
-                for (const sOrder of serverPendingOrders) {
-                    if (!currentPendingIDs.has(sOrder.id)) {
-                        hasNewOrder = true;
-                        break;
-                    }
-                }
-
-                if (hasNewOrder) {
-                    console.log("🔔 New Order Received! Playing sound...");
-                    playNotificationSound();
-                }
-
-                // Always sync store with latest server truth
-                // We sort by timestamp descending to keep recent at top
-                const sortedOrders = serverOrders.sort((a: any, b: any) =>
-                    new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-                );
-
-                setOrders(sortedOrders);
-
-            } catch (error) {
-                console.error("Polling error in OrderManager:", error);
-            }
+        const handleNewOrder = () => {
+            console.log("🔔 New Order Received via Supabase Realtime! Playing sound...");
+            playNotificationSound();
         };
 
-        // Initial fetch
-        fetchOrders();
-
-        // Poll every 5 seconds
-        const interval = setInterval(fetchOrders, 5000);
-        return () => clearInterval(interval);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [orders]); // Depend on orders ensures we compare against fresh state
+        window.addEventListener('new-order-ping', handleNewOrder);
+        
+        return () => {
+            window.removeEventListener('new-order-ping', handleNewOrder);
+        };
+    }, []);
 
     return null; // Invisible component
 };
