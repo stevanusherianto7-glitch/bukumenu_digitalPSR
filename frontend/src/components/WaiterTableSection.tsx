@@ -415,7 +415,6 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
             </div>
         </div>
       ) : (
-          /* --- GLOBAL HISTORY TAB CONTENT --- */
           <div className="px-6 space-y-4">
               {globalHistoryOrders.length === 0 ? (
                   <div className="text-center py-20 text-gray-400">
@@ -424,61 +423,56 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
                       <p className="text-xs">Pesanan yang selesai akan muncul di sini.</p>
                   </div>
               ) : (
-                  globalHistoryOrders.map((order) => (
-                      <div key={order.id} className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col gap-3">
-                          {/* Header Card */}
-                          <div className="flex justify-between items-start border-b border-gray-100 pb-3">
-                              <div className="flex items-center gap-3">
-                                  <div className="w-10 h-10 bg-gray-100 rounded-lg flex flex-col items-center justify-center text-gray-700 font-bold border border-gray-200">
-                                      <span className="text-[8px] uppercase tracking-wider text-gray-400">Meja</span>
-                                      <span className="text-base leading-none">{order.tableNumber}</span>
-                                  </div>
-                                  <div>
-                                      <p className="text-[10px] text-gray-400 uppercase tracking-widest font-bold">Order ID</p>
-                                      <p className="font-mono text-xs font-bold text-gray-600">#{order.id.slice(-6).toUpperCase()}</p>
-                                  </div>
-                              </div>
-                              <div className="text-right">
-                                  <div className="flex items-center gap-1.5 justify-end text-xs font-medium text-gray-500 mb-0.5">
-                                      <CalendarDays size={12} />
-                                      {new Date(order.timestamp).toLocaleDateString('id-ID', {
-                                          day: 'numeric', month: 'short', year: 'numeric'
-                                      })}
-                                  </div>
-                                  <div className="flex items-center gap-1.5 justify-end text-xs font-bold text-gray-800">
-                                      <Clock size={12} />
-                                      {new Date(order.timestamp).toLocaleTimeString('id-ID', {
-                                          hour: '2-digit', minute: '2-digit'
-                                      })}
-                                  </div>
-                              </div>
-                          </div>
-                          
-                          {/* Items List (Summary) */}
-                          <div className="space-y-1">
-                              {order.items.map((item, idx) => (
-                                  <div key={idx} className="flex justify-between text-xs">
-                                      <span className="text-gray-600">
-                                          <span className="font-bold text-gray-900 mr-1">{item.quantity}x</span> 
-                                          {item.menuName}
-                                      </span>
-                                      <span className="text-gray-400">{(item.price * item.quantity).toLocaleString('id-ID')}</span>
-                                  </div>
-                              ))}
-                          </div>
+                   globalHistoryOrders.map((order) => {
+                       const totalItems = order.items.reduce((sum, item) => sum + item.quantity, 0);
+                       return (
+                         <div key={order.id} className="bg-white p-5 rounded-[24px] border border-gray-100 shadow-sm hover:shadow-md transition-all animate-in fade-in slide-in-from-bottom-2 duration-300">
+                             <div className="flex justify-between items-start mb-4">
+                                 <div className="flex items-center gap-3">
+                                     <div className="w-12 h-12 bg-gray-900 rounded-2xl flex flex-col items-center justify-center text-white font-bold shadow-lg shadow-gray-200">
+                                         <span className="text-[8px] uppercase tracking-wider text-white/40 leading-none mb-1">Meja</span>
+                                         <span className="text-xl leading-none">{order.tableNumber}</span>
+                                     </div>
+                                     <div>
+                                         <p className="text-[10px] text-gray-400 uppercase tracking-[0.2em] font-bold mb-0.5">Order Verified</p>
+                                         <div className="flex items-center gap-1.5 text-xs font-bold text-gray-800">
+                                             <Clock size={12} className="text-gray-400" />
+                                             {new Date(order.timestamp).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
+                                         </div>
+                                     </div>
+                                 </div>
+                                 <div className="text-right">
+                                     <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-lg uppercase tracking-wider border border-emerald-100">
+                                         Selesai
+                                     </span>
+                                     <p className="text-[10px] text-gray-400 mt-2 font-mono">#{order.id.slice(-6).toUpperCase()}</p>
+                                 </div>
+                             </div>
+                             
+                             <div className="space-y-2 mb-4 bg-gray-50/50 rounded-2xl p-3 border border-gray-100">
+                                 {order.items.map((item, idx) => (
+                                     <div key={idx} className="flex justify-between items-center text-xs">
+                                         <div className="flex items-center gap-2">
+                                             <div className="w-5 h-5 rounded-md bg-white border border-gray-100 flex items-center justify-center font-bold text-[10px]">{item.quantity}x</div>
+                                             <span className="font-medium text-gray-700">{item.menuName}</span>
+                                         </div>
+                                         <span className="text-gray-400 font-mono">{(item.price * item.quantity).toLocaleString('id-ID')}</span>
+                                     </div>
+                                 ))}
+                             </div>
 
-                          {/* Footer Total */}
-                          <div className="pt-3 border-t border-dashed border-gray-200 flex justify-between items-center">
-                              <span className="text-[10px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded-full uppercase tracking-wider">
-                                  Selesai
-                              </span>
-                              <div className="text-right">
-                                  <span className="text-[10px] text-gray-400 mr-2">Total Transaksi</span>
-                                  <span className="font-bold text-gray-900">Rp {calculateTotal(order.items).toLocaleString('id-ID')}</span>
-                              </div>
-                          </div>
-                      </div>
-                  ))
+                             <div className="flex justify-between items-center pt-2">
+                                 <div className="flex items-center gap-1.5 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                                     <ShoppingBag size={12} />
+                                     {totalItems} Item
+                                 </div>
+                                 <div className="text-right">
+                                     <span className="text-xs font-bold text-gray-900 text-lg">Rp {calculateTotal(order.items).toLocaleString('id-ID')}</span>
+                                 </div>
+                             </div>
+                         </div>
+                       );
+                   })
               )}
           </div>
       )}
