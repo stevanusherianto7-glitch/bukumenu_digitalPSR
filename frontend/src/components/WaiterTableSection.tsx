@@ -80,8 +80,8 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
     return (
       <div className="bg-gray-50 flex flex-col animate-in slide-in-from-right duration-300 min-h-screen">
         
-        {/* Navbar Detail Meja - PREMIUM DARK STYLE */}
-        <div className="bg-gray-900 text-white p-6 pb-8 rounded-b-[40px] shadow-xl shadow-gray-900/20 sticky top-0 z-30 relative overflow-hidden -mt-0">
+        {/* Navbar Detail Meja - PREMIUM VIOLET STYLE */}
+        <div className="bg-violet-950 text-white p-6 pb-8 rounded-b-[40px] shadow-xl shadow-violet-900/20 sticky top-0 z-30 relative overflow-hidden -mt-0">
            
            {/* Background Glow Effect */}
            <div className="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -mr-10 -mt-10 blur-3xl pointer-events-none"></div>
@@ -285,10 +285,10 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
   return (
     <div className="animate-in fade-in pb-20">
       
-      {/* Header Dashboard with Real-time Clock & Stats */}
-      <div className="bg-gray-900 text-white p-6 pb-12 rounded-b-[40px] shadow-2xl shadow-gray-900/20 mb-4 relative overflow-hidden mx-0 -mt-2">
-        <div className="absolute top-0 right-0 w-48 h-48 bg-orange-500/10 rounded-full -mr-16 -mt-16 blur-3xl"></div>
-        <div className="absolute bottom-0 left-0 w-32 h-32 bg-blue-500/5 rounded-full -ml-16 -mb-16 blur-2xl"></div>
+      {/* Header Dashboard with Real-time Clock & Stats - VIOLET THEME */}
+      <div className="bg-violet-950 text-white p-6 pb-12 rounded-b-[40px] shadow-2xl shadow-violet-900/30 mb-4 relative overflow-hidden mx-0 -mt-2">
+        <div className="absolute top-0 right-0 w-48 h-48 bg-violet-500/20 rounded-full -mr-16 -mt-16 blur-3xl"></div>
+        <div className="absolute bottom-0 left-0 w-32 h-32 bg-fuchsia-500/10 rounded-full -ml-16 -mb-16 blur-2xl"></div>
         
         <div className="relative z-10 flex justify-between items-center mb-8">
           <div className="flex items-center gap-4">
@@ -304,10 +304,10 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
              )}
              <div>
                 <div className="flex items-center gap-2 mb-1">
-                    <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-                    <h2 className="text-xl font-serif font-bold tracking-tight">Waiter Terminal</h2>
+                    <div className="w-2 h-2 bg-violet-400 rounded-full animate-pulse shadow-[0_0_8px_rgba(167,139,250,0.8)]"></div>
+                    <h2 className="text-xl font-serif font-bold tracking-tight">Waiter Dashboard</h2>
                 </div>
-                <p className="text-[10px] text-white/50 font-bold uppercase tracking-[0.2em]">Pawon Salam • Terminal 01</p>
+                <p className="text-[10px] text-white/50 font-bold uppercase tracking-[0.2em]">Pawon Salam • Dashboard Access</p>
              </div>
           </div>
           <div className="text-right">
