@@ -311,7 +311,7 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
              </div>
           </div>
           <div className="text-right">
-             <div className="text-2xl font-mono font-bold text-white leading-none mb-1">
+             <div className="text-2xl font-mono font-bold text-emerald-400 leading-none mb-1 drop-shadow-[0_0_10px_rgba(52,211,153,0.3)]">
                 {now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
              </div>
              <p className="text-[10px] text-white/40 font-bold uppercase tracking-wider">
@@ -393,8 +393,8 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
                         onClick={() => setSelectedTable(tableNum)} 
                         className={`relative aspect-[1/1] rounded-3xl flex flex-col items-center justify-center border-2 transition-all duration-300 group active:scale-95 ${
                             hasOrder 
-                            ? `bg-white ${urgency.border} shadow-xl shadow-gray-200` 
-                            : 'bg-gray-50/50 border-transparent hover:bg-white hover:border-gray-200'
+                            ? `bg-white border-yellow-500 shadow-xl shadow-gray-200` 
+                            : 'bg-white border-yellow-400/30 hover:border-yellow-400 hover:bg-yellow-50/10'
                         }`}
                     >
                     {hasOrder && (
