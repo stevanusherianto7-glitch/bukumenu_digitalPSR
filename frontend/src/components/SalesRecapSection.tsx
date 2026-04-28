@@ -88,7 +88,7 @@ export const SalesRecapSection: React.FC = () => {
       <div className="flex items-center justify-between mb-6">
         <div>
             <h2 className="font-serif text-2xl font-bold text-pawon-dark">Laporan Penjualan</h2>
-            <p className="text-xs text-gray-500 mt-1 font-medium italic">Retensi data hingga 10 tahun (Supabase)</p>
+            <p className="text-xs text-gray-500 mt-1 font-medium">Retensi data hingga 10 tahun</p>
         </div>
         <div className="bg-orange-100 p-2 rounded-xl text-orange-600 shadow-sm">
             <BarChart3 size={24} />
