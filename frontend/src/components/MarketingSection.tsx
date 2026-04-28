@@ -132,18 +132,24 @@ export const MarketingSection: React.FC = () => {
                     {prog.id === 'isProgressBarEnabled' && (
                       <div className="grid grid-cols-2 gap-3">
                         <div className="space-y-1">
-                          <label className="text-[9px] font-black text-gray-400 uppercase ml-1">Target (Rp)</label>
+                          <label htmlFor="target-rp" className="text-[9px] font-black text-gray-400 uppercase ml-1">Target (Rp)</label>
                           <input 
+                            id="target-rp"
                             type="number"
+                            title="Target amount in Rupiah"
+                            placeholder="e.g. 100000"
                             value={settings.progressBarTarget}
                             onChange={(e) => settings.setMarketingSetting('progressBarTarget', e.target.value)}
                             className="w-full bg-gray-50 border border-gray-100 rounded-xl px-3 py-2 text-xs font-bold outline-none focus:ring-1 focus:ring-pawon-accent"
                           />
                         </div>
                         <div className="space-y-1">
-                          <label className="text-[9px] font-black text-gray-400 uppercase ml-1">Reward</label>
+                          <label htmlFor="reward-desc" className="text-[9px] font-black text-gray-400 uppercase ml-1">Reward</label>
                           <input 
+                            id="reward-desc"
                             type="text"
+                            title="Reward description"
+                            placeholder="e.g. Es Teh Gratis"
                             value={settings.progressBarReward}
                             onChange={(e) => settings.setMarketingSetting('progressBarReward', e.target.value)}
                             className="w-full bg-gray-50 border border-gray-100 rounded-xl px-3 py-2 text-xs font-bold outline-none focus:ring-1 focus:ring-pawon-accent"
@@ -154,9 +160,12 @@ export const MarketingSection: React.FC = () => {
 
                     {prog.id === 'isBirthdayPromoEnabled' && (
                       <div className="space-y-1">
-                        <label className="text-[9px] font-black text-gray-400 uppercase ml-1">Diskon Ultah (%)</label>
+                        <label htmlFor="birthday-discount" className="text-[9px] font-black text-gray-400 uppercase ml-1">Diskon Ultah (%)</label>
                         <input 
+                          id="birthday-discount"
                           type="number"
+                          title="Birthday discount percentage"
+                          placeholder="e.g. 15"
                           value={settings.birthdayDiscountPercent}
                           onChange={(e) => settings.setMarketingSetting('birthdayDiscountPercent', e.target.value)}
                           className="w-full bg-gray-50 border border-gray-100 rounded-xl px-3 py-2 text-xs font-bold outline-none focus:ring-1 focus:ring-pawon-accent"
@@ -166,9 +175,12 @@ export const MarketingSection: React.FC = () => {
 
                     {prog.id === 'isBuffetPromoEnabled' && (
                       <div className="space-y-1">
-                        <label className="text-[9px] font-black text-gray-400 uppercase ml-1">Diskon Buffet (%)</label>
+                        <label htmlFor="buffet-discount" className="text-[9px] font-black text-gray-400 uppercase ml-1">Diskon Buffet (%)</label>
                         <input 
+                          id="buffet-discount"
                           type="number"
+                          title="Buffet discount percentage"
+                          placeholder="e.g. 10"
                           value={settings.buffetDiscountPercent}
                           onChange={(e) => settings.setMarketingSetting('buffetDiscountPercent', e.target.value)}
                           className="w-full bg-gray-50 border border-gray-100 rounded-xl px-3 py-2 text-xs font-bold outline-none focus:ring-1 focus:ring-pawon-accent"

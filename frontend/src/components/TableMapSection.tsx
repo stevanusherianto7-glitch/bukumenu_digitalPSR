@@ -107,7 +107,7 @@ export const TableMapSection: React.FC = () => {
 
                  {/* Sticker Design */}
                  <div className="mt-4 mb-4">
-                    <h3 className="font-serif font-bold text-pawon-dark text-2xl leading-none">Pawon Salam</h3>
+                    <h3 className="font-serif font-bold text-pawon-dark text-2xl leading-none">Buku Menu Digital</h3>
                     <p className="text-[10px] uppercase tracking-[0.3em] text-gray-400 mt-2 font-medium">Scan to Order</p>
                  </div>
                  
