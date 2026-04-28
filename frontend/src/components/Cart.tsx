@@ -12,7 +12,7 @@ interface CartProps {
 }
 
 export const Cart: React.FC<CartProps> = ({ isOpen, onClose, tableNumber }) => {
-  const { items, totalItems, totalPrice, updateQuantity, removeItem, clearCart } = useCartStore();
+  const { items, totalItems, totalPrice, updateQuantity, removeItem, clearCart, orderType, setOrderType } = useCartStore();
   const { addOrder } = useOrderStore();
   const [isSuccess, setIsSuccess] = useState(false);
 
@@ -25,7 +25,7 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose, tableNumber }) => {
             menuName: item.name,
             quantity: item.quantity,
             price: item.price,
-            notes: item.notes,
+            notes: item.notes ? `${orderType === 'take-away' ? '[TAKE AWAY] ' : ''}${item.notes}` : (orderType === 'take-away' ? '[TAKE AWAY]' : ''),
         }));
         addOrder(tableNumber, orderItems);
     } 
@@ -75,6 +75,26 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose, tableNumber }) => {
           >
             <X size={20} />
           </button>
+        </div>
+
+        {/* Order Type Toggle */}
+        <div className="flex-none p-4 pb-2">
+            <div className="bg-gray-100/80 p-1 rounded-xl flex gap-1 border border-gray-200">
+                <button 
+                    onClick={() => setOrderType('dine-in')}
+                    className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 ${orderType === 'dine-in' ? 'bg-white text-pawon-dark shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                >
+                    <div className={`w-1.5 h-1.5 rounded-full ${orderType === 'dine-in' ? 'bg-green-500 animate-pulse' : 'bg-gray-300'}`}></div>
+                    Dine In
+                </button>
+                <button 
+                    onClick={() => setOrderType('take-away')}
+                    className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 ${orderType === 'take-away' ? 'bg-white text-pawon-dark shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                >
+                    <div className={`w-1.5 h-1.5 rounded-full ${orderType === 'take-away' ? 'bg-orange-500 animate-pulse' : 'bg-gray-300'}`}></div>
+                    Take Away
+                </button>
+            </div>
         </div>
 
         {/* Cart Items */}

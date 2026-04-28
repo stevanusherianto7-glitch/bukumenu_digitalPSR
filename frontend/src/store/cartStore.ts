@@ -9,8 +9,9 @@ interface CartState {
   removeItem: (itemId: string) => void;
   updateQuantity: (itemId: string, quantity: number) => void;
   clearCart: () => void;
-  totalItems: number;
   totalPrice: number;
+  orderType: 'dine-in' | 'take-away';
+  setOrderType: (type: 'dine-in' | 'take-away') => void;
 }
 
 export const useCartStore = create<CartState>()(
@@ -66,6 +67,9 @@ export const useCartStore = create<CartState>()(
         clearCart: () => {
           set({ items: [], totalItems: 0, totalPrice: 0 });
         },
+
+        orderType: 'dine-in',
+        setOrderType: (type) => set({ orderType: type }),
       };
     },
     {
