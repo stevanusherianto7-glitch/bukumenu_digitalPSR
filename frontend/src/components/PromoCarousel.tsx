@@ -33,15 +33,21 @@ export const PromoCarousel: React.FC<PromoCarouselProps> = ({ onSecretAdminTrigg
   const handleLogoClick = () => {
     if (!onSecretAdminTrigger) return;
 
-    setTapCount(prev => prev + 1);
+    // Reset tap count if no tap for 3 seconds
+    const now = Date.now();
+    setTapCount(prev => {
+      const newCount = prev + 1;
+      if (newCount >= 5) {
+        onSecretAdminTrigger();
+        return 0;
+      }
+      return newCount;
+    });
+
+    // Clear count after 3 seconds of inactivity
     setTimeout(() => {
       setTapCount(0);
-    }, 2000);
-
-    if (tapCount + 1 >= 5) {
-      onSecretAdminTrigger();
-      setTapCount(0);
-    }
+    }, 3000);
   };
 
   return (

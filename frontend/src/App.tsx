@@ -254,10 +254,8 @@ const App: React.FC = () => {
   };
 
   const handleEnterAdmin = () => {
-    setIsAdminMode(true);
-    setActiveTab('meja');
     localStorage.setItem('pawon_admin_mode', 'true');
-    alert('Mode Kelola Diaktifkan!');
+    window.location.href = '/admin';
   };
 
   const exitSpecialMode = () => {
