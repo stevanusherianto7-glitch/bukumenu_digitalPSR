@@ -72,6 +72,8 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose, tableNumber }) => {
             onClick={onClose} 
             disabled={isSuccess}
             className="p-2 text-gray-400 hover:text-pawon-dark transition-colors rounded-full hover:bg-gray-100 disabled:opacity-50"
+            title="Tutup Keranjang"
+            aria-label="Tutup Keranjang"
           >
             <X size={20} />
           </button>
@@ -115,12 +117,16 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose, tableNumber }) => {
                         onClick={() => updateQuantity(item.id, item.quantity - 1)} 
                         disabled={isSuccess}
                         className="w-6 h-6 rounded-full flex items-center justify-center text-pawon-dark active:bg-gray-200 disabled:opacity-50"
+                        title="Kurangi Jumlah"
+                        aria-label="Kurangi Jumlah"
                       >-</button>
                       <span className="w-8 text-center text-sm font-bold">{item.quantity}</span>
                       <button 
                         onClick={() => updateQuantity(item.id, item.quantity + 1)} 
                         disabled={isSuccess}
                         className="w-6 h-6 rounded-full flex items-center justify-center text-pawon-dark active:bg-gray-200 disabled:opacity-50"
+                        title="Tambah Jumlah"
+                        aria-label="Tambah Jumlah"
                       >+</button>
                     </div>
                     {/* Remove Button */}
@@ -128,6 +134,8 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose, tableNumber }) => {
                         onClick={() => removeItem(item.id)} 
                         disabled={isSuccess}
                         className="text-gray-400 hover:text-red-500 p-1 disabled:opacity-50"
+                        title="Hapus Item"
+                        aria-label="Hapus Item"
                     >
                       <Trash2 size={16} />
                     </button>

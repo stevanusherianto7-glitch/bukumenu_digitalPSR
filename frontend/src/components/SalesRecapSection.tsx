@@ -125,6 +125,8 @@ export const SalesRecapSection: React.FC = () => {
                 <div className="relative">
                     <input
                         type="date"
+                        title="Dari Tanggal"
+                        aria-label="Dari Tanggal"
                         value={startDate}
                         onChange={(e) => setStartDate(e.target.value)}
                         className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2 text-xs font-bold text-pawon-dark focus:ring-2 focus:ring-pawon-accent/20 focus:border-pawon-accent outline-none shadow-sm"
@@ -136,6 +138,8 @@ export const SalesRecapSection: React.FC = () => {
                 <div className="relative">
                     <input
                         type="date"
+                        title="Sampai Tanggal"
+                        aria-label="Sampai Tanggal"
                         value={endDate}
                         onChange={(e) => setEndDate(e.target.value)}
                         className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2 text-xs font-bold text-pawon-dark focus:ring-2 focus:ring-pawon-accent/20 focus:border-pawon-accent outline-none shadow-sm"

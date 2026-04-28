@@ -40,15 +40,25 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ item, on
         <button 
           onClick={onClose}
           className="w-10 h-10 rounded-full bg-white/90 backdrop-blur-md flex items-center justify-center text-pawon-dark shadow-lg hover:bg-white transition-all active:scale-90"
+          title="Kembali"
+          aria-label="Kembali"
         >
           <ChevronLeft size={24} />
         </button>
 
         <div className="flex gap-2">
-            <button className="w-10 h-10 rounded-full bg-white/90 backdrop-blur-md flex items-center justify-center text-pawon-dark shadow-lg hover:text-red-500 transition-colors active:scale-90">
+            <button 
+              className="w-10 h-10 rounded-full bg-white/90 backdrop-blur-md flex items-center justify-center text-pawon-dark shadow-lg hover:text-red-500 transition-colors active:scale-90"
+              title="Tambah ke Favorit"
+              aria-label="Tambah ke Favorit"
+            >
               <Heart size={20} />
             </button>
-            <button className="w-10 h-10 rounded-full bg-white/90 backdrop-blur-md flex items-center justify-center text-pawon-dark shadow-lg hover:text-blue-500 transition-colors active:scale-90">
+            <button 
+              className="w-10 h-10 rounded-full bg-white/90 backdrop-blur-md flex items-center justify-center text-pawon-dark shadow-lg hover:text-blue-500 transition-colors active:scale-90"
+              title="Bagikan Menu"
+              aria-label="Bagikan Menu"
+            >
               <Share2 size={20} />
             </button>
         </div>
