@@ -206,9 +206,18 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
                                             <p className="text-sm font-mono font-bold leading-none">{minsAgo} Menit</p>
                                         </div>
                                     </div>
-                                    <div className="text-right">
-                                        <p className="text-[10px] font-bold uppercase tracking-wider opacity-70 leading-none mb-1">Order ID</p>
-                                        <p className="text-sm font-mono font-bold leading-none">#{order.id.slice(-6).toUpperCase()}</p>
+                                    <div className="text-right flex flex-col items-end gap-2">
+                                        <div>
+                                            <p className="text-[10px] font-bold uppercase tracking-wider opacity-70 leading-none mb-1">Order ID</p>
+                                            <p className="text-sm font-mono font-bold leading-none">#{order.id.slice(-6).toUpperCase()}</p>
+                                        </div>
+                                        <span className={`px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-wider ${
+                                            (order.orderType === 'take_away' || order.orderType === 'TAKE_AWAY') 
+                                            ? 'bg-amber-100 text-amber-900 border border-amber-200' 
+                                            : 'bg-white/20 text-white border border-white/30'
+                                        }`}>
+                                            {(order.orderType === 'take_away' || order.orderType === 'TAKE_AWAY') ? 'Bawa Pulang' : 'Dine In'}
+                                        </span>
                                     </div>
                                 </div>
 
@@ -492,11 +501,20 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
                                          </div>
                                      </div>
                                  </div>
-                                 <div className="text-right">
-                                     <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-lg uppercase tracking-wider border border-emerald-100">
-                                         Selesai
-                                     </span>
-                                     <p className="text-[10px] text-gray-400 mt-2 font-mono">#{order.id.slice(-6).toUpperCase()}</p>
+                                 <div className="text-right flex flex-col items-end gap-2">
+                                     <div className="flex gap-2">
+                                         <span className={`text-[10px] font-bold px-2 py-1 rounded-lg uppercase tracking-wider border ${
+                                             (order.orderType === 'take_away' || order.orderType === 'TAKE_AWAY')
+                                             ? 'bg-amber-50 text-amber-700 border-amber-200'
+                                             : 'bg-blue-50 text-blue-700 border-blue-200'
+                                         }`}>
+                                             {(order.orderType === 'take_away' || order.orderType === 'TAKE_AWAY') ? 'Bawa Pulang' : 'Dine In'}
+                                         </span>
+                                         <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-lg uppercase tracking-wider border border-emerald-100">
+                                             Selesai
+                                         </span>
+                                     </div>
+                                     <p className="text-[10px] text-gray-400 mt-1 font-mono">#{order.id.slice(-6).toUpperCase()}</p>
                                  </div>
                              </div>
                              
