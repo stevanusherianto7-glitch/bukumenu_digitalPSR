@@ -266,6 +266,8 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
 
             <div className="relative group">
               <select
+                title="Filter kategori menu"
+                aria-label="Filter kategori menu"
                 value={category}
                 onChange={(e) => onCategoryChange(e.target.value)}
                 className="appearance-none bg-white border border-gray-200 text-pawon-dark text-xs font-bold py-2.5 pl-4 pr-10 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-pawon-accent/20 focus:border-pawon-accent cursor-pointer hover:bg-gray-50 transition-colors max-w-[140px]"
@@ -297,12 +299,16 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
                 onKeyDown={(e) => e.key === 'Enter' && submitNewCategory()}
               />
               <button 
+                title="Batalkan"
+                aria-label="Batalkan tambah kategori"
                 onClick={() => setIsAddingCategory(false)}
                 className="px-3 py-2 rounded-lg bg-gray-100 text-gray-500 hover:bg-gray-200"
               >
                 <X size={16} />
               </button>
               <button 
+                title="Simpan kategori baru"
+                aria-label="Simpan kategori baru"
                 onClick={submitNewCategory}
                 disabled={!newCategoryName.trim()}
                 className="px-3 py-2 rounded-lg bg-pawon-accent text-white hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed"

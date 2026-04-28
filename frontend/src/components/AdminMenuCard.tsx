@@ -77,6 +77,8 @@ export const AdminMenuCard: React.FC<AdminMenuCardProps> = ({ item, onUpdate, on
 
           {!isEditing && (
             <button 
+              title="Edit menu ini"
+              aria-label="Edit menu ini"
               onClick={() => { setIsEditing(true); setUrlInput(item.imageUrl); setUrlError(false); }}
               className="absolute top-2 right-2 bg-white/90 text-pawon-dark p-2 rounded-full shadow-lg backdrop-blur-sm hover:text-pawon-accent transition-colors z-10"
             >
@@ -154,6 +156,8 @@ export const AdminMenuCard: React.FC<AdminMenuCardProps> = ({ item, onUpdate, on
                   </label>
                   <div className="relative">
                     <select 
+                      title="Pilih kategori menu"
+                      aria-label="Kategori menu"
                       value={item.category}
                       onChange={(e) => handleUpdate('category', e.target.value)}
                       className="w-full appearance-none bg-white text-xs font-medium text-pawon-dark border border-gray-300 rounded-md p-2 pr-8 focus:outline-none focus:border-pawon-accent focus:ring-1 focus:ring-pawon-accent"
@@ -186,7 +190,9 @@ export const AdminMenuCard: React.FC<AdminMenuCardProps> = ({ item, onUpdate, on
                     <DollarSign size={12} /> Harga (Rp)
                   </label>
                   <input 
-                    type="number" 
+                    type="number"
+                    title="Harga menu dalam Rupiah"
+                    aria-label="Harga menu dalam Rupiah"
                     value={item.price}
                     onChange={(e) => handleUpdate('price', Number(e.target.value))}
                     className="w-full font-bold text-pawon-accent border border-gray-300 rounded-md p-2 focus:outline-none focus:border-pawon-accent focus:ring-1 focus:ring-pawon-accent"
@@ -201,7 +207,8 @@ export const AdminMenuCard: React.FC<AdminMenuCardProps> = ({ item, onUpdate, on
                         <label htmlFor={`fav-${item.id}`} className="relative inline-flex items-center cursor-pointer">
                             <input 
                                 type="checkbox" 
-                                id={`fav-${item.id}`} 
+                                id={`fav-${item.id}`}
+                                aria-label="Jadikan menu terlaris"
                                 className="sr-only peer"
                                 checked={!!item.isFavorite}
                                 onChange={(e) => handleUpdate('isFavorite', e.target.checked)}
@@ -219,7 +226,8 @@ export const AdminMenuCard: React.FC<AdminMenuCardProps> = ({ item, onUpdate, on
                         <label htmlFor={`new-${item.id}`} className="relative inline-flex items-center cursor-pointer">
                             <input 
                                 type="checkbox" 
-                                id={`new-${item.id}`} 
+                                id={`new-${item.id}`}
+                                aria-label="Tandai sebagai menu baru"
                                 className="sr-only peer"
                                 checked={!!item.isNew}
                                 onChange={(e) => handleUpdate('isNew', e.target.checked)}
@@ -239,7 +247,8 @@ export const AdminMenuCard: React.FC<AdminMenuCardProps> = ({ item, onUpdate, on
                         <label htmlFor={`available-${item.id}`} className="relative inline-flex items-center cursor-pointer">
                             <input 
                                 type="checkbox" 
-                                id={`available-${item.id}`} 
+                                id={`available-${item.id}`}
+                                aria-label="Status ketersediaan menu"
                                 className="sr-only peer"
                                 checked={isAvailable}
                                 onChange={(e) => handleUpdate('isAvailable', e.target.checked)}
