@@ -12,6 +12,7 @@ interface PromoCarouselProps {
 export const PromoCarousel: React.FC<PromoCarouselProps> = ({ onSecretAdminTrigger, tableNumber, headerImage }) => {
   const [tapCount, setTapCount] = useState(0);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const timerRef = React.useRef<NodeJS.Timeout | null>(null);
 
   const CAROUSEL_IMAGES = [
     headerImage || "https://res.cloudinary.com/dwdaydzsh/image/upload/v1768368455/Soto_Pindang_Kudus_orwjnb.jpg",
@@ -30,24 +31,38 @@ export const PromoCarousel: React.FC<PromoCarouselProps> = ({ onSecretAdminTrigg
     return () => clearInterval(timer);
   }, [CAROUSEL_IMAGES.length]);
 
-  const handleLogoClick = () => {
+  const handleLogoClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
     if (!onSecretAdminTrigger) return;
 
-    // Reset tap count if no tap for 3 seconds
-    const now = Date.now();
+    // Visual feedback: brief scale up
+    const target = e.currentTarget as HTMLElement;
+    target.style.transform = 'scale(1.2)';
+    setTimeout(() => {
+      target.style.transform = '';
+    }, 150);
+
+    // Reset timer
+    if (timerRef.current) clearTimeout(timerRef.current);
+    
     setTapCount(prev => {
       const newCount = prev + 1;
+      console.log(`Tap count: ${newCount}`);
+      
       if (newCount >= 5) {
+        console.log("Secret trigger activated!");
         onSecretAdminTrigger();
         return 0;
       }
       return newCount;
     });
 
-    // Clear count after 3 seconds of inactivity
-    setTimeout(() => {
+    // Reset count after 2 seconds of inactivity
+    timerRef.current = setTimeout(() => {
       setTapCount(0);
-    }, 3000);
+    }, 2000);
   };
 
   return (
@@ -100,7 +115,8 @@ export const PromoCarousel: React.FC<PromoCarouselProps> = ({ onSecretAdminTrigg
           <div className="flex flex-col items-end gap-3">
             <button
               onClick={handleLogoClick}
-              className="flex-shrink-0 drop-shadow-lg active:scale-95 transition-transform mt-1"
+              className="flex-shrink-0 drop-shadow-xl active:scale-90 transition-all mt-1 bg-white/5 p-2 rounded-full border border-white/10 backdrop-blur-sm z-50 cursor-pointer"
+              aria-label="Admin Access Logo"
             >
                <Logo size="sm" variant="light" showText={false} />
             </button>
