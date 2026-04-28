@@ -76,8 +76,8 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
   // Safety check: ensure orders is an array
   const safeOrders = Array.isArray(orders) ? orders : [];
 
-  // Generate Tables A1-A12 (Expanded)
-  const tables = Array.from({ length: 12 }, (_, i) => `A${i + 1}`);
+  // Standardize to 9 tables (A1-A9) as per user feedback
+  const tables = Array.from({ length: 9 }, (_, i) => `A${i + 1}`);
 
   const getTableOrders = (tableNum: string) => {
     return safeOrders.filter(o => o.tableNumber === tableNum && o.status === 'pending');

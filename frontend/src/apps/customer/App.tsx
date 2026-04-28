@@ -13,14 +13,16 @@ import { SEED_VERSION } from '../../seed-version';
 import { InstallPWA } from '../../components/InstallPWA'; 
 import { WelcomeModal } from '../../components/WelcomeModal'; 
 
+const VALID_TABLES = Array.from({ length: 9 }, (_, i) => `A${i + 1}`);
 const CustomerApp: React.FC = () => {
   const searchParams = new URLSearchParams(window.location.search);
   const tableNumber = searchParams.get('meja'); 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const { addItem } = useCartStore();
+  const isValidTable = tableNumber ? VALID_TABLES.includes(tableNumber) : false;
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [showWelcome, setShowWelcome] = useState(!!tableNumber);
+  const [showWelcome, setShowWelcome] = useState(!!tableNumber && isValidTable);
   const [items, setItems] = useState<MenuItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [categories, setCategories] = useState<string[]>([]);

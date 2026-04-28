@@ -20,6 +20,7 @@ import { SEED_VERSION } from './seed-version';
 import { InstallPWA } from './components/InstallPWA'; 
 import { WelcomeModal } from './components/WelcomeModal'; 
 
+const VALID_TABLES = Array.from({ length: 9 }, (_, i) => `A${i + 1}`);
 const App: React.FC = () => {
   const searchParams = new URLSearchParams(window.location.search);
   const urlMode = searchParams.get('mode');
@@ -30,7 +31,8 @@ const App: React.FC = () => {
   const [isCartOpen, setIsCartOpen] = useState(false);
 
   // State untuk Welcome Modal
-  const [showWelcome, setShowWelcome] = useState(!!tableNumber);
+  const isValidTable = tableNumber ? VALID_TABLES.includes(tableNumber) : false;
+  const [showWelcome, setShowWelcome] = useState(!!tableNumber && isValidTable);
 
   const [isAdminMode, setIsAdminMode] = useState(() => {
     if (urlMode === 'admin') {
@@ -305,7 +307,7 @@ const App: React.FC = () => {
       {/* Welcome Modal when Table ID is detected */}
       {showWelcome && tableNumber && !isAdminMode && (
         <WelcomeModal 
-          tableNumber={tableNumber} 
+          tableNumber={isValidTable ? tableNumber : ''} 
           onDismiss={() => setShowWelcome(false)} 
         />
       )}

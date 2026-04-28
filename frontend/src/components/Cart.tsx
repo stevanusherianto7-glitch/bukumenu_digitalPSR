@@ -300,9 +300,9 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose, tableNumber }) => {
                     }
                 }}
                 disabled={isSuccess}
-                className="px-5 py-3.5 rounded-xl font-bold text-gray-500 bg-gray-100 hover:bg-gray-200 transition-colors border border-gray-200 active:scale-[0.98]"
+                className="flex-1 py-3.5 rounded-xl font-bold text-gray-500 bg-gray-100 hover:bg-gray-200 transition-colors border border-gray-200 active:scale-[0.98]"
               >
-                Batalkan
+                Batal
               </button>
               <button
                 onClick={handleConfirmOrder}
