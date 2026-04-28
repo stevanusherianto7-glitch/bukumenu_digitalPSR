@@ -191,7 +191,7 @@ const AdminApp: React.FC = () => {
             </>
           )}
         </div>
-        <BottomNav activeTab={activeTab} onTabChange={setActiveTab} onExitAdmin={() => {}} />
+        <BottomNav activeTab={activeTab} onTabChange={setActiveTab} onExitAdmin={() => { window.location.href = '/'; }} />
       </div>
       <style>{`
         .no-scrollbar::-webkit-scrollbar { display: none; }
