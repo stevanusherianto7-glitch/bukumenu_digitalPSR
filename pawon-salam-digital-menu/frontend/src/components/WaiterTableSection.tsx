@@ -32,7 +32,38 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
   const [selectedTable, setSelectedTable] = useState<string | null>(null);
   const [pingingTables, setPingingTables] = useState<Set<string>>(new Set());
   const [completingOrderIds, setCompletingOrderIds] = useState<Set<string>>(new Set());
-  
+
+  // Custom Confirmation Dialog State
+  const [confirmDialog, setConfirmDialog] = useState<{ isOpen: boolean; orderId: string | null }>({
+    isOpen: false,
+    orderId: null
+  });
+
+  const handleOpenConfirm = (orderId: string) => {
+    setConfirmDialog({ isOpen: true, orderId });
+  };
+
+  const handleCloseConfirm = () => {
+    setConfirmDialog({ isOpen: false, orderId: null });
+  };
+
+  const handleConfirmAction = async () => {
+    if (confirmDialog.orderId) {
+      const id = confirmDialog.orderId;
+      setCompletingOrderIds(prev => new Set([...prev, id]));
+      handleCloseConfirm();
+      try {
+        await completeOrder(id);
+      } finally {
+        setCompletingOrderIds(prev => {
+          const next = new Set(prev);
+          next.delete(id);
+          return next;
+        });
+      }
+    }
+  };
+
   // Real-time Subscription - Zero Error Tolerance
   useEffect(() => {
     fetchOrders(); // Initial fetch
@@ -262,20 +293,7 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
 
                                     {/* Action Button */}
                                     <button 
-                                        onClick={async () => {
-                                            if(window.confirm('Tandai pesanan ini sudah diantar/selesai?')) {
-                                                setCompletingOrderIds(prev => new Set([...prev, order.id]));
-                                                try {
-                                                    await completeOrder(order.id);
-                                                } finally {
-                                                    setCompletingOrderIds(prev => {
-                                                        const next = new Set(prev);
-                                                        next.delete(order.id);
-                                                        return next;
-                                                    });
-                                                }
-                                            }
-                                        }}
+                                        onClick={() => handleOpenConfirm(order.id)}
                                         disabled={completingOrderIds.has(order.id)}
                                         className={`w-full font-bold py-4 rounded-[20px] flex items-center justify-center gap-3 shadow-lg transition-all group ${
                                             completingOrderIds.has(order.id) 
@@ -567,6 +585,42 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
               )}
           </div>
       )}
+
+      {/* Modern Confirmation Dialog */}
+      {confirmDialog.isOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 animate-in fade-in duration-200">
+          <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={handleCloseConfirm}
+          />
+          <div className="relative bg-white w-full max-w-sm rounded-[32px] overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300">
+            <div className="p-8 text-center">
+              <div className="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-6 border border-emerald-100">
+                <CheckCircle2 size={40} className="text-emerald-600" />
+              </div>
+              <h3 className="text-xl font-serif font-bold text-gray-900 mb-2">Konfirmasi Pesanan</h3>
+              <p className="text-gray-500 text-sm leading-relaxed">
+                Tandai pesanan ini sudah selesai?
+              </p>
+            </div>
+            <div className="flex border-t border-gray-100 p-4 gap-3 bg-gray-50/50">
+              <button
+                onClick={handleCloseConfirm}
+                className="flex-1 py-3.5 rounded-2xl text-sm font-bold text-gray-500 bg-white border border-gray-200 hover:bg-gray-50 active:scale-[0.98] transition-all"
+              >
+                Batal
+              </button>
+              <button
+                onClick={handleConfirmAction}
+                className="flex-1 py-3.5 rounded-2xl text-sm font-bold text-white bg-emerald-600 shadow-lg shadow-emerald-600/20 hover:bg-emerald-700 active:scale-[0.98] transition-all"
+              >
+                Ya, Selesai
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };
