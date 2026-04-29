@@ -1,18 +1,19 @@
 {
   "version": 2,
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "pawon-salam-digital-menu/backend/src/index.ts" },
-    { "source": "/waiter", "destination": "/waiter.html" },
-    { "source": "/admin", "destination": "/admin.html" },
-    { "source": "/(.*)", "destination": "/index.html" }
+    { "source": "/api/(.*)", "destination": "backend/src/index.ts" },
+    { "source": "/waiter", "destination": "frontend/waiter.html" },
+    { "source": "/admin", "destination": "frontend/admin.html" },
+    { "source": "/assets/(.*)", "destination": "frontend/assets/$1" },
+    { "source": "/(.*)", "destination": "frontend/index.html" }
   ],
   "builds": [
     {
-      "src": "pawon-salam-digital-menu/backend/src/index.ts",
+      "src": "backend/src/index.ts",
       "use": "@vercel/node"
     },
     {
-      "src": "pawon-salam-digital-menu/frontend/package.json",
+      "src": "frontend/package.json",
       "use": "@vercel/static-build",
       "config": {
         "distDir": "dist"

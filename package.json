@@ -5,8 +5,8 @@
     "node": ">=18"
   },
   "scripts": {
-    "build:frontend": "cd pawon-salam-digital-menu/frontend && npm install && npm run build",
-    "build:backend": "cd pawon-salam-digital-menu/backend && npm install",
+    "build:frontend": "cd frontend && npm install && npm run build",
+    "build:backend": "cd backend && npm install",
     "build": "npm run build:frontend"
   }
 }
