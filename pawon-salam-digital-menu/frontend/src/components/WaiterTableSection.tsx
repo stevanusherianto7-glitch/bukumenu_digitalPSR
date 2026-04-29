@@ -31,6 +31,7 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
   const { orders, completeOrder, subscribeToOrders, fetchOrders } = useOrderStore();
   const [selectedTable, setSelectedTable] = useState<string | null>(null);
   const [pingingTables, setPingingTables] = useState<Set<string>>(new Set());
+  const [completingOrderIds, setCompletingOrderIds] = useState<Set<string>>(new Set());
   
   // Real-time Subscription - Zero Error Tolerance
   useEffect(() => {
@@ -261,16 +262,38 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
 
                                     {/* Action Button */}
                                     <button 
-                                        onClick={() => {
-                                            console.log('👆 Selesaikan Pesanan clicked for order:', order.id);
+                                        onClick={async () => {
                                             if(window.confirm('Tandai pesanan ini sudah diantar/selesai?')) {
-                                                completeOrder(order.id);
+                                                setCompletingOrderIds(prev => new Set([...prev, order.id]));
+                                                try {
+                                                    await completeOrder(order.id);
+                                                } finally {
+                                                    setCompletingOrderIds(prev => {
+                                                        const next = new Set(prev);
+                                                        next.delete(order.id);
+                                                        return next;
+                                                    });
+                                                }
                                             }
                                         }}
-                                        className="w-full bg-emerald-600 text-white font-bold py-4 rounded-[20px] flex items-center justify-center gap-3 shadow-lg shadow-emerald-600/20 hover:bg-emerald-700 active:scale-[0.98] transition-all group"
+                                        disabled={completingOrderIds.has(order.id)}
+                                        className={`w-full font-bold py-4 rounded-[20px] flex items-center justify-center gap-3 shadow-lg transition-all group ${
+                                            completingOrderIds.has(order.id) 
+                                            ? 'bg-gray-400 text-white cursor-not-allowed' 
+                                            : 'bg-emerald-600 text-white shadow-emerald-600/20 hover:bg-emerald-700 active:scale-[0.98]'
+                                        }`}
                                     >
-                                        <CheckCircle2 size={24} className="group-hover:scale-110 transition-transform" />
-                                        <span className="text-lg">Selesaikan Pesanan</span>
+                                        {completingOrderIds.has(order.id) ? (
+                                            <>
+                                                <div className="w-6 h-6 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
+                                                <span className="text-lg">Menyelesaikan...</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <CheckCircle2 size={24} className="group-hover:scale-110 transition-transform" />
+                                                <span className="text-lg">Selesaikan Pesanan</span>
+                                            </>
+                                        )}
                                     </button>
 
                                     {/* Footer Info */}

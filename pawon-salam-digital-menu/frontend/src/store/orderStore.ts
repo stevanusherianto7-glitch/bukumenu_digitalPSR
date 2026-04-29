@@ -88,26 +88,39 @@ export const useOrderStore = create<OrderState>((set, get) => ({
   },
 
   completeOrder: async (orderId: string) => {
-    console.log('🔄 Attempting to complete order:', orderId);
+    console.log('🔄 START: Attempting to complete order ID:', orderId);
     try {
-      const { data, error } = await supabase
+      console.log('📡 Calling Supabase update for order:', orderId);
+      const { data, error, status, statusText } = await supabase
         .from('orders')
         .update({ status: 'completed' })
         .eq('id', orderId)
         .select();
 
       if (error) {
-        console.error('❌ Supabase error completing order:', error);
+        console.error('❌ Supabase ERROR:', error.message, 'Code:', error.code, 'Details:', error.details);
+        alert(`Gagal menyelesaikan pesanan: ${error.message}`);
         throw error;
       }
 
-      console.log('✅ Order completed successfully in DB:', data);
-      
-      set({
-        orders: get().orders.map(order => String(order.id) === String(orderId) ? { ...order, status: 'completed' } : order),
-      });
-    } catch (error) {
-      console.error('❌ Error completing order catch block:', error);
+      console.log('✅ Supabase SUCCESS:', data);
+      console.log('📊 HTTP Status:', status, statusText);
+
+      if (!data || data.length === 0) {
+        console.warn('⚠️ Order ID not found or no rows updated.');
+        alert('Peringatan: Pesanan tidak ditemukan atau tidak ada data yang berubah.');
+      }
+
+      set((state) => ({
+        orders: state.orders.map(order =>
+          String(order.id) === String(orderId) ? { ...order, status: 'completed' } : order
+        ),
+      }));
+
+      console.log('✨ Local state updated for order:', orderId);
+    } catch (error: any) {
+      console.error('❌ CATCH BLOCK ERROR:', error);
+      alert(`Terjadi kesalahan sistem: ${error.message || 'Unknown error'}`);
     }
   },
 
