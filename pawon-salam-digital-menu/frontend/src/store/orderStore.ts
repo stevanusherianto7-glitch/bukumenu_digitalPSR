@@ -88,19 +88,26 @@ export const useOrderStore = create<OrderState>((set, get) => ({
   },
 
   completeOrder: async (orderId: string) => {
+    console.log('🔄 Attempting to complete order:', orderId);
     try {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('orders')
         .update({ status: 'completed' })
-        .eq('id', orderId);
+        .eq('id', orderId)
+        .select();
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Supabase error completing order:', error);
+        throw error;
+      }
+
+      console.log('✅ Order completed successfully in DB:', data);
       
       set({
         orders: get().orders.map(order => String(order.id) === String(orderId) ? { ...order, status: 'completed' } : order),
       });
     } catch (error) {
-      console.error('Error completing order:', error);
+      console.error('❌ Error completing order catch block:', error);
     }
   },
 

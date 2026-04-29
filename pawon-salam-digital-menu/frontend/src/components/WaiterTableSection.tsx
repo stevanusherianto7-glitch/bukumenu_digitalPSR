@@ -261,7 +261,12 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
 
                                     {/* Action Button */}
                                     <button 
-                                        onClick={() => { if(window.confirm('Tandai pesanan ini sudah diantar/selesai?')) { completeOrder(order.id); } }} 
+                                        onClick={() => {
+                                            console.log('👆 Selesaikan Pesanan clicked for order:', order.id);
+                                            if(window.confirm('Tandai pesanan ini sudah diantar/selesai?')) {
+                                                completeOrder(order.id);
+                                            }
+                                        }}
                                         className="w-full bg-emerald-600 text-white font-bold py-4 rounded-[20px] flex items-center justify-center gap-3 shadow-lg shadow-emerald-600/20 hover:bg-emerald-700 active:scale-[0.98] transition-all group"
                                     >
                                         <CheckCircle2 size={24} className="group-hover:scale-110 transition-transform" />
