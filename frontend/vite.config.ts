@@ -25,7 +25,7 @@ export default defineConfig(({ mode }) => {
           '@': path.resolve(__dirname, '.'),
         }
       },
-      base: './',
+      base: process.env.VITE_BASE_PATH || '/',
       build: {
         rollupOptions: {
           input: {
