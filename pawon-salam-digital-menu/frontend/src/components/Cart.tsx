@@ -36,7 +36,7 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose, tableNumber }) => {
         const addonNames = item.selectedAddons?.map(a => a.name).join(', ');
 
         // Separate Order Type from Notes with a newline
-        const typePrefix = orderType === 'take-away' ? '[BAWA PULANG]' : '[DINE IN]';
+        const typePrefix = orderType === 'take-away' ? '[TAKE AWAY]' : '[DINE IN]';
         const addonPrefix = addonNames ? `[ADDONS: ${addonNames}]` : '';
 
         const fullNotes = [
@@ -104,17 +104,17 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose, tableNumber }) => {
             <div className="bg-gray-100/80 p-1 rounded-xl flex gap-1 border border-gray-200">
                 <button 
                     onClick={() => setOrderType('dine-in')}
-                    className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 ${orderType === 'dine-in' ? 'bg-white text-pawon-dark shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                    className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 whitespace-nowrap ${orderType === 'dine-in' ? 'bg-white text-pawon-dark shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
                 >
                     <div className={`w-1.5 h-1.5 rounded-full ${orderType === 'dine-in' ? 'bg-green-500 animate-pulse' : 'bg-gray-300'}`}></div>
-                    Dine In
+                    Dine in
                 </button>
                 <button 
                     onClick={() => setOrderType('take-away')}
-                    className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 ${orderType === 'take-away' ? 'bg-white text-pawon-dark shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                    className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 whitespace-nowrap ${orderType === 'take-away' ? 'bg-white text-pawon-dark shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
                 >
                     <div className={`w-1.5 h-1.5 rounded-full ${orderType === 'take-away' ? 'bg-orange-500 animate-pulse' : 'bg-gray-300'}`}></div>
-                    Take Away
+                    Take away
                 </button>
             </div>
         </div>
