@@ -225,10 +225,10 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ item, on
           <button 
             onClick={handleAddToCartClick}
             disabled={!isAvailable}
-            className={`w-full h-12 rounded-full font-bold text-sm flex items-center justify-center gap-2 transition-all ${isAvailable ? 'bg-pawon-accent text-white shadow-lg shadow-pawon-accent/30 active:scale-[0.98] hover:bg-orange-700' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}
+            className={`w-full h-12 rounded-full font-bold text-xs flex items-center justify-center gap-2 transition-all ${isAvailable ? 'bg-pawon-accent text-white shadow-lg shadow-pawon-accent/30 active:scale-[0.98] hover:bg-orange-700' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}
           >
             {isAvailable ? (
-                <span className="text-base">Pesan</span>
+                <span>Pesan</span>
             ) : (
                 <span>Stok Habis</span>
             )}
