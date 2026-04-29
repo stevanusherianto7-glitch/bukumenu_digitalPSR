@@ -5,6 +5,21 @@ export interface Addon {
   price: number;
 }
 
+export interface Ingredient {
+  id: string;
+  name: string;
+  unit: 'Kg' | 'Gram' | 'L' | 'Ml' | 'Pcs' | 'Pack';
+  currentStock: number;
+  safetyStock: number;
+  pricePerUnit: number;
+}
+
+export interface RecipeItem {
+  ingredientId: string;
+  quantity: number; // Jumlah yang dibutuhkan (dalam unit bahan baku atau unit konversi)
+  unit: string;
+}
+
 export interface MenuItem {
   id: string;
   name: string;
@@ -14,32 +29,39 @@ export interface MenuItem {
   isFavorite?: boolean;
   isAvailable?: boolean; 
   isNew?: boolean; 
-  category: Category;
+  category: string; // Diubah jadi string karena kategori sekarang dinamis
   rating?: number; 
   prepTime?: number; 
   calories?: number; 
   updatedAt?: Date;
   imageFile?: File; 
-  addons?: Addon[]; // New: List of possible addons for this item
+  addons?: Addon[];
+  recipe?: RecipeItem[]; // Takaran resep untuk HPP & Stok
+  hpp?: number; // Harga Pokok Penjualan (HPP) total
+}
+
+export interface StockTransaction {
+  id: string;
+  ingredientId: string;
+  type: 'IN' | 'OUT'; // IN (Pembelian/Masuk), OUT (Pemakaian/Penjualan/Penyusutan)
+  quantity: number;
+  referenceId?: string; // ID Pesanan atau ID Pembelian
+  createdAt: string;
+  note?: string;
 }
 
 export interface CartItem extends MenuItem {
-  cartId: string; // Unique ID for this specific configuration
+  cartId: string;
   quantity: number;
   notes?: string;
-  selectedAddons?: Addon[]; // New: Addons chosen by the user
+  selectedAddons?: Addon[];
 }
 
-// Tipe kategori disederhanakan agar sesuai dengan data menu baru dari pengguna.
-export type Category = 
-  | 'Terlaris' 
-  | 'Menu Baru'
-  | 'Makanan'
-  | 'Minuman'
-  | 'Snack';
+export type Category = string;
 
-// FIX: Add Order and OrderItem interfaces for WaiterTableSection component
 export interface OrderItem {
+  id?: string;
+  menuId?: string; // Menghubungkan ke menu untuk potong stok
   menuName: string;
   quantity: number;
   price: number;
@@ -55,3 +77,4 @@ export interface Order {
   createdAt: string;
   items: OrderItem[];
 }
+

@@ -8,14 +8,17 @@ import { ProductDetailModal } from './components/ProductDetailModal';
 import { PromoCarousel } from './components/PromoCarousel';
 import { Cart } from './components/Cart';
 import { useCartStore } from './store/cartStore';
-import { MenuItem } from './types';
+import { MenuItem, Ingredient } from './types';
 import { getAsset, saveAsset, base64ToBlob, getAllMenuItems, saveMenuItems, resetDatabase, deleteAsset } from './indexedDB';
 import { Loader2 } from 'lucide-react';
 import { MENU_ITEMS, CATEGORIES } from './data';
 import { WaiterTableSection } from './components/WaiterTableSection';
 import { TableMapSection } from './components/TableMapSection';
 import { SalesRecapSection } from './components/SalesRecapSection'; 
-import { MarketingSection } from './components/MarketingSection'; // New Import
+import { MarketingSection } from './components/MarketingSection';
+import { StockManagementSection } from './components/StockManagementSection';
+import { useInventoryStore } from './store/inventoryStore';
+import { useOrderStore } from './store/orderStore';
 import { SEED_VERSION } from './seed-version';
 import { InstallPWA } from './components/InstallPWA'; 
 import { WelcomeModal } from './components/WelcomeModal'; 
@@ -28,7 +31,18 @@ const App: React.FC = () => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const { addItem, totalItems } = useCartStore();
+  const { deductStockFromOrder } = useInventoryStore();
+  const { orders } = useOrderStore();
   const [isCartOpen, setIsCartOpen] = useState(false);
+
+  // ERP Engine: Auto-deduct stock when order is completed
+  useEffect(() => {
+    const completedOrders = orders.filter(o => o.status === 'completed');
+    completedOrders.forEach(order => {
+      deductStockFromOrder(items, order);
+    });
+  }, [orders, items, deductStockFromOrder]);
+
 
   // State untuk Welcome Modal
   const isValidTable = tableNumber ? VALID_TABLES.includes(tableNumber) : false;
@@ -55,7 +69,7 @@ const App: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('Terlaris');
   
   // Update Type Tab Active
-  const [activeTab, setActiveTab] = useState<'meja' | 'peta' | 'laporan' | 'marketing' | 'admin'>('meja');
+  const [activeTab, setActiveTab] = useState<'meja' | 'peta' | 'laporan' | 'marketing' | 'admin' | 'stok'>('meja');
 
   const SHORTCUT_CATEGORIES = ['Terlaris', 'Makanan', 'Minuman'];
 
@@ -139,10 +153,22 @@ const App: React.FC = () => {
       );
       setItems(hydratedItems);
 
-      const headerImageBlob = await getAsset('headerImage_v2');
-      setHeaderImage(headerImageBlob ? URL.createObjectURL(headerImageBlob) : DEFAULT_HEADER_IMG);
+      // Seed Inventory if empty
+      const currentIngredients = useInventoryStore.getState().ingredients;
+      if (currentIngredients.length === 0) {
+        const defaultIngredients: Ingredient[] = [
+          { id: '1', name: 'Ayam Karkas', unit: 'Kg', currentStock: 50, safetyStock: 10, pricePerUnit: 35000 },
+          { id: '2', name: 'Beras Premium', unit: 'Kg', currentStock: 100, safetyStock: 20, pricePerUnit: 15000 },
+          { id: '3', name: 'Telur Ayam', unit: 'Kg', currentStock: 30, safetyStock: 5, pricePerUnit: 28000 },
+          { id: '4', name: 'Minyak Goreng', unit: 'L', currentStock: 40, safetyStock: 10, pricePerUnit: 18000 },
+          { id: '5', name: 'Bawang Merah', unit: 'Kg', currentStock: 10, safetyStock: 2, pricePerUnit: 40000 },
+          { id: '6', name: 'Bawang Putih', unit: 'Kg', currentStock: 10, safetyStock: 2, pricePerUnit: 35000 },
+        ];
+        useInventoryStore.getState().setIngredients(defaultIngredients);
+      }
 
     } catch (error) {
+
       console.error("Failed to load data:", error);
       setItems(MENU_ITEMS);
       setCategories(CATEGORIES);
@@ -374,6 +400,7 @@ const App: React.FC = () => {
                 <div className="px-6 py-4">
                   {activeTab === 'meja' && <WaiterTableSection onExit={exitSpecialMode} />}
                   {activeTab === 'peta' && <TableMapSection />}
+                  {activeTab === 'stok' && <StockManagementSection />}
                   {activeTab === 'laporan' && <SalesRecapSection />}
                   {activeTab === 'marketing' && <MarketingSection />}
                   {activeTab === 'admin' && (
@@ -391,6 +418,7 @@ const App: React.FC = () => {
                   )}
                 </div>
               )}
+
             </>
           )}
         </div>

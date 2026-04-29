@@ -146,12 +146,13 @@ export const PromoCarousel: React.FC<PromoCarouselProps> = ({ onSecretAdminTrigg
                   <button
                     onClick={handleAction}
                     onTouchStart={handleAction}
-                    className={`flex-shrink-0 drop-shadow-xl transition-all bg-white/10 p-2 rounded-full border border-white/20 backdrop-blur-md z-50 cursor-pointer touch-manipulation ${isTapping ? 'scale-125 bg-white/30' : 'scale-100'}`}
+                    className={`flex-shrink-0 drop-shadow-xl transition-all bg-white/10 p-2 rounded-full border border-white/20 backdrop-blur-md z-50 touch-manipulation ${isTapping && tapCount >= 3 ? 'scale-110 bg-white/30' : 'scale-100'} ${tableNumber ? 'cursor-default' : 'cursor-pointer'}`}
                     aria-label="Admin Access Logo"
                   >
                      <Logo size="sm" variant="light" showText={false} />
                   </button>
                 )}
+
             </div>
 
             {tableNumber && (

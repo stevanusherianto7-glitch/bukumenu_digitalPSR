@@ -69,6 +69,7 @@ export const useOrderStore = create<OrderState>((set, get) => ({
 
       const orderItems = items.map(item => ({
         order_id: orderData.id,
+        menu_id: item.menuId, // Link to menu for stock deduction
         menu_name: item.menuName,
         quantity: item.quantity,
         unit_price: item.price,
@@ -78,6 +79,7 @@ export const useOrderStore = create<OrderState>((set, get) => ({
       const { error: itemsError } = await supabase
         .from('order_items')
         .insert(orderItems);
+
 
       if (itemsError) throw itemsError;
       

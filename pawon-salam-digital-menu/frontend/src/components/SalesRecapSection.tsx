@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { BarChart3, TrendingUp, Calendar, Wallet, ShoppingBag, ArrowUpRight, Award, Search, Filter } from 'lucide-react';
+import { BarChart3, TrendingUp, Calendar, Wallet, ShoppingBag, ArrowUpRight, Award, Search, Filter, TrendingDown } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { useInventoryStore } from '../store/inventoryStore';
+import { getAllMenuItems } from '../indexedDB';
+import { MenuItem } from '../types';
+
 
 type TimeRange = 'today' | '7days' | '30days' | 'custom';
 
@@ -9,11 +13,14 @@ export const SalesRecapSection: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [analyticsData, setAnalyticsData] = useState({
     totalRevenue: 0,
+    totalHpp: 0,
+    totalProfit: 0,
     totalTransactions: 0,
     avgTransaction: 0,
     sortedMenu: [] as any[],
     topItem: null as any
   });
+
 
   // State untuk Custom Date Picker
   const [startDate, setStartDate] = useState<string>(new Date().toISOString().split('T')[0]);
@@ -48,6 +55,10 @@ export const SalesRecapSection: React.FC = () => {
           .lte('created_at', endCutoff.toISOString());
 
         if (error) throw error;
+        
+        // Load Menu Items for HPP calculation
+        const menuItems = await getAllMenuItems();
+        const calculateHPP = useInventoryStore.getState().calculateHPP;
 
         // Map data from DB snake_case to Frontend camelCase
         const validOrders = (orders || []).map((dbOrder: any) => ({
@@ -56,6 +67,7 @@ export const SalesRecapSection: React.FC = () => {
           items: (dbOrder.items || []).map((item: any) => ({
             ...item,
             menuName: item.menu_name || item.menuName,
+            menuId: item.menu_id || item.menuId,
           }))
         }));
 
@@ -63,17 +75,28 @@ export const SalesRecapSection: React.FC = () => {
         const totalRevenue = validOrders.reduce((sum, o) => sum + (o.totalAmount || 0), 0);
         const totalTransactions = validOrders.length;
         const avgTransaction = totalTransactions > 0 ? totalRevenue / totalTransactions : 0;
-
+        
+        let totalHpp = 0;
         const menuStats: Record<string, { name: string; qty: number; revenue: number }> = {};
+        
         validOrders.forEach(order => {
           const items = order.items || [];
           items.forEach((item: any) => {
             const name = item.menuName;
+            const qty = item.quantity;
+            
+            // Stats
             if (!menuStats[name]) {
               menuStats[name] = { name, qty: 0, revenue: 0 };
             }
-            menuStats[name].qty += item.quantity;
-            menuStats[name].revenue += (item.price * item.quantity);
+            menuStats[name].qty += qty;
+            menuStats[name].revenue += (item.price * qty);
+
+            // HPP Calculation
+            const menu = menuItems.find((m: MenuItem) => m.id === item.menuId);
+            if (menu && menu.recipe) {
+               totalHpp += (calculateHPP(menu.recipe) * qty);
+            }
           });
         });
 
@@ -81,11 +104,14 @@ export const SalesRecapSection: React.FC = () => {
         
         setAnalyticsData({
           totalRevenue,
+          totalHpp,
+          totalProfit: totalRevenue - totalHpp,
           totalTransactions,
           avgTransaction,
           sortedMenu,
           topItem: sortedMenu.length > 0 ? sortedMenu[0] : null
         });
+
 
       } catch (error) {
         console.error('Failed to fetch analytics:', error);
@@ -173,7 +199,18 @@ export const SalesRecapSection: React.FC = () => {
             <div className="flex items-start justify-between mb-4 relative z-10">
                 <div>
                     <p className="text-[10px] text-white/50 font-bold mb-1 uppercase tracking-widest">Total Pendapatan</p>
-                    <h3 className="text-3xl font-black tracking-tight">Rp {analyticsData.totalRevenue.toLocaleString('id-ID')}</h3>
+                    <h3 className="text-3xl font-black tracking-tight mb-2">Rp {analyticsData.totalRevenue.toLocaleString('id-ID')}</h3>
+                    
+                    <div className="flex gap-4 mt-4 pt-4 border-t border-white/5">
+                        <div className="flex flex-col">
+                            <span className="text-[8px] font-black text-red-400 uppercase tracking-widest mb-1">Total HPP</span>
+                            <span className="text-xs font-bold text-red-100">Rp {analyticsData.totalHpp.toLocaleString('id-ID')}</span>
+                        </div>
+                        <div className="flex flex-col">
+                            <span className="text-[8px] font-black text-green-400 uppercase tracking-widest mb-1">Laba Kotor</span>
+                            <span className="text-sm font-black text-green-100">Rp {analyticsData.totalProfit.toLocaleString('id-ID')}</span>
+                        </div>
+                    </div>
                 </div>
                 <div className="bg-white/10 p-2.5 rounded-xl backdrop-blur-md border border-white/10 shadow-inner">
                     <Wallet size={20} className="text-orange-400" />
@@ -182,13 +219,11 @@ export const SalesRecapSection: React.FC = () => {
             <div className="flex items-center gap-3 relative z-10">
                 <div className="inline-flex items-center gap-1.5 bg-green-500/20 text-green-400 text-[10px] px-3 py-1 rounded-full font-black border border-green-500/20 shadow-sm">
                     <TrendingUp size={12} />
-                    <span>Live Cloud Sync</span>
+                    <span>Live Profit Sync</span>
                 </div>
-                {timeRange === 'custom' && (
-                    <span className="text-[9px] text-white/40 font-medium">{startDate} s/d {endDate}</span>
-                )}
             </div>
          </div>
+
 
          {/* Transaksi Card */}
          <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">

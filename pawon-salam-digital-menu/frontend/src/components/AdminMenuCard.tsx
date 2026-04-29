@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Edit2, DollarSign, Check, Type, AlignLeft, Tag, Heart, Package, Image as ImageIcon, Sparkles, Trash2, Link } from 'lucide-react';
 import { MenuItem } from '../types';
+import { RecipeEditor } from './RecipeEditor';
 
 interface AdminMenuCardProps {
   item: MenuItem;
@@ -240,7 +241,7 @@ export const AdminMenuCard: React.FC<AdminMenuCardProps> = ({ item, onUpdate, on
                         </label>
                     </div>
                 </div>
-                <div>
+                 <div>
                     <label className="flex items-center gap-1 text-[10px] font-bold text-pawon-textGray uppercase mb-1">
                         <Package size={12} /> Status Ketersediaan
                     </label>
@@ -261,6 +262,13 @@ export const AdminMenuCard: React.FC<AdminMenuCardProps> = ({ item, onUpdate, on
                         </label>
                     </div>
                 </div>
+
+                {/* Recipe Editor integration */}
+                <RecipeEditor 
+                  recipe={item.recipe} 
+                  onChange={(newRecipe) => handleUpdate('recipe', newRecipe)} 
+                />
+
                <div className="pt-2 flex items-center gap-2">
                  <button 
                    onClick={handleDelete}

@@ -46,11 +46,13 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose, tableNumber }) => {
         ].filter(Boolean).join('\n\n');
 
         return {
+            menuId: item.id, // ID Menu asli untuk potong stok
             menuName: item.name,
             quantity: item.quantity,
             price: item.price + (item.selectedAddons?.reduce((s, a) => s + a.price, 0) || 0),
             notes: fullNotes,
         };
+
     });
     addOrder(effectiveTable, orderItems, orderType);
     
