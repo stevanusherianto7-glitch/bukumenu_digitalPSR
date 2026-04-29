@@ -3,6 +3,7 @@ package com.example.bukumenudigitalku
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.ViewGroup
+import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
 import android.webkit.WebSettings
 import android.webkit.WebView
@@ -54,6 +55,8 @@ fun DigitalMenuWebView(modifier: Modifier = Modifier) {
                         return false // Load all links inside WebView
                     }
                 }
+
+                webChromeClient = object : WebChromeClient() {}
 
                 settings.apply {
                     javaScriptEnabled = true

@@ -34,11 +34,16 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose, tableNumber }) => {
     const effectiveTable = tableNumber || 'TAKE-AWAY';
     const orderItems: OrderItem[] = items.map(item => {
         const addonNames = item.selectedAddons?.map(a => a.name).join(', ');
+
+        // Separate Order Type from Notes with a newline
+        const typePrefix = orderType === 'take-away' ? '[BAWA PULANG]' : '[DINE IN]';
+        const addonPrefix = addonNames ? `[ADDONS: ${addonNames}]` : '';
+
         const fullNotes = [
-          orderType === 'take-away' ? '[TAKE AWAY]' : '',
-          addonNames ? `[ADDONS: ${addonNames}]` : '',
-          item.notes
-        ].filter(Boolean).join('\n');
+          typePrefix,
+          addonPrefix,
+          item.notes ? `Catatan: ${item.notes}` : ''
+        ].filter(Boolean).join('\n\n');
 
         return {
             menuName: item.name,

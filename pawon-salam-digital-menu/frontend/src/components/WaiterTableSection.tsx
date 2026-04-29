@@ -87,8 +87,8 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
   // Safety check: ensure orders is an array
   const safeOrders = Array.isArray(orders) ? orders : [];
 
-  // Standardize to 9 tables (A1-A9) + TAKE-AWAY
-  const tables = [...Array.from({ length: 9 }, (_, i) => `A${i + 1}`), 'TAKE-AWAY'];
+  // Standardize to 9 tables (A1-A9)
+  const tables = Array.from({ length: 9 }, (_, i) => `A${i + 1}`);
 
   const getTableOrders = (tableNum: string) => {
     return safeOrders.filter(o => o.tableNumber === tableNum && o.status === 'pending');
@@ -358,7 +358,7 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
              </div>
           </div>
           <div className="text-right">
-             <div className="text-2xl font-mono font-bold text-emerald-400 leading-none mb-1 drop-shadow-[0_0_10px_rgba(52,211,153,0.3)]">
+             <div className="text-xl font-digital font-bold text-emerald-400 leading-none mb-1 drop-shadow-[0_0_8px_rgba(52,211,153,0.4)] tracking-wider">
                 {now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
              </div>
              <p className="text-[10px] text-white/40 font-bold uppercase tracking-wider">
