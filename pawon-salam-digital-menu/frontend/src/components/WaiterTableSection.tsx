@@ -275,7 +275,6 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
                                                 <div className="flex-1">
                                                     <div className="flex justify-between items-start mb-1">
                                                         <p className="font-bold text-gray-900 text-lg leading-tight">{item.menuName}</p>
-                                                        <p className="text-sm font-bold text-red-600 font-mono">{(item.price * item.quantity).toLocaleString('id-ID')}</p>
                                                     </div>
                                                     
                                                     {item.notes && item.notes.trim() !== '' && (
@@ -565,7 +564,6 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
                                              <div className="w-5 h-5 rounded-md bg-white border border-gray-100 flex items-center justify-center font-bold text-[10px]">{item.quantity}x</div>
                                              <span className="font-medium text-gray-700">{item.menuName}</span>
                                          </div>
-                                         <span className="text-gray-400 font-mono">{(item.price * item.quantity).toLocaleString('id-ID')}</span>
                                      </div>
                                  ))}
                              </div>
