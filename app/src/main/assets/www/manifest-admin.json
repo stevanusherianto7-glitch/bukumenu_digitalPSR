@@ -1,0 +1,20 @@
+{
+  "name": "Pawon Manager",
+  "short_name": "Manager",
+  "id": "./?mode=admin",
+  "start_url": "./?mode=admin",
+  "display": "standalone",
+  "background_color": "#F7F5F2",
+  "theme_color": "#1A1614",
+  "orientation": "portrait",
+  "categories": ["business", "productivity"],
+  "description": "Dashboard manajemen restoran Pawon Salam.",
+  "icons": [
+    {
+      "src": "./icon-admin.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

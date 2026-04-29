@@ -1,0 +1,1 @@
+.ribbon-clip{clip-path:polygon(0 0,100% 0,100% 100%,50% 80%,0 100%)}.no-scrollbar::-webkit-scrollbar{display:none}.no-scrollbar{-ms-overflow-style:none;scrollbar-width:none}@supports (scrollbar-width: thin){*{scrollbar-width:thin;scrollbar-color:rgba(0,0,0,.1) transparent}}.progress-bar-fill{width:var(--progress-width, 0%)}@keyframes shimmer{to{transform:translate(100%)}}

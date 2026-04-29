@@ -1,0 +1,20 @@
+{
+  "name": "Pawon Waiter",
+  "short_name": "Waiter",
+  "id": "./?mode=waiter",
+  "start_url": "./?mode=waiter",
+  "display": "standalone",
+  "background_color": "#F7F5F2",
+  "theme_color": "#3b0764",
+  "orientation": "portrait",
+  "categories": ["business", "productivity"],
+  "description": "Dashboard waiter Pawon Salam.",
+  "icons": [
+    {
+      "src": "./icon-waiter.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
