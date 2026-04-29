@@ -20,19 +20,19 @@
     },
     {
       "src": "/waiter",
-      "dest": "pawon-salam-digital-menu/frontend/waiter.html"
+      "dest": "/waiter.html"
     },
     {
       "src": "/admin",
-      "dest": "pawon-salam-digital-menu/frontend/admin.html"
+      "dest": "/admin.html"
     },
     {
       "src": "/assets/(.*)",
-      "dest": "pawon-salam-digital-menu/frontend/assets/$1"
+      "dest": "/assets/$1"
     },
     {
       "src": "/(.*)",
-      "dest": "pawon-salam-digital-menu/frontend/index.html"
+      "dest": "/index.html"
     }
   ]
 }
