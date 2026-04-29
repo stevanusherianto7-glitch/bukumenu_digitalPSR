@@ -2,10 +2,9 @@
   "version": 2,
   "rewrites": [
     { "source": "/api/(.*)", "destination": "backend/src/index.ts" },
-    { "source": "/waiter", "destination": "frontend/dist/waiter.html" },
-    { "source": "/admin", "destination": "frontend/dist/admin.html" },
-    { "source": "/assets/(.*)", "destination": "frontend/dist/assets/$1" },
-    { "source": "/(.*)", "destination": "frontend/dist/index.html" }
+    { "source": "/waiter", "destination": "/waiter.html" },
+    { "source": "/admin", "destination": "/admin.html" },
+    { "source": "/(.*)", "destination": "/index.html" }
   ],
   "builds": [
     {
