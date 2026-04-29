@@ -305,14 +305,14 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose, tableNumber }) => {
                     }
                 }}
                 disabled={isSuccess}
-                className="flex-1 py-3.5 rounded-xl font-bold text-gray-500 bg-gray-100 hover:bg-gray-200 transition-colors border border-gray-200 active:scale-[0.98]"
+                className="flex-1 py-3.5 rounded-xl font-bold text-gray-500 bg-gray-100 hover:bg-gray-200 transition-colors border border-gray-200 active:scale-[0.98] text-xs"
               >
                 Batal
               </button>
               <button
                 onClick={handleConfirmOrder}
                 disabled={isSuccess}
-                className={`flex-1 py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg transition-all duration-300 active:scale-[0.98]
+                className={`flex-1 py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg transition-all duration-300 active:scale-[0.98] text-xs
                   ${isSuccess 
                       ? 'bg-green-600 text-white shadow-green-600/30 scale-100 cursor-default' 
                       : 'bg-pawon-accent text-white shadow-pawon-accent/30 hover:bg-orange-700'
@@ -321,7 +321,7 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose, tableNumber }) => {
                 {isSuccess ? (
                     <>
                       <CheckCircle size={18} className="animate-bounce" />
-                      <span className="text-xs">Mohon Di Tunggu</span>
+                      <span>Mohon Di Tunggu</span>
                     </>
                 ) : (
                     <>

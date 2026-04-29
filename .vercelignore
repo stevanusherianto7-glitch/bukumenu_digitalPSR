@@ -1,0 +1,11 @@
+app/
+gradle/
+.gradle/
+.kotlin/
+build.gradle.kts
+gradle.properties
+gradlew
+gradlew.bat
+local.properties
+settings.gradle.kts
+.idea/
