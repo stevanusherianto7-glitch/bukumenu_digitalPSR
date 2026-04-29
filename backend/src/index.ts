@@ -1,14 +1,45 @@
 
 import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
+import morgan from 'morgan';
 import apiRoutes from './routes';
 import path from 'path';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
-// 1. Strict CORS Whitelist - Zero Error Tolerance
+// Middleware Setup
+// 1. Security Headers (Helmet) - MUST be first
+app.use(helmet());
+
+// 2. Request Logging (Morgan)
+if (process.env.NODE_ENV === 'production') {
+  app.use(morgan('combined')); // Apache combined format
+} else {
+  app.use(morgan('dev')); // Colorized development format
+}
+
+// 3. Rate Limiting - General
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  message: 'Too many requests from this IP, please try again later.',
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+app.use(limiter);
+
+// 4. Rate Limiting - Auth routes (stricter)
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5, // 5 attempts per 15 minutes
+  skipSuccessfulRequests: true,
+  message: 'Too many login attempts, please try again later.',
+});
+
+// 5. Strict CORS Whitelist - Zero Error Tolerance
 const allowedOrigins = [process.env.FRONTEND_URL || 'http://localhost:3000'];
 app.use(cors({
   origin: (origin, callback) => {
