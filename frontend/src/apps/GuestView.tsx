@@ -73,28 +73,28 @@ export const GuestView: React.FC = () => {
     <div className="min-h-screen bg-pawon-bg flex justify-center">
       <InstallPWA />
 
-      {showWelcome && tableNumber && (
-        <WelcomeModal 
-          tableNumber={isValidTable ? tableNumber : ''} 
-          onDismiss={() => setShowWelcome(false)} 
-        />
-      )}
-
-      {selectedItem && (
-        <ProductDetailModal 
-          item={selectedItem} 
-          onClose={() => setSelectedItem(null)} 
-          onAddToCart={handleAddToCart}
-        />
-      )}
-
-      <Cart 
-        isOpen={isCartOpen} 
-        onClose={() => setIsCartOpen(false)} 
-        tableNumber={tableNumber || undefined}
-      />
-
       <div className="w-full max-w-[480px] bg-pawon-bg h-screen shadow-2xl overflow-hidden flex flex-col relative">
+        {showWelcome && tableNumber && (
+          <WelcomeModal 
+            tableNumber={isValidTable ? tableNumber : ''} 
+            onDismiss={() => setShowWelcome(false)} 
+          />
+        )}
+
+        {selectedItem && (
+          <ProductDetailModal 
+            item={selectedItem} 
+            onClose={() => setSelectedItem(null)} 
+            onAddToCart={handleAddToCart}
+          />
+        )}
+
+        <Cart 
+          isOpen={isCartOpen} 
+          onClose={() => setIsCartOpen(false)} 
+          tableNumber={tableNumber || undefined}
+        />
+
         <div className="flex-none px-6 z-20 bg-pawon-bg pt-0 relative">
            <PromoCarousel 
               headerImage={headerImage}

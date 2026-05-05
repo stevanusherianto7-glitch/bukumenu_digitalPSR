@@ -64,7 +64,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ item, on
   };
 
   return (
-    <div className="fixed inset-0 z-[60] bg-pawon-bg flex flex-col animate-in slide-in-from-bottom-4 duration-300">
+    <div className="absolute inset-0 z-[60] bg-pawon-bg flex flex-col animate-in slide-in-from-bottom-4 duration-300">
       
       {/* 1. New Navigation Header (Updated: Added padding-top for safe area) */}
       <div className="absolute top-0 left-0 right-0 p-4 pt-[calc(1rem+env(safe-area-inset-top))] z-20 flex justify-between items-start">

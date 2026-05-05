@@ -73,11 +73,11 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose, tableNumber }) => {
       {/* Backdrop */}
       <div 
         onClick={() => !isSuccess && onClose()}
-        className={`fixed inset-0 z-[70] bg-black/60 transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+        className={`absolute inset-0 z-[70] bg-black/60 transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
       />
 
       {/* Cart Panel */}
-      <div className={`fixed top-0 right-0 bottom-0 z-[80] w-full max-w-md bg-pawon-bg flex flex-col shadow-2xl transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+      <div className={`absolute top-0 right-0 bottom-0 z-[80] w-full max-w-md bg-pawon-bg flex flex-col shadow-2xl transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}>
         
         {/* Header */}
         <div className="flex-none flex items-center justify-between p-5 border-b border-gray-200">
