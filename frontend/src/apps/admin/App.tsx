@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { WaiterTableSection } from '../../components/WaiterTableSection';
 import { TableMapSection } from '../../components/TableMapSection';
 import { SalesRecapSection } from '../../components/SalesRecapSection';
@@ -6,60 +6,29 @@ import { MarketingSection } from '../../components/MarketingSection';
 import { AdminSection } from '../../components/AdminSection';
 import { BottomNav } from '../../components/BottomNav';
 import { InstallPWA } from '../../components/InstallPWA';
-import { MenuItem } from '../../types';
-import { getAsset, saveAsset, base64ToBlob, getAllMenuItems, saveMenuItems, resetDatabase, deleteAsset } from '../../indexedDB';
-import { MENU_ITEMS, CATEGORIES } from '../../data';
+import { useMenuStore } from '../../store/menuStore';
 import { Loader2 } from 'lucide-react';
 
 const AdminApp: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'meja' | 'peta' | 'laporan' | 'marketing' | 'admin'>('laporan');
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-
-  const [items, setItems] = useState<MenuItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [categories, setCategories] = useState<string[]>([]);
-  
-  const DEFAULT_HEADER_IMG = "https://res.cloudinary.com/dwdaydzsh/image/upload/v1768368455/Soto_Pindang_Kudus_orwjnb.jpg";
-  const [headerImage, setHeaderImage] = useState<string>(DEFAULT_HEADER_IMG);
   const [selectedCategory, setSelectedCategory] = useState<string>('Terlaris');
 
-  const loadDataFromDB = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const storedItems = await getAllMenuItems();
-      const baseItems = storedItems.length > 0 ? storedItems : MENU_ITEMS;
-
-      const storedCategories = localStorage.getItem('pawon_categories_custom');
-      setCategories(storedCategories ? JSON.parse(storedCategories) : CATEGORIES);
-
-      const hydratedItems = await Promise.all(
-        baseItems.map(async (item: MenuItem) => {
-          try {
-            const imageBlob = await getAsset('menu_image_' as string + item.id);
-            return imageBlob ? { ...item, imageUrl: URL.createObjectURL(imageBlob) } : item;
-          } catch (error) {
-            return item;
-          }
-        })
-      );
-      setItems(hydratedItems);
-
-      const headerImageBlob = await getAsset('headerImage_v2');
-      setHeaderImage(headerImageBlob ? URL.createObjectURL(headerImageBlob) : DEFAULT_HEADER_IMG);
-
-    } catch (error) {
-      console.error("Failed to load data:", error);
-      setItems(MENU_ITEMS);
-      setCategories(CATEGORIES);
-      setHeaderImage(DEFAULT_HEADER_IMG);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+  const { 
+    items, 
+    categories, 
+    isLoading, 
+    headerImage, 
+    loadData, 
+    saveAllItems, 
+    deleteItem, 
+    addCategory, 
+    resetData 
+  } = useMenuStore();
 
   useEffect(() => {
-    loadDataFromDB();
-  }, [loadDataFromDB]);
+    loadData();
+  }, [loadData]);
 
   useEffect(() => {
     if (scrollContainerRef.current) {
@@ -67,94 +36,23 @@ const AdminApp: React.FC = () => {
     }
   }, [activeTab]);
 
-  const handleAddCategory = (newCategoryName: string) => {
-    if (categories.includes(newCategoryName)) {
-      alert('Kategori tersebut sudah ada!');
-      return;
-    }
-    const updatedCategories = [...categories, newCategoryName];
-    setCategories(updatedCategories);
-    localStorage.setItem('pawon_categories_custom', JSON.stringify(updatedCategories));
-    alert(`Kategori "${newCategoryName}" berhasil ditambahkan!`);
-  };
-
-  const handleSaveAllItems = async (draftItems: MenuItem[], newHeaderImage: string | null) => {
-    setIsLoading(true);
+  const handleSaveAll = async (draftItems: any[], newHeaderImage: string | null) => {
     try {
-      if (newHeaderImage) {
-        const imageBlob = base64ToBlob(newHeaderImage);
-        await saveAsset('headerImage_v2', imageBlob);
-      }
-      await Promise.all(draftItems.map(async (item) => {
-        if (item.imageFile) {
-          await saveAsset('menu_image_' + item.id, item.imageFile);
-        } else if (item.imageUrl.startsWith('data:image')) {
-          const imageBlob = base64ToBlob(item.imageUrl);
-          await saveAsset('menu_image_' + item.id, imageBlob);
-        }
-      }));
-      const itemsToSaveInDB = draftItems.map(item => {
-        const { imageFile, ...restOfItem } = item;
-        
-        // Jika imageUrl adalah URL publik (bukan data: atau blob:), biarkan apa adanya.
-        // Tapi kita perlu memastikan bahwa jika ada aset lokal lama, itu dihapus agar tidak menimpa URL ini saat load.
-        return { ...restOfItem, updatedAt: new Date() };
-      });
-
-      // Cleanup local assets if item now uses a public URL
-      await Promise.all(draftItems.map(async (item) => {
-          if (item.imageUrl.startsWith('http') && !item.imageUrl.startsWith('blob:')) {
-              await deleteAsset('menu_image_' + item.id);
-          }
-      }));
-
-      await saveMenuItems(itemsToSaveInDB);
-      await loadDataFromDB();
+      await saveAllItems(draftItems, newHeaderImage);
       alert('Sukses! Semua perubahan telah disimpan.');
     } catch (error) {
-      console.error("Gagal menyimpan:", error);
-      alert('Terjadi kesalahan saat menyimpan.');
-    } finally {
-       setIsLoading(false);
-    }
-  };
-  
-  const handleDeleteItem = async (itemId: string) => {
-    const itemToDelete = items.find(i => i.id === itemId);
-    if (!itemToDelete) return;
-
-    if (window.confirm(`Yakin ingin menghapus menu "${itemToDelete.name}"?`)) {
-        setIsLoading(true);
-        try {
-            const updatedItems = items.filter(item => item.id !== itemId);
-            await saveMenuItems(updatedItems);
-            await deleteAsset(`menu_image_${itemId}`);
-            setItems(updatedItems);
-            alert(`Menu "${itemToDelete.name}" berhasil dihapus.`);
-        } catch (error) {
-            console.error("Gagal menghapus:", error);
-            alert("Terjadi kesalahan.");
-        } finally {
-            setIsLoading(false);
-        }
+      alert('Gagal menyimpan.');
     }
   };
 
-  const handleResetData = async () => {
-    if (window.confirm('Yakin reset semua data?')) {
-      setIsLoading(true);
-      try {
-        localStorage.removeItem('pawon_categories_custom');
-        localStorage.removeItem('SEED_VERSION');
-        await resetDatabase();
-        window.location.reload(); 
-      } catch (error) {
-        console.error("Reset failed:", error);
-        alert('Gagal mereset data.');
-      } finally {
-        setIsLoading(false);
-      }
+  const handleDelete = async (id: string) => {
+    if (window.confirm('Yakin ingin menghapus menu ini?')) {
+      await deleteItem(id);
     }
+  };
+
+  const handleAddCat = (name: string) => {
+    addCategory(name);
   };
 
   return (
@@ -169,7 +67,7 @@ const AdminApp: React.FC = () => {
           ) : (
             <>
               <div className={activeTab === 'meja' ? 'block' : 'hidden'}>
-                <WaiterTableSection onExit={() => {}} />
+                <WaiterTableSection onExit={() => { window.location.href = '/'; }} />
               </div>
               <div className={activeTab === 'peta' ? 'block' : 'hidden'}>
                  <TableMapSection />
@@ -190,10 +88,10 @@ const AdminApp: React.FC = () => {
                         category={selectedCategory}
                         categories={categories}
                         onCategoryChange={setSelectedCategory} 
-                        onSaveAll={handleSaveAllItems}
-                        onResetData={handleResetData}
-                        onAddCategory={handleAddCategory}
-                        onDeleteItem={handleDeleteItem}
+                        onSaveAll={handleSaveAll}
+                        onResetData={resetData}
+                        onAddCategory={handleAddCat}
+                        onDeleteItem={handleDelete}
                       />
                  </div>
               </div>

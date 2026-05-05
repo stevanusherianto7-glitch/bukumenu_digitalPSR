@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import { Order, OrderItem } from '../types';
 import { supabase } from '../lib/supabase';
+import { useInventoryStore } from './inventoryStore';
+import { useMenuStore } from './menuStore';
 
 interface OrderState {
   orders: Order[];
@@ -119,7 +121,14 @@ export const useOrderStore = create<OrderState>((set, get) => ({
         ),
       }));
 
-      console.log('✨ Local state updated for order:', orderId);
+      // AUTO-DEDUCT STOCK (ERP Engine)
+      const completedOrder = get().orders.find(o => String(o.id) === String(orderId));
+      if (completedOrder) {
+          const menuItems = useMenuStore.getState().items;
+          useInventoryStore.getState().deductStockFromOrder(menuItems, completedOrder);
+      }
+
+      console.log('✨ Local state & inventory updated for order:', orderId);
     } catch (error: any) {
       console.error('❌ CATCH BLOCK ERROR:', error);
       alert(`Terjadi kesalahan sistem: ${error.message || 'Unknown error'}`);

@@ -20,7 +20,15 @@ export const useAuthStore = create<AuthState>()(
             isAuthenticated: () => !!get().token,
         }),
         {
-            name: 'restohris-auth-storage', // Matches strict key used in lib/api.ts
+            name: 'restohris-auth-storage',
+            storage: {
+                getItem: (name) => {
+                    const str = sessionStorage.getItem(name);
+                    return str ? JSON.parse(str) : null;
+                },
+                setItem: (name, value) => sessionStorage.setItem(name, JSON.stringify(value)),
+                removeItem: (name) => sessionStorage.removeItem(name),
+            },
             partialize: (state) => ({ token: state.token, user: state.user }),
         }
     )
