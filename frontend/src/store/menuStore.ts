@@ -25,14 +25,18 @@ export const useMenuStore = create<MenuState>((set, get) => ({
   loadData: async () => {
     set({ isLoading: true });
     try {
-      // 1. Fetch Categories
+      // 1. Fetch Categories (Need both ID and Name)
       const { data: catData, error: catError } = await supabase
         .from('categories')
-        .select('name')
+        .select('id, name')
         .order('sort_order', { ascending: true });
 
       if (catError) throw catError;
+      
       const categories = catData.map(c => c.name);
+      // Create a lookup map for internal use
+      const categoryMap = new Map(catData.map(c => [c.id, c.name]));
+      const reverseCategoryMap = new Map(catData.map(c => [c.name, c.id]));
 
       // 2. Fetch Menu Items
       const { data: menuData, error: menuError } = await supabase
@@ -48,7 +52,8 @@ export const useMenuStore = create<MenuState>((set, get) => ({
         description: item.description,
         price: item.price,
         imageUrl: item.image_url,
-        category: item.category,
+        // Map ID back to Name for UI compatibility
+        category: categoryMap.get(item.category) || item.category,
         isFavorite: item.is_favorite,
         isNew: item.is_new,
         rating: item.rating,
@@ -97,14 +102,18 @@ export const useMenuStore = create<MenuState>((set, get) => ({
   saveAllItems: async (draftItems) => {
     set({ isLoading: true });
     try {
-      // Mapping to snake_case for Supabase
+      // Get category IDs first
+      const { data: catData } = await supabase.from('categories').select('id, name');
+      const nameToId = new Map(catData?.map(c => [c.name, c.id]) || []);
+
       const dbItems = draftItems.map(item => ({
         id: item.id,
         name: item.name,
         description: item.description,
         price: item.price,
         image_url: item.imageUrl,
-        category: item.category,
+        // Map Name back to ID for Database consistency
+        category: nameToId.get(item.category) || item.category,
         is_favorite: item.isFavorite,
         is_new: item.isNew,
         rating: item.rating,
