@@ -151,6 +151,10 @@ export const useOrderStore = create<OrderState>((set, get) => ({
           console.log('📦 Order Change Detected:', payload);
           
           if (payload.eventType === 'INSERT') {
+            // Check if order already exists locally to avoid double alerts
+            const exists = get().orders.some(o => String(o.id) === String(payload.new.id));
+            if (exists) return;
+
             const { data, error } = await supabase
               .from('orders')
               .select('*, items:order_items(*)')
@@ -170,21 +174,33 @@ export const useOrderStore = create<OrderState>((set, get) => ({
                   orders: get().orders.map(o => {
                     if (String(o.id) === String(payload.new.id)) {
                       const mappedUpdate = mapOrderFromDB(payload.new);
-                     // Preserve existing items if the real-time payload doesn't include joined items
-                     mappedUpdate.items = payload.new.items ? mappedUpdate.items : o.items;
-                     return { ...o, ...mappedUpdate };
-                   }
-                   return o;
-                 }) 
-               });
+                      mappedUpdate.items = payload.new.items ? mappedUpdate.items : o.items;
+                      return { ...o, ...mappedUpdate };
+                    }
+                    return o;
+                  }) 
+                });
             }
           }
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log(`📡 Real-time status: ${status}`);
+        if (status === 'CLOSED' || status === 'CHANNEL_ERROR') {
+          console.log('🔄 Attempting re-subscribe...');
+          setTimeout(() => get().subscribeToOrders(), 5000);
+        }
+      });
+
+    // FALLBACK POLLING: Sync every 30s in case real-time fails
+    const pollInterval = setInterval(() => {
+      console.log('🔄 Running background sync (Polling)...');
+      get().fetchOrders();
+    }, 30000);
 
     return () => {
       console.log('🔕 Unsubscribing from orders...');
+      clearInterval(pollInterval);
       supabase.removeChannel(channel);
     };
   },
