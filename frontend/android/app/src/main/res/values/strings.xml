@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Pawon Salam</string>
+    <string name="title_activity_main">Pawon Salam</string>
+    <string name="package_name">com.pawonsalam.app</string>
+    <string name="custom_url_scheme">com.pawonsalam.app</string>
+</resources>
