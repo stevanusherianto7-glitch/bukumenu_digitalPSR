@@ -81,12 +81,16 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
       const newOrder = e.detail;
       if (newOrder.tableNumber) {
         playNotification(newOrder.tableNumber);
+        
+        // INSTANT REFRESH: Update data immediately when ping occurs
+        fetchOrders(); 
+
         setPingingTables(prev => new Set([...prev, newOrder.tableNumber]));
         setTimeout(() => setPingingTables(prev => {
           const next = new Set(prev);
           next.delete(newOrder.tableNumber);
           return next;
-        }), 10000); // 10 detik kedip
+        }), 10000); 
       }
     };
 
@@ -148,7 +152,7 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
   }
 
   return (
-    <div className="animate-in fade-in pb-20">
+    <div className="pb-20">
       <WaiterDashboardHeader 
         now={now}
         activeTablesCount={activeTablesCount}

@@ -46,7 +46,7 @@ export const TableGrid: React.FC<TableGridProps> = ({
                 hasOrder 
                   ? 'bg-red-50 border-red-500 shadow-lg shadow-red-200/50' 
                   : 'bg-white border-gray-100 hover:border-pawon-accent/30'
-              } ${pingingTables.has(tableNum) ? 'animate-pulse border-orange-500 bg-orange-50 ring-4 ring-orange-200' : ''}`}
+              } ${pingingTables.has(tableNum) ? 'animate-pulse bg-orange-50 !border-orange-500 shadow-[0_0_20px_rgba(249,115,22,0.6)]' : ''}`}
             >
               {hasOrder && (
                 <div className={`absolute -top-2 -right-2 w-8 h-8 rounded-full flex items-center justify-center text-[11px] font-black text-white shadow-lg z-10 ${urgency.bg} ${urgency.pulse ? 'animate-pulse' : ''}`}>
