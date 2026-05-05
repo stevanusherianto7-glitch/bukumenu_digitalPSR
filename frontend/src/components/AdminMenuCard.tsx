@@ -100,10 +100,15 @@ export const AdminMenuCard: React.FC<AdminMenuCardProps> = ({ item, onUpdate, on
             <button 
               title="Edit menu ini"
               aria-label="Edit menu ini"
-              onClick={() => { setIsEditing(true); setUrlInput(item.imageUrl); setUrlError(false); }}
-              className="absolute top-2 right-2 bg-white/90 text-pawon-dark p-2 rounded-full shadow-lg backdrop-blur-sm hover:text-pawon-accent transition-colors z-10"
+              onClick={(e) => { 
+                e.stopPropagation(); 
+                setIsEditing(true); 
+                setUrlInput(item.imageUrl); 
+                setUrlError(false); 
+              }}
+              className="absolute top-3 right-3 bg-white/95 text-pawon-dark p-3 rounded-full shadow-2xl backdrop-blur-md hover:text-pawon-accent hover:scale-110 active:scale-95 transition-all z-[60] border border-gray-100"
             >
-              <Edit2 size={16} />
+              <Edit2 size={20} />
             </button>
           )}
         </div>
