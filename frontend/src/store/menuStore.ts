@@ -23,7 +23,20 @@ export const useMenuStore = create<MenuState>((set, get) => ({
   setItems: (items) => set({ items }),
 
   loadData: async () => {
-    set({ isLoading: true });
+    // 0. Try to load from cache first for instant response
+    const cachedData = localStorage.getItem('pawon_menu_cache');
+    if (cachedData) {
+      try {
+        const { items, categories } = JSON.parse(cachedData);
+        set({ items, categories, isLoading: false });
+        console.log("🚀 Loaded from cache");
+      } catch (e) {
+        console.error("Cache parse error", e);
+      }
+    } else {
+      set({ isLoading: true });
+    }
+
     try {
       // 1. Fetch Categories (Need both ID and Name)
       const { data: catData, error: catError } = await supabase
@@ -34,9 +47,7 @@ export const useMenuStore = create<MenuState>((set, get) => ({
       if (catError) throw catError;
       
       const categories = catData.map(c => c.name);
-      // Create a lookup map for internal use
       const categoryMap = new Map(catData.map(c => [c.id, c.name]));
-      const reverseCategoryMap = new Map(catData.map(c => [c.name, c.id]));
 
       // 2. Fetch Menu Items
       const { data: menuData, error: menuError } = await supabase
@@ -52,7 +63,6 @@ export const useMenuStore = create<MenuState>((set, get) => ({
         description: item.description,
         price: item.price,
         imageUrl: item.image_url,
-        // Map ID back to Name for UI compatibility
         category: categoryMap.get(item.category) || item.category,
         isFavorite: item.is_favorite,
         isNew: item.is_new,
@@ -61,11 +71,22 @@ export const useMenuStore = create<MenuState>((set, get) => ({
         calories: item.calories
       }));
 
+      const finalCategories = categories.length > 0 ? categories : ['Makanan', 'Minuman', 'Snack'];
+      
+      // Update State
       set({ 
         items: mappedItems, 
-        categories: categories.length > 0 ? categories : ['Makanan', 'Minuman', 'Snack'],
+        categories: finalCategories,
         isLoading: false 
       });
+
+      // Update Cache
+      localStorage.setItem('pawon_menu_cache', JSON.stringify({
+        items: mappedItems,
+        categories: finalCategories,
+        timestamp: Date.now()
+      }));
+
     } catch (error) {
       console.error("Failed to load menu data from Supabase:", error);
       set({ isLoading: false });
