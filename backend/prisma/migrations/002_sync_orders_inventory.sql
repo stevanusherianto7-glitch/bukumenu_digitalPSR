@@ -138,11 +138,4 @@ END;
 $$ language 'plpgsql';
 
 DO $$ BEGIN
-CREATE TRIGGER update_orders_updated_at BEFORE UPDATE ON orders FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
-EXCEPTION WHEN duplicate_object THEN NULL;
-END $$;
-
-DO $$ BEGIN
-CREATE TRIGGER update_ingredients_updated_at BEFORE UPDATE ON ingredients FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
-EXCEPTION WHEN duplicate_object THEN NULL;
-END $$;
+ 
