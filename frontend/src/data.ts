@@ -309,7 +309,7 @@ export const MENU_ITEMS: MenuItem[] = [
     name: 'Aneka Soda',
     description: 'Pilihan soda favorit untuk menyegarkan harimu. Pilih antara Fanta, Sprite, atau Coca-Cola.',
     price: 7000,
-    imageUrl: '/images/aneka_soda_real.png',
+    imageUrl: 'https://zyalxogxdxeoisuwwmic.supabase.co/storage/v1/object/public/public-images/Sprite,%20Fanta,%20Coca-cola.png',
     isAvailable: true,
     isFavorite: false,
     isNew: true,
