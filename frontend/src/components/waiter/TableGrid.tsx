@@ -42,21 +42,39 @@ export const TableGrid: React.FC<TableGridProps> = ({
             <button 
               key={tableNum} 
               onClick={() => onSelectTable(tableNum)} 
-              className={`relative aspect-square rounded-3xl flex flex-col items-center justify-center border-2 transition-all group active:scale-95 ${
-                hasOrder ? 'bg-white border-yellow-500 shadow-xl' : 'bg-white border-yellow-400/30'
-              } ${pingingTables.has(tableNum) ? 'animate-pulse bg-orange-50' : ''}`}
+              className={`relative aspect-square rounded-[32px] flex flex-col items-center justify-center border-2 transition-all duration-300 group active:scale-95 ${
+                hasOrder 
+                  ? 'bg-red-50 border-red-500 shadow-lg shadow-red-200/50' 
+                  : 'bg-white border-gray-100 hover:border-pawon-accent/30'
+              } ${pingingTables.has(tableNum) ? 'animate-bounce' : ''}`}
             >
               {hasOrder && (
-                <div className={`absolute -top-1 -right-1 w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold text-white shadow-lg ${urgency.bg} ${urgency.pulse ? 'animate-bounce' : ''}`}>
+                <div className={`absolute -top-2 -right-2 w-8 h-8 rounded-full flex items-center justify-center text-[11px] font-black text-white shadow-lg z-10 ${urgency.bg} ${urgency.pulse ? 'animate-pulse' : ''}`}>
                   {pendingOrders.length}
                 </div>
               )}
-              <div className={`mb-2 p-2.5 rounded-2xl ${hasOrder ? `${urgency.bg} text-white` : 'text-gray-300'}`}>
-                <Utensils size={18} />
+              
+              <div className={`mb-2 p-3 rounded-2xl transition-colors ${
+                hasOrder 
+                  ? 'bg-red-600 text-white shadow-md' 
+                  : 'bg-gray-50 text-gray-300'
+              }`}>
+                <Utensils size={24} />
               </div>
-              <span className={`font-bold text-xl ${hasOrder ? 'text-gray-900' : 'text-gray-400'}`}>
+
+              <span className={`font-black text-2xl tracking-tighter ${
+                hasOrder ? 'text-red-900' : 'text-gray-400'
+              }`}>
                 {tableNum}
               </span>
+
+              {hasOrder && (
+                <div className="absolute bottom-3 flex gap-0.5">
+                  <div className="w-1 h-1 rounded-full bg-red-400 animate-pulse" />
+                  <div className="w-1 h-1 rounded-full bg-red-400 animate-pulse delay-75" />
+                  <div className="w-1 h-1 rounded-full bg-red-400 animate-pulse delay-150" />
+                </div>
+              )}
             </button>
           );
         })}
