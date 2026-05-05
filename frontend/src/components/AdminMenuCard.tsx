@@ -3,6 +3,8 @@ import React, { useState } from 'react';
 import { Edit2, DollarSign, Check, Type, AlignLeft, Tag, Heart, Package, Image as ImageIcon, Sparkles, Trash2, Link } from 'lucide-react';
 import { MenuItem } from '../types';
 import { RecipeEditor } from './RecipeEditor';
+import { uploadImage } from '../lib/supabase';
+import { Loader2 } from 'lucide-react';
 
 interface AdminMenuCardProps {
   item: MenuItem;
@@ -15,6 +17,7 @@ export const AdminMenuCard: React.FC<AdminMenuCardProps> = ({ item, onUpdate, on
   const [isEditing, setIsEditing] = useState(false);
   const [urlInput, setUrlInput] = useState(item.imageUrl);
   const [urlError, setUrlError] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
 
   const assignableCategories = availableCategories.filter(c => c !== 'Semua' && c !== 'Terlaris');
 
@@ -25,13 +28,30 @@ export const AdminMenuCard: React.FC<AdminMenuCardProps> = ({ item, onUpdate, on
   const handleUrlApply = () => {
     const trimmed = urlInput.trim();
     if (!trimmed) return;
-    // Validasi sederhana: harus dimulai dengan http
     if (!trimmed.startsWith('http')) {
       setUrlError(true);
       return;
     }
     setUrlError(false);
-    onUpdate(item.id, { imageUrl: trimmed, imageFile: undefined });
+    onUpdate(item.id, { imageUrl: trimmed });
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    try {
+      const publicUrl = await uploadImage(file);
+      onUpdate(item.id, { imageUrl: publicUrl });
+      setUrlInput(publicUrl);
+      console.log("Upload Success:", publicUrl);
+    } catch (error) {
+      console.error("Upload failed:", error);
+      alert("Gagal upload foto. Pastikan bucket 'menu-images' sudah publik.");
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const handleDelete = () => {
@@ -115,33 +135,56 @@ export const AdminMenuCard: React.FC<AdminMenuCardProps> = ({ item, onUpdate, on
           ) : (
             <div className="space-y-3 animate-in fade-in duration-200 pb-2">
 
-               {/* INPUT URL FOTO */}
-               <div>
-                  <label className="flex items-center gap-1 text-[10px] font-bold text-pawon-textGray uppercase mb-1">
-                    <ImageIcon size={12} /> URL Foto
-                  </label>
-                  <div className="flex flex-col gap-2">
-                    <input
-                      type="url"
-                      value={urlInput}
-                      onChange={(e) => { setUrlInput(e.target.value); setUrlError(false); }}
-                      onBlur={handleUrlApply}
-                      onKeyDown={(e) => e.key === 'Enter' && handleUrlApply()}
-                      className={`w-full text-[10px] text-pawon-dark border rounded-md p-2 focus:outline-none focus:ring-1 focus:ring-pawon-accent ${
-                        urlError ? 'border-red-400 bg-red-50' : 'border-gray-300 focus:border-pawon-accent'
-                      }`}
-                      placeholder="https://supabase.co/storage/v1/..."
-                    />
-                    <button
-                      onClick={handleUrlApply}
-                      className="w-full py-2 bg-pawon-accent text-white rounded-md text-[10px] font-bold flex items-center justify-center gap-1 hover:bg-orange-700 transition-colors"
-                    >
-                      <Link size={10}/> Terapkan URL
-                    </button>
-                  </div>
-                  {urlError && <p className="text-[9px] text-red-500 mt-1">URL tidak valid. Harus dimulai dengan https://</p>}
-                  <p className="text-[9px] text-gray-400 mt-1">Upload foto ke Supabase Storage → salin URL Public → paste di sini</p>
-               </div>
+                {/* OPSI UPLOAD / URL */}
+                <div className="space-y-3">
+                   <div>
+                      <label className="flex items-center gap-1 text-[10px] font-bold text-pawon-textGray uppercase mb-1">
+                        <ImageIcon size={12} /> Upload Foto
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleFileUpload}
+                          disabled={isUploading}
+                          className="hidden"
+                          id={`file-upload-${item.id}`}
+                        />
+                        <label 
+                          htmlFor={`file-upload-${item.id}`}
+                          className={`w-full h-10 border-2 border-dashed border-gray-300 rounded-md flex items-center justify-center gap-2 cursor-pointer hover:border-pawon-accent hover:bg-orange-50 transition-all ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        >
+                          {isUploading ? (
+                            <Loader2 className="animate-spin text-pawon-accent" size={16} />
+                          ) : (
+                            <>
+                              <ImageIcon size={16} className="text-gray-400" />
+                              <span className="text-[10px] font-bold text-gray-500">Pilih Foto dari Galeri</span>
+                            </>
+                          )}
+                        </label>
+                      </div>
+                   </div>
+
+                   <div className="relative flex items-center gap-2">
+                      <div className="flex-1 h-[1px] bg-gray-100"></div>
+                      <span className="text-[8px] text-gray-400 font-bold uppercase">Atau Gunakan URL</span>
+                      <div className="flex-1 h-[1px] bg-gray-100"></div>
+                   </div>
+
+                   <div>
+                      <input
+                        type="url"
+                        value={urlInput}
+                        onChange={(e) => { setUrlInput(e.target.value); setUrlError(false); }}
+                        onBlur={handleUrlApply}
+                        className={`w-full text-[10px] text-pawon-dark border rounded-md p-2 focus:outline-none focus:ring-1 focus:ring-pawon-accent ${
+                          urlError ? 'border-red-400 bg-red-50' : 'border-gray-300 focus:border-pawon-accent'
+                        }`}
+                        placeholder="https://... (URL Foto)"
+                      />
+                   </div>
+                </div>
 
                <div>
                   <label className="flex items-center gap-1 text-[10px] font-bold text-pawon-textGray uppercase mb-1">
