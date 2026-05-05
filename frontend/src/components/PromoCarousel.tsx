@@ -7,21 +7,23 @@ interface PromoCarouselProps {
   onSecretAdminTrigger?: () => void;
   tableNumber?: string;
   headerImage?: string;
+  menuItems?: any[];
 }
 
-export const PromoCarousel: React.FC<PromoCarouselProps> = ({ onSecretAdminTrigger, tableNumber, headerImage }) => {
+export const PromoCarousel: React.FC<PromoCarouselProps> = ({ onSecretAdminTrigger, tableNumber, headerImage, menuItems = [] }) => {
   const [tapCount, setTapCount] = useState(0);
   const [currentIndex, setCurrentIndex] = useState(0);
   const timerRef = React.useRef<NodeJS.Timeout | null>(null);
 
-  const CAROUSEL_IMAGES = [
-    headerImage || "https://res.cloudinary.com/dwdaydzsh/image/upload/v1768368455/Soto_Pindang_Kudus_orwjnb.jpg",
-    "https://res.cloudinary.com/dwdaydzsh/image/upload/v1768287617/Rawon_Semarang_vaxfch.webp",
-    "https://res.cloudinary.com/dwdaydzsh/image/upload/v1768287613/Tahu_Gimbal_Semarang_tjtpa0.webp",
-    "https://res.cloudinary.com/dwdaydzsh/image/upload/v1768368394/Es_Teler_vyc2aq.jpg",
-    "https://res.cloudinary.com/dwdaydzsh/image/upload/v1768368489/Nasi_Goreng_Mawut_Semarang_zijcjv.png",
-    "https://res.cloudinary.com/dwdaydzsh/image/upload/v1768368743/Pisang_Goreng_Keju_Karamel_lqjxrw.png"
-  ];
+  // Derive up to 28 images from menu items that have images
+  const CAROUSEL_IMAGES = React.useMemo(() => {
+    const imagesFromMenu = menuItems
+      .filter(item => item.imageUrl && !item.imageUrl.includes('placehold.co'))
+      .map(item => item.imageUrl);
+    
+    const combined = [headerImage, ...imagesFromMenu].filter(Boolean) as string[];
+    return combined.slice(0, 28); // Limit to 28 as requested
+  }, [headerImage, menuItems]);
 
   useEffect(() => {
     const timer = setInterval(() => {

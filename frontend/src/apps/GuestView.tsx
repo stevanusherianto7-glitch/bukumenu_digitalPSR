@@ -98,6 +98,7 @@ export const GuestView: React.FC = () => {
         <div className="flex-none px-6 z-20 bg-pawon-bg pt-0 relative">
            <PromoCarousel 
               headerImage={headerImage}
+              menuItems={items}
               onSecretAdminTrigger={handleSecretTrigger} 
               tableNumber={tableNumber || undefined}
            />
