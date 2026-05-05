@@ -47,20 +47,46 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
     fetchOrders();
     const unsubscribe = subscribeToOrders();
     
+    // Suara Bel & TTS
+    const playNotification = (tableNum: string) => {
+      try {
+        // 1. Bunyi Bel (Beep)
+        const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+        const oscillator = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        oscillator.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(880, audioCtx.currentTime); // A5
+        gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+        gainNode.gain.linearRampToValueAtTime(0.5, audioCtx.currentTime + 0.1);
+        gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.5);
+        oscillator.start();
+        oscillator.stop(audioCtx.currentTime + 0.6);
+
+        // 2. Suara Orang (TTS)
+        setTimeout(() => {
+          const msg = new SpeechSynthesisUtterance(`Ada pesanan baru dari meja ${tableNum}`);
+          msg.lang = 'id-ID';
+          msg.rate = 1.0;
+          msg.pitch = 1.1;
+          window.speechSynthesis.speak(msg);
+        }, 600);
+      } catch (err) {
+        console.error("Audio error:", err);
+      }
+    };
+
     const handlePing = (e: any) => {
       const newOrder = e.detail;
       if (newOrder.tableNumber) {
-        try {
-          const msg = new SpeechSynthesisUtterance(`Pesanan baru meja ${newOrder.tableNumber}`);
-          msg.lang = 'id-ID';
-          window.speechSynthesis.speak(msg);
-        } catch (err) {}
+        playNotification(newOrder.tableNumber);
         setPingingTables(prev => new Set([...prev, newOrder.tableNumber]));
         setTimeout(() => setPingingTables(prev => {
           const next = new Set(prev);
           next.delete(newOrder.tableNumber);
           return next;
-        }), 5000);
+        }), 10000); // 10 detik kedip
       }
     };
 
