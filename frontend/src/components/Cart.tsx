@@ -182,7 +182,7 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose, tableNumber }) => {
 
                     {item.notes && <p className="text-[10px] text-gray-500 italic mt-1 line-clamp-1">"{item.notes}"</p>}
                     <p className="font-bold text-pawon-accent text-xs mt-1.5">
-                      Rp {unitPriceTotal.toLocaleString('id-ID')}
+                      Rp {(Number(unitPriceTotal) || 0).toLocaleString('id-ID')}
                     </p>
                     
                     <div className="mt-auto flex justify-between items-center pt-2">
@@ -233,7 +233,7 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose, tableNumber }) => {
                         <img src={rec.imageUrl} alt={rec.name} className="w-full h-20 object-cover rounded-lg" />
                         <div className="px-1">
                            <p className="text-[10px] font-bold text-pawon-dark line-clamp-1">{rec.name}</p>
-                           <p className="text-[9px] font-bold text-pawon-accent">Rp {rec.price.toLocaleString('id-ID')}</p>
+                           <p className="text-[9px] font-bold text-pawon-accent">Rp {(Number(rec.price) || 0).toLocaleString('id-ID')}</p>
                         </div>
                         <button 
                           onClick={() => useCartStore.getState().addItem(rec, 1)}

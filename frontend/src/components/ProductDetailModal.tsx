@@ -15,8 +15,13 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ item, on
   // Quantity state removed from UI, defaults to 1 for logic
   const [notes, setNotes] = useState('');
   const [selectedAddons, setSelectedAddons] = useState<Addon[]>([]);
-  const isAvailable = item.isAvailable !== false; // Treat undefined as true
+  const isAvailable = item?.isAvailable !== false; // Treat undefined as true
   const { isAddonEnabled, isBestMatchEnabled } = useSettingsStore();
+  
+  // Safety check to prevent blank page if item is malformed
+  if (!item) return null;
+  
+  const safePrice = Number(item.price) || 0;
 
   // Prevent body scroll when modal is open
   useEffect(() => {
@@ -47,7 +52,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ item, on
   const handleShare = async () => {
     const shareData = {
       title: `Pawon Salam - ${item.name}`,
-      text: `Cobain ${item.name} di Pawon Salam Resto! Cuma Rp ${item.price.toLocaleString('id-ID')}.`,
+      text: `Cobain ${item.name} di Pawon Salam Resto! Cuma Rp ${safePrice.toLocaleString('id-ID')}.`,
       url: window.location.href,
     };
 
@@ -132,7 +137,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ item, on
           </div>
           <div className="flex flex-col items-end">
              <span className="font-bold text-xl text-pawon-accent whitespace-nowrap">
-              Rp {item.price.toLocaleString('id-ID')}
+              Rp {safePrice.toLocaleString('id-ID')}
             </span>
           </div>
         </div>
@@ -173,11 +178,11 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ item, on
             )}
           </section>
 
-          {isAddonEnabled && item.addons && item.addons.length > 0 && (
+          {item.addons && item.addons.length > 0 && (
             <section className="animate-in fade-in slide-in-from-top-2 duration-500">
                <div className="flex items-center justify-between mb-3">
-                 <h3 className="font-bold text-sm text-pawon-dark uppercase tracking-wider">Ekstra Topping</h3>
-                 <span className="text-[10px] font-bold text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">Pilihan</span>
+                 <h3 className="font-bold text-sm text-pawon-dark uppercase tracking-wider">Pilihan Varian</h3>
+                 <span className="text-[10px] font-bold text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">Opsional</span>
                </div>
                <div className="grid grid-cols-1 gap-2">
                  {item.addons.map((addon) => {

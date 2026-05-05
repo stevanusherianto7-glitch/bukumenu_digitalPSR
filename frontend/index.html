@@ -5,8 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     
-    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#FDF5E6" />
-    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1A1614" />
+    <meta name="theme-color" content="#FDF5E6" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Pawon Salam" />
@@ -15,19 +14,27 @@
     <link id="pwa-manifest" rel="manifest" href="/manifest-guest.json" />
     <script>
       (function() {
-        const params = new URLSearchParams(window.location.search);
-        const manifestLink = document.getElementById('pwa-manifest');
-        const appleIcon = document.querySelector('link[rel="apple-touch-icon"]');
-        
-        if (params.get('mode') === 'admin' || window.location.pathname.includes('/admin')) {
-          manifestLink.href = '/manifest-admin.json';
-          appleIcon.href = '/icon-admin.png';
-        } else if (params.get('mode') === 'waiter' || window.location.pathname.includes('/waiter')) {
-          manifestLink.href = '/manifest-waiter.json';
-          appleIcon.href = '/icon-waiter.png';
-        } else {
-          manifestLink.href = '/manifest-guest.json';
-          appleIcon.href = '/icon-guest.png';
+        try {
+          const params = new URLSearchParams(window.location.search);
+          const manifestLink = document.getElementById('pwa-manifest');
+          const appleIcon = document.querySelector('link[rel="apple-touch-icon"]');
+          const path = window.location.pathname;
+          
+          let manifest = '/manifest-guest.json';
+          let icon = '/icon-guest.png';
+
+          if (params.get('mode') === 'admin' || path.includes('/admin')) {
+            manifest = '/manifest-admin.json';
+            icon = '/icon-admin.png';
+          } else if (params.get('mode') === 'waiter' || path.includes('/waiter')) {
+            manifest = '/manifest-waiter.json';
+            icon = '/icon-waiter.png';
+          }
+
+          if (manifestLink) manifestLink.href = manifest;
+          if (appleIcon) appleIcon.href = icon;
+        } catch (e) {
+          console.warn('PWA Manifest switch failed:', e);
         }
       })();
     </script>

@@ -6,18 +6,21 @@ interface MenuState {
   items: MenuItem[];
   categories: string[];
   isLoading: boolean;
+  headerImage: string;
   loadData: () => Promise<void>;
   setCategories: (categories: string[]) => void;
   setItems: (items: MenuItem[]) => void;
   saveAllItems: (draftItems: MenuItem[], newHeaderImage?: string | null) => Promise<void>;
   deleteItem: (itemId: string) => Promise<void>;
   addCategory: (name: string) => Promise<void>;
+  resetData: () => Promise<void>;
 }
 
 export const useMenuStore = create<MenuState>((set, get) => ({
   items: [],
   categories: [],
   isLoading: true,
+  headerImage: "https://res.cloudinary.com/dwdaydzsh/image/upload/v1768368455/Soto_Pindang_Kudus_orwjnb.jpg",
 
   setCategories: (categories) => set({ categories }),
   setItems: (items) => set({ items }),
@@ -59,16 +62,17 @@ export const useMenuStore = create<MenuState>((set, get) => ({
 
       const mappedItems: MenuItem[] = menuData.map(item => ({
         id: item.id,
-        name: item.name,
-        description: item.description,
-        price: item.price,
-        imageUrl: item.image_url,
-        category: categoryMap.get(item.category) || item.category,
-        isFavorite: item.is_favorite,
-        isNew: item.is_new,
-        rating: item.rating,
-        prepTime: item.prep_time,
-        calories: item.calories
+        name: item.name || 'Menu Tanpa Nama',
+        description: item.description || '',
+        price: Number(item.price) || 0,
+        imageUrl: item.image_url || 'https://placehold.co/400x400/f3f4f6/9ca3af?text=No+Image',
+        category: categoryMap.get(item.category) || item.category || 'Lainnya',
+        isFavorite: !!item.is_favorite,
+        isNew: !!item.is_new,
+        rating: Number(item.rating) || 0,
+        prepTime: Number(item.prep_time) || 15,
+        calories: Number(item.calories) || 0,
+        addons: item.addons || [] // Ensure addons are mapped if present
       }));
 
       const finalCategories = categories.length > 0 ? categories : ['Makanan', 'Minuman', 'Snack'];
@@ -154,6 +158,21 @@ export const useMenuStore = create<MenuState>((set, get) => ({
       throw error;
     } finally {
       set({ isLoading: false });
+    }
+  },
+
+  resetData: async () => {
+    if (window.confirm('Yakin ingin reset semua data menu ke awal?')) {
+      set({ isLoading: true });
+      try {
+        // Logic to reset data could go here (e.g. re-seeding)
+        localStorage.removeItem('pawon_menu_cache');
+        await get().loadData();
+      } catch (error) {
+        console.error("Reset failed:", error);
+      } finally {
+        set({ isLoading: false });
+      }
     }
   }
 }));
