@@ -3,8 +3,8 @@ import React, { useState } from 'react';
 import { MapPin, QrCode, Download, Link as LinkIcon, ExternalLink, Info, CheckCircle2 } from 'lucide-react';
 
 export const TableMapSection: React.FC = () => {
-  // Standardize to 9 tables
-  const tables = Array.from({ length: 9 }, (_, i) => `A${i + 1}`);
+   // Standardize to 10 tables
+  const tables = Array.from({ length: 10 }, (_, i) => `A${i + 1}`);
   const [selectedTable, setSelectedTable] = useState<string>('A1');
   
   // NEW PRODUCTION URL

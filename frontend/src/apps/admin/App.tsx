@@ -7,6 +7,8 @@ import { AdminSection } from '../../components/AdminSection';
 import { BottomNav } from '../../components/BottomNav';
 import { InstallPWA } from '../../components/InstallPWA';
 import { useMenuStore } from '../../store/menuStore';
+import { useInventoryStore } from '../../store/inventoryStore';
+import { useOrderStore } from '../../store/orderStore';
 import { Loader2 } from 'lucide-react';
 
 const AdminApp: React.FC = () => {
@@ -28,6 +30,8 @@ const AdminApp: React.FC = () => {
 
   useEffect(() => {
     loadData();
+    useInventoryStore.getState().fetchInventory();
+    useOrderStore.getState().fetchOrders();
   }, [loadData]);
 
   useEffect(() => {

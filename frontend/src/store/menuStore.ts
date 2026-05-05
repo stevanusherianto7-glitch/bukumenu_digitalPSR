@@ -1,183 +1,129 @@
 import { create } from 'zustand';
 import { MenuItem } from '../types';
-import { getAsset, saveAsset, getAllMenuItems, saveMenuItems, resetDatabase } from '../indexedDB';
-import { MENU_ITEMS, CATEGORIES } from '../data';
-import { SEED_VERSION } from '../seed-version';
+import { supabase } from '../lib/supabase';
 
 interface MenuState {
   items: MenuItem[];
   categories: string[];
   isLoading: boolean;
-  headerImage: string;
   loadData: () => Promise<void>;
   setCategories: (categories: string[]) => void;
   setItems: (items: MenuItem[]) => void;
-  resetData: () => Promise<void>;
-  saveAllItems: (draftItems: MenuItem[], newHeaderImage: string | null) => Promise<void>;
+  saveAllItems: (draftItems: MenuItem[], newHeaderImage?: string | null) => Promise<void>;
   deleteItem: (itemId: string) => Promise<void>;
-  addCategory: (name: string) => void;
+  addCategory: (name: string) => Promise<void>;
 }
-
-const DEFAULT_HEADER_IMG = "https://res.cloudinary.com/dwdaydzsh/image/upload/v1768368455/Soto_Pindang_Kudus_orwjnb.jpg";
 
 export const useMenuStore = create<MenuState>((set, get) => ({
   items: [],
   categories: [],
   isLoading: true,
-  headerImage: DEFAULT_HEADER_IMG,
 
-  setCategories: (categories) => {
-    set({ categories });
-    localStorage.setItem('pawon_categories_custom', JSON.stringify(categories));
-  },
-
+  setCategories: (categories) => set({ categories }),
   setItems: (items) => set({ items }),
 
   loadData: async () => {
     set({ isLoading: true });
     try {
-      const localVersion = localStorage.getItem('SEED_VERSION');
-      let shouldSeed = false;
+      // 1. Fetch Categories
+      const { data: catData, error: catError } = await supabase
+        .from('categories')
+        .select('name')
+        .order('sort_order', { ascending: true });
 
-      if (localVersion !== SEED_VERSION) {
-        console.log(`New version detected (${SEED_VERSION}). Resetting local database...`);
-        await resetDatabase();
-        localStorage.setItem('SEED_VERSION', SEED_VERSION);
-        shouldSeed = true;
-      } else {
-        const storedItems = await getAllMenuItems();
-        if (storedItems.length === 0) {
-          shouldSeed = true;
-        }
-      }
+      if (catError) throw catError;
+      const categories = catData.map(c => c.name);
 
-      if (shouldSeed) {
-        await saveMenuItems(MENU_ITEMS);
-        localStorage.setItem('pawon_categories_custom', JSON.stringify(CATEGORIES));
-      }
+      // 2. Fetch Menu Items
+      const { data: menuData, error: menuError } = await supabase
+        .from('menu_items')
+        .select('*')
+        .order('name', { ascending: true });
 
-      const storedItems = await getAllMenuItems();
-      const baseItems = storedItems.length > 0 ? storedItems : MENU_ITEMS;
+      if (menuError) throw menuError;
 
-      const storedCategories = localStorage.getItem('pawon_categories_custom');
-      const categories = storedCategories ? JSON.parse(storedCategories) : CATEGORIES;
-
-      const hydratedItems = await Promise.all(
-        baseItems.map(async (item: MenuItem) => {
-          try {
-            const imageBlob = await getAsset('menu_image_' + item.id);
-            return imageBlob ? { ...item, imageUrl: URL.createObjectURL(imageBlob) } : item;
-          } catch (error) {
-            return item;
-          }
-        })
-      );
+      const mappedItems: MenuItem[] = menuData.map(item => ({
+        id: item.id,
+        name: item.name,
+        description: item.description,
+        price: item.price,
+        imageUrl: item.image_url,
+        category: item.category,
+        isFavorite: item.is_favorite,
+        isNew: item.is_new,
+        rating: item.rating,
+        prepTime: item.prep_time,
+        calories: item.calories
+      }));
 
       set({ 
-        items: hydratedItems, 
-        categories,
+        items: mappedItems, 
+        categories: categories.length > 0 ? categories : ['Makanan', 'Minuman', 'Snack'],
         isLoading: false 
       });
     } catch (error) {
-      console.error("Failed to load menu data:", error);
-      set({ 
-        items: MENU_ITEMS, 
-        categories: CATEGORIES,
-        isLoading: false 
-      });
-    }
-  },
-
-  resetData: async () => {
-    set({ isLoading: true });
-    try {
-      localStorage.removeItem('pawon_categories_custom');
-      localStorage.removeItem('SEED_VERSION');
-      await resetDatabase();
-      window.location.reload();
-    } catch (error) {
-      console.error("Reset failed:", error);
+      console.error("Failed to load menu data from Supabase:", error);
       set({ isLoading: false });
-      throw error;
     }
   },
 
-  addCategory: (name) => {
-    const { categories } = get();
-    if (categories.includes(name)) return;
-    const updated = [...categories, name];
-    set({ categories: updated });
-    localStorage.setItem('pawon_categories_custom', JSON.stringify(updated));
+  addCategory: async (name) => {
+    try {
+      const { error } = await supabase
+        .from('categories')
+        .insert({ id: name.toLowerCase().replace(/\s+/g, '-'), name, sort_order: get().categories.length });
+      
+      if (error) throw error;
+      await get().loadData();
+    } catch (error) {
+      console.error("Failed to add category:", error);
+    }
   },
 
   deleteItem: async (itemId) => {
-    const { items } = get();
-    const updated = items.filter(i => i.id !== itemId);
-    await saveMenuItems(updated);
-    await deleteAsset(`menu_image_${itemId}`);
-    set({ items: updated });
+    try {
+      const { error } = await supabase
+        .from('menu_items')
+        .delete()
+        .eq('id', itemId);
+
+      if (error) throw error;
+      set({ items: get().items.filter(i => i.id !== itemId) });
+    } catch (error) {
+      console.error("Failed to delete item:", error);
+    }
   },
 
-  saveAllItems: async (draftItems, newHeaderImage) => {
+  saveAllItems: async (draftItems) => {
     set({ isLoading: true });
     try {
-      if (newHeaderImage) {
-        const imageBlob = base64ToBlob(newHeaderImage);
-        await saveAsset('headerImage_v2', imageBlob);
-      }
-      
-      await Promise.all(draftItems.map(async (item) => {
-        if (item.imageFile) {
-          await saveAsset('menu_image_' + item.id, item.imageFile);
-        } else if (item.imageUrl.startsWith('data:image')) {
-          const imageBlob = base64ToBlob(item.imageUrl);
-          await saveAsset('menu_image_' + item.id, imageBlob);
-        }
+      // Mapping to snake_case for Supabase
+      const dbItems = draftItems.map(item => ({
+        id: item.id,
+        name: item.name,
+        description: item.description,
+        price: item.price,
+        image_url: item.imageUrl,
+        category: item.category,
+        is_favorite: item.isFavorite,
+        is_new: item.isNew,
+        rating: item.rating,
+        prep_time: item.prepTime,
+        calories: item.calories,
+        updated_at: new Date()
       }));
 
-      const itemsToSaveInDB = draftItems.map(item => {
-        const { imageFile, ...restOfItem } = item;
-        return { ...restOfItem, updatedAt: new Date() };
-      });
+      const { error } = await supabase
+        .from('menu_items')
+        .upsert(dbItems);
 
-      // Cleanup local assets if item now uses a public URL
-      await Promise.all(draftItems.map(async (item) => {
-          if (item.imageUrl.startsWith('http') && !item.imageUrl.startsWith('blob:')) {
-              await deleteAsset('menu_image_' + item.id);
-          }
-      }));
-
-      await saveMenuItems(itemsToSaveInDB);
+      if (error) throw error;
       await get().loadData();
+    } catch (error) {
+      console.error("Failed to save menu items:", error);
+      throw error;
     } finally {
       set({ isLoading: false });
     }
   }
 }));
-
-// Helper missing in previous write
-function base64ToBlob(base64: string): Blob {
-  const byteString = atob(base64.split(',')[1]);
-  const mimeString = base64.split(',')[0].split(':')[1].split(';')[0];
-  const ab = new ArrayBuffer(byteString.length);
-  const ia = new Uint8Array(ab);
-  for (let i = 0; i < byteString.length; i++) {
-    ia[i] = byteString.charCodeAt(i);
-  }
-  return new Blob([ab], { type: mimeString });
-}
-
-function deleteAsset(key: string): Promise<void> {
-    return new Promise((resolve, reject) => {
-        const request = indexedDB.open('pawon_assets_db');
-        request.onsuccess = () => {
-            const db = request.result;
-            const transaction = db.transaction('assets', 'readwrite');
-            const store = transaction.objectStore('assets');
-            store.delete(key);
-            transaction.oncomplete = () => resolve();
-            transaction.onerror = () => reject(transaction.error);
-        };
-        request.onerror = () => reject(request.error);
-    });
-}

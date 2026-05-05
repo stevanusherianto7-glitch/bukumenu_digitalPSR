@@ -11,7 +11,7 @@ import { Loader2 } from 'lucide-react';
 import { InstallPWA } from '../components/InstallPWA'; 
 import { WelcomeModal } from '../components/WelcomeModal'; 
 
-const VALID_TABLES = Array.from({ length: 9 }, (_, i) => `A${i + 1}`);
+const VALID_TABLES = Array.from({ length: 10 }, (_, i) => `A${i + 1}`);
 
 export const GuestView: React.FC = () => {
   const searchParams = new URLSearchParams(window.location.search);

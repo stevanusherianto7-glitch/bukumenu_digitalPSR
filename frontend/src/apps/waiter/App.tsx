@@ -1,8 +1,21 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { WaiterTableSection } from '../../components/WaiterTableSection';
 import { InstallPWA } from '../../components/InstallPWA'; 
+import { useInventoryStore } from '../../store/inventoryStore';
+import { useOrderStore } from '../../store/orderStore';
+import { useMenuStore } from '../../store/menuStore';
 
 const WaiterApp: React.FC = () => {
+  const { loadData } = useMenuStore();
+  const { fetchInventory } = useInventoryStore();
+  const { fetchOrders } = useOrderStore();
+
+  useEffect(() => {
+    loadData();
+    fetchInventory();
+    fetchOrders();
+  }, [loadData, fetchInventory, fetchOrders]);
+
   const handleExit = () => {
     window.location.href = '/';
   };

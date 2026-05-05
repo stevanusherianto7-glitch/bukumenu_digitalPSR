@@ -74,7 +74,7 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
   useEffect(() => { if (selectedTable) setTableDetailTab('active'); }, [selectedTable]);
 
   const safeOrders = Array.isArray(orders) ? orders : [];
-  const tables = Array.from({ length: 9 }, (_, i) => `A${i + 1}`);
+  const tables = Array.from({ length: 10 }, (_, i) => `A${i + 1}`);
 
   const getTableOrders = (num: string) => safeOrders.filter(o => o.tableNumber === num && o.status === 'pending');
   const getTableHistory = (num: string) => safeOrders.filter(o => o.tableNumber === num && o.status === 'completed').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
