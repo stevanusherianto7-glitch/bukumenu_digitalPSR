@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChevronLeft, MapPin, Utensils, FileClock, Timer, Info, CheckCircle2, Clock, Users } from 'lucide-react';
+import { ChevronLeft, MapPin, Utensils, FileClock, Timer, Info, CheckCircle2, Clock, Users, ShoppingBag, UtensilsCrossed } from 'lucide-react';
 
 interface OrderDetailViewProps {
   selectedTable: string;
@@ -74,11 +74,20 @@ export const OrderDetailView: React.FC<OrderDetailViewProps> = ({
                 return (
                   <div key={order.id} className={`bg-white border-2 ${urgency.border} rounded-[32px] overflow-hidden shadow-xl`}>
                     <div className={`${urgency.bg} p-4 flex justify-between items-center text-white`}>
-                      <div className="flex items-center gap-2">
-                        <Timer size={18} className={urgency.pulse ? 'animate-pulse' : ''} />
-                        <span className="text-sm font-bold">{minsAgo} Menit</span>
+                      <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-1.5">
+                          <Timer size={18} className={urgency.pulse ? 'animate-pulse' : ''} />
+                          <span className="text-sm font-bold">{minsAgo}m</span>
+                        </div>
+                        {/* TANDA DINE IN / TAKE AWAY */}
+                        <div className="flex items-center gap-1.5 bg-white/20 px-3 py-1 rounded-full border border-white/30">
+                          {order.orderType === 'take-away' ? <ShoppingBag size={14} /> : <UtensilsCrossed size={14} />}
+                          <span className="text-[10px] font-black uppercase tracking-wider">
+                            {order.orderType === 'take-away' ? 'Take Away' : 'Dine In'}
+                          </span>
+                        </div>
                       </div>
-                      <span className="text-sm font-mono">#{order.id.slice(-6).toUpperCase()}</span>
+                      <span className="text-sm font-mono opacity-60">#{order.id.slice(-6).toUpperCase()}</span>
                     </div>
                     <div className="p-6">
                       <div className="space-y-5 mb-8">
@@ -88,9 +97,14 @@ export const OrderDetailView: React.FC<OrderDetailViewProps> = ({
                               {item.quantity}x
                             </div>
                             <div className="flex-1">
-                              <p className="font-bold text-gray-900 text-lg">{item.menuName}</p>
+                              <p className="font-bold text-gray-900 text-lg leading-tight">{item.menuName}</p>
                               {item.notes && (
-                                <p className="text-sm text-orange-900 italic">"{item.notes}"</p>
+                                <div className="mt-1.5 bg-orange-50 p-2 rounded-xl border border-orange-100 flex items-start gap-2">
+                                  <Info size={12} className="text-orange-600 mt-0.5 shrink-0" />
+                                  <p className="text-xs text-orange-900 font-bold italic leading-snug">
+                                    Catatan: {item.notes}
+                                  </p>
+                                </div>
                               )}
                             </div>
                           </div>
