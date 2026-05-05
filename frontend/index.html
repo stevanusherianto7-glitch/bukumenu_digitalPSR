@@ -12,7 +12,25 @@
     <meta name="apple-mobile-web-app-title" content="Pawon Salam" />
     
     <link rel="apple-touch-icon" href="/icon-guest.png" />
-    <link rel="manifest" href="/manifest.json" />
+    <link id="pwa-manifest" rel="manifest" href="/manifest-guest.json" />
+    <script>
+      (function() {
+        const params = new URLSearchParams(window.location.search);
+        const manifestLink = document.getElementById('pwa-manifest');
+        const appleIcon = document.querySelector('link[rel="apple-touch-icon"]');
+        
+        if (params.get('mode') === 'admin' || window.location.pathname.includes('/admin')) {
+          manifestLink.href = '/manifest-admin.json';
+          appleIcon.href = '/icon-admin.png';
+        } else if (params.get('mode') === 'waiter' || window.location.pathname.includes('/waiter')) {
+          manifestLink.href = '/manifest-waiter.json';
+          appleIcon.href = '/icon-waiter.png';
+        } else {
+          manifestLink.href = '/manifest-guest.json';
+          appleIcon.href = '/icon-guest.png';
+        }
+      })();
+    </script>
 
     <title>Pawon Salam Resto</title>
     <script src="https://cdn.tailwindcss.com"></script>
