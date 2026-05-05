@@ -10,7 +10,13 @@
     "preview": "vite preview",
     "test": "vitest",
     "test:ui": "vitest --ui",
-    "test:run": "vitest run"
+    "test:run": "vitest run",
+    "e2e": "playwright test",
+    "e2e:ui": "playwright test --ui",
+    "e2e:debug": "playwright test --debug",
+    "e2e:mobile": "playwright test --project=pixel5",
+    "e2e:desktop": "playwright test --project=chromium --project=firefox",
+    "e2e:headed": "playwright test --headed"
   },
   "dependencies": {
     "@capacitor/android": "^8.3.1",
@@ -32,6 +38,7 @@
     "@vitejs/plugin-react": "^5.0.0",
     "@vitest/ui": "^1.1.0",
     "jsdom": "^23.0.1",
+    "@playwright/test": "^1.40.1",
     "typescript": "~5.8.2",
     "vite": "^6.2.0",
     "vitest": "^1.1.0"
