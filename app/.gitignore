@@ -1,1 +1,41 @@
+# Gradle build
 /build
+build/
+.gradle/
+*.apk
+*.aab
+*.ap_
+*.dex
+*.class
+bin/
+gen/
+out/
+
+# Android build artifacts & generated files
+src/main/assets/www/assets/
+src/main/assets/www/*.js
+src/main/assets/www/*.css
+src/main/assets/www/index.html
+src/main/assets/www/admin.html
+src/main/assets/www/waiter.html
+
+# IDE
+.idea/
+*.iml
+*.iws
+*.ipr
+.classpath
+.project
+.settings/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# NDK
+obj/
+libs/
+
+# Local configuration
+local.properties
+gradle.properties
