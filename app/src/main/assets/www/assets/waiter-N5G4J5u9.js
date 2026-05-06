@@ -1,0 +1,4 @@
+import{d as a,f as l,u as c,r as i,j as e,I as d,e as x,R as f}from"./InstallPWA-Deaqszak.js";import{W as m}from"./WaiterTableSection-DpA2rrok.js";const u=()=>{const{loadData:o}=a(),{fetchInventory:t}=l(),{fetchOrders:r}=c();i.useEffect(()=>{o(),t(),r()},[o,t,r]);const n=()=>{window.location.href="/"};return e.jsxs("div",{className:"min-h-screen bg-pawon-bg flex justify-center",children:[e.jsx(d,{}),e.jsx("div",{className:"w-full max-w-[480px] bg-gray-50 h-screen shadow-2xl overflow-y-auto",children:e.jsx(m,{onExit:n})}),e.jsx("style",{children:`
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      `})]})},s=document.getElementById("root");if(!s)throw new Error("Could not find root element to mount to");const h=x.createRoot(s);h.render(e.jsx(f.StrictMode,{children:e.jsx(u,{})}));
