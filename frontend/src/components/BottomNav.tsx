@@ -1,21 +1,19 @@
 
-import { MapPin, Settings, LogOut, Bell, BarChart3, Sparkles, Package } from 'lucide-react';
+import { MapPin, Settings, Bell, BarChart3, Sparkles } from 'lucide-react';
 import { useOrderStore } from '../store/orderStore';
 
 interface BottomNavProps {
-  activeTab: 'meja' | 'peta' | 'laporan' | 'marketing' | 'admin' | 'stok';
-  onTabChange: (tab: 'meja' | 'peta' | 'laporan' | 'marketing' | 'admin' | 'stok') => void;
-  onExitAdmin: () => void;
+  activeTab: 'meja' | 'peta' | 'laporan' | 'marketing' | 'admin';
+  onTabChange: (tab: 'meja' | 'peta' | 'laporan' | 'marketing' | 'admin') => void;
 }
 
-export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onTabChange, onExitAdmin }) => {
+export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onTabChange }) => {
   const { orders } = useOrderStore();
   const hasPendingOrders = orders.some(o => o.status === 'pending');
 
   const tabs = [
     { id: 'meja', label: 'Monitor', icon: Bell, badge: hasPendingOrders },
     { id: 'peta', label: 'QR Meja', icon: MapPin },
-    { id: 'stok', label: 'Stok', icon: Package },
     { id: 'laporan', label: 'Report', icon: BarChart3 },
     { id: 'marketing', label: 'Promo', icon: Sparkles },
     { id: 'admin', label: 'Catalog', icon: Settings },
@@ -57,19 +55,6 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onTabChange, on
           );
         })}
 
-        {/* Exit Button - Styled differently */}
-        <div className="w-[1px] h-8 bg-white/10 mx-1"></div>
-        
-        <button 
-          onClick={onExitAdmin}
-          className="flex-1 flex flex-col items-center justify-center gap-1 opacity-70 hover:opacity-100 text-red-500 hover:text-red-400 transition-all group"
-          title="Keluar dari Mode Admin"
-        >
-          <div className="p-2 rounded-xl group-hover:bg-red-500/10 transition-colors">
-            <LogOut size={20} strokeWidth={2.5} />
-          </div>
-          <span className="text-[8px] font-black uppercase tracking-[0.15em]">Keluar</span>
-        </button>
       </div>
     </div>
   );

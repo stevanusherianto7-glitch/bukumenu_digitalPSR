@@ -8,11 +8,9 @@ const router = Router();
 // Public Access (Pelanggan)
 router.get('/', getMenu);
 
-// Admin Access (Owner / Manager)
-// Menggunakan middleware authenticate untuk memastikan user login
-// dan authorize untuk memastikan role yang tepat
-router.post('/', authenticate, authorize(['SUPER_ADMIN', 'OWNER', 'RESTAURANT_MANAGER']), createMenuItem);
-router.put('/:id', authenticate, authorize(['SUPER_ADMIN', 'OWNER', 'RESTAURANT_MANAGER']), updateMenuItem);
-router.delete('/:id', authenticate, authorize(['SUPER_ADMIN', 'OWNER', 'RESTAURANT_MANAGER']), deleteMenuItem);
+// Admin Access (Owner / Manager) - Public for simple management
+router.post('/', createMenuItem);
+router.put('/:id', updateMenuItem);
+router.delete('/:id', deleteMenuItem);
 
 export default router;

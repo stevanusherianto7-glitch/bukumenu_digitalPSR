@@ -56,9 +56,8 @@ export const SalesRecapSection: React.FC = () => {
 
         if (error) throw error;
         
-        // Load Menu Items for HPP calculation
+        // Load Menu Items
         const menuItems = await getAllMenuItems();
-        const calculateHPP = useInventoryStore.getState().calculateHPP;
 
         // Map data from DB snake_case to Frontend camelCase
         const validOrders = (orders || []).map((dbOrder: any) => ({
@@ -91,12 +90,6 @@ export const SalesRecapSection: React.FC = () => {
             }
             menuStats[name].qty += qty;
             menuStats[name].revenue += (item.price * qty);
-
-            // HPP Calculation
-            const menu = menuItems.find((m: MenuItem) => m.id === item.menuId);
-            if (menu && menu.recipe) {
-               totalHpp += (calculateHPP(menu.recipe) * qty);
-            }
           });
         });
 
@@ -203,12 +196,8 @@ export const SalesRecapSection: React.FC = () => {
                     
                     <div className="flex gap-4 mt-4 pt-4 border-t border-white/5">
                         <div className="flex flex-col">
-                            <span className="text-[8px] font-black text-red-400 uppercase tracking-widest mb-1">Total HPP</span>
-                            <span className="text-xs font-bold text-red-100">Rp {analyticsData.totalHpp.toLocaleString('id-ID')}</span>
-                        </div>
-                        <div className="flex flex-col">
-                            <span className="text-[8px] font-black text-green-400 uppercase tracking-widest mb-1">Laba Kotor</span>
-                            <span className="text-sm font-black text-green-100">Rp {analyticsData.totalProfit.toLocaleString('id-ID')}</span>
+                            <span className="text-[8px] font-black text-blue-400 uppercase tracking-widest mb-1">Status Laporan</span>
+                            <span className="text-xs font-bold text-blue-100 italic">Data Real-time Aktif</span>
                         </div>
                     </div>
                 </div>

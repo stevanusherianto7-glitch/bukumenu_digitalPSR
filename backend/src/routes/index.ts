@@ -1,6 +1,4 @@
-
 import { Router } from 'express';
-import authRoutes from './auth.routes';
 import employeeRoutes from './employee.routes';
 import uploadRoutes from './upload.routes';
 import analyticsRoutes from './analytics.routes';
@@ -9,7 +7,6 @@ import menuRoutes from './menu.routes';
 
 const router = Router();
 
-router.use('/auth', authRoutes);
 router.use('/employees', employeeRoutes);
 router.use('/upload', uploadRoutes);
 router.use('/analytics', analyticsRoutes);

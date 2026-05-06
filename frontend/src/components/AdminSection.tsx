@@ -6,7 +6,7 @@ import { CategoryFilter } from './CategoryFilter';
 
 // New Admin Sub-components
 import { AdminDashboardHeader } from './admin/AdminDashboardHeader';
-import { StockStats } from './admin/StockStats';
+
 import { HeaderImageEditor } from './admin/HeaderImageEditor';
 import { CategoryManager } from './admin/CategoryManager';
 
@@ -100,11 +100,7 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
         onReset={onResetData}
       />
 
-      <StockStats 
-        totalMenu={draftItems.length}
-        outOfStockCount={draftItems.filter(i => !i.isAvailable).length}
-        totalCategories={categories.length}
-      />
+
 
       <HeaderImageEditor 
         currentImage={draftHeaderImage || headerImage}

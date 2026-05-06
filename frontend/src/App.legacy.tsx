@@ -69,7 +69,7 @@ const App: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('Terlaris');
   
   // Update Type Tab Active
-  const [activeTab, setActiveTab] = useState<'meja' | 'peta' | 'laporan' | 'marketing' | 'admin' | 'stok'>('meja');
+  const [activeTab, setActiveTab] = useState<'meja' | 'peta' | 'laporan' | 'marketing' | 'admin'>('meja');
 
   const SHORTCUT_CATEGORIES = ['Terlaris', 'Makanan', 'Minuman'];
 
@@ -400,7 +400,6 @@ const App: React.FC = () => {
                 <div className="px-6 py-4">
                   {activeTab === 'meja' && <WaiterTableSection onExit={exitSpecialMode} />}
                   {activeTab === 'peta' && <TableMapSection />}
-                  {activeTab === 'stok' && <StockManagementSection />}
                   {activeTab === 'laporan' && <SalesRecapSection />}
                   {activeTab === 'marketing' && <MarketingSection />}
                   {activeTab === 'admin' && (
@@ -427,7 +426,6 @@ const App: React.FC = () => {
           <BottomNav 
             activeTab={activeTab} 
             onTabChange={setActiveTab} 
-            onExitAdmin={exitSpecialMode} 
           />
         )}
       </div>

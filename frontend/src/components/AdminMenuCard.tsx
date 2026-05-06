@@ -1,8 +1,8 @@
 
-import React, { useState } from 'react';
-import { Edit2, DollarSign, Check, Type, AlignLeft, Tag, Heart, Package, Image as ImageIcon, Sparkles, Trash2, Link } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Edit2, DollarSign, Check, Type, AlignLeft, Tag, Heart, Package, Image as ImageIcon, Sparkles, Trash2, Link, ZoomIn, ZoomOut, Maximize } from 'lucide-react';
 import { MenuItem } from '../types';
-import { RecipeEditor } from './RecipeEditor';
+
 import { uploadImage } from '../lib/supabase';
 import { Loader2 } from 'lucide-react';
 
@@ -18,6 +18,12 @@ export const AdminMenuCard: React.FC<AdminMenuCardProps> = ({ item, onUpdate, on
   const [urlInput, setUrlInput] = useState(item.imageUrl);
   const [urlError, setUrlError] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [zoom, setZoom] = useState(1);
+
+  // Reset zoom when exiting edit mode
+  useEffect(() => {
+    if (!isEditing) setZoom(1);
+  }, [isEditing]);
 
   const assignableCategories = availableCategories.filter(c => c !== 'Semua' && c !== 'Terlaris');
 
@@ -72,8 +78,37 @@ export const AdminMenuCard: React.FC<AdminMenuCardProps> = ({ item, onUpdate, on
             onError={(e) => {
               (e.target as HTMLImageElement).src = 'https://placehold.co/400x400/f3f4f6/9ca3af?text=No+Image';
             }}
-            className={`w-full h-full object-cover transition-opacity ${isEditing ? 'opacity-70' : ''} ${!isAvailable && !isEditing ? 'grayscale' : ''}`}
+            className={`w-full h-full object-cover transition-all duration-300 ${isEditing ? 'opacity-70' : ''} ${!isAvailable && !isEditing ? 'grayscale' : ''}`}
+            style={{ transform: `scale(${zoom})` }}
           />
+          
+          {isEditing && (
+            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/20 z-50 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                <button 
+                  onClick={() => setZoom(prev => Math.max(1, prev - 0.2))}
+                  className="text-white hover:text-pawon-accent transition-colors"
+                  title="Zoom Out"
+                >
+                    <ZoomOut size={16} />
+                </button>
+                <div className="w-[1px] h-3 bg-white/20 mx-1"></div>
+                <button 
+                  onClick={() => setZoom(1)}
+                  className="text-[10px] font-black text-white hover:text-pawon-accent transition-colors"
+                  title="Reset Zoom"
+                >
+                    {Math.round(zoom * 100)}%
+                </button>
+                <div className="w-[1px] h-3 bg-white/20 mx-1"></div>
+                <button 
+                  onClick={() => setZoom(prev => Math.min(3, prev + 0.2))}
+                  className="text-white hover:text-pawon-accent transition-colors"
+                  title="Zoom In"
+                >
+                    <ZoomIn size={16} />
+                </button>
+            </div>
+          )}
           
           {!isEditing && (
             <div className="absolute top-2 left-2 flex flex-col gap-1.5 z-10">
@@ -311,11 +346,7 @@ export const AdminMenuCard: React.FC<AdminMenuCardProps> = ({ item, onUpdate, on
                     </div>
                 </div>
 
-                {/* Recipe Editor integration */}
-                <RecipeEditor 
-                  recipe={item.recipe} 
-                  onChange={(newRecipe) => handleUpdate('recipe', newRecipe)} 
-                />
+
 
                <div className="pt-2 flex items-center gap-2">
                  <button 

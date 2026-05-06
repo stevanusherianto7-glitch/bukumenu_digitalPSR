@@ -136,18 +136,36 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
 
   if (selectedTable) {
     return (
-      <OrderDetailView 
-        selectedTable={selectedTable}
-        activeOrders={getTableOrders(selectedTable)}
-        tableHistory={getTableHistory(selectedTable)}
-        tableDetailTab={tableDetailTab}
-        setTableDetailTab={setTableDetailTab}
-        onBack={() => setSelectedTable(null)}
-        onCompleteOrder={handleCompleteRequest}
-        isCompleting={(id) => completingOrderIds.has(id)}
-        getMinutesAgo={getMinutesAgo}
-        getUrgencyColor={getUrgencyColor}
-      />
+      <div className="pb-20">
+        <OrderDetailView 
+          selectedTable={selectedTable}
+          activeOrders={getTableOrders(selectedTable)}
+          tableHistory={getTableHistory(selectedTable)}
+          tableDetailTab={tableDetailTab}
+          setTableDetailTab={setTableDetailTab}
+          onBack={() => setSelectedTable(null)}
+          onCompleteOrder={handleCompleteRequest}
+          isCompleting={(id) => completingOrderIds.has(id)}
+          getMinutesAgo={getMinutesAgo}
+          getUrgencyColor={getUrgencyColor}
+        />
+        {confirmDialog.isOpen && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setConfirmDialog({ isOpen: false, orderId: null })} />
+            <div className="relative bg-white w-full max-w-sm rounded-[32px] p-8 text-center shadow-2xl animate-in zoom-in-95">
+              <div className="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-6 border border-emerald-100">
+                <CheckCircle2 size={40} className="text-emerald-600" />
+              </div>
+              <h3 className="text-xl font-serif font-bold text-gray-900 mb-2">Konfirmasi Pesanan</h3>
+              <p className="text-gray-500 text-sm mb-8">Tandai pesanan ini sudah selesai?</p>
+              <div className="flex gap-3">
+                <button onClick={() => setConfirmDialog({ isOpen: false, orderId: null })} className="flex-1 py-3.5 rounded-2xl text-sm font-bold bg-white border border-gray-200">Batal</button>
+                <button onClick={executeComplete} className="flex-1 py-3.5 rounded-2xl text-sm font-bold text-white bg-emerald-600 shadow-lg shadow-emerald-600/20">Ya, Selesai</button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     );
   }
 
