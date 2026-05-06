@@ -10,7 +10,8 @@ interface BottomNavProps {
 export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onTabChange }) => {
   const { orders } = useOrderStore();
   const hasPendingOrders = orders.some(o => o.status === 'pending');
-
+  
+  // Admin navbar tabs - Stok and Keluar removed
   const tabs = [
     { id: 'meja', label: 'Monitor', icon: Bell, badge: hasPendingOrders },
     { id: 'peta', label: 'QR Meja', icon: MapPin },
