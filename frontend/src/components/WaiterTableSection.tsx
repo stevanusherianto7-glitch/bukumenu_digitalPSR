@@ -24,9 +24,9 @@ const getMinutesAgo = (createdAt: string | number) => {
 };
 
 const getUrgencyColor = (mins: number) => {
-  if (mins >= 15) return { bg: 'bg-red-500', border: 'border-red-500', pulse: true };
-  if (mins >= 8) return { bg: 'bg-orange-500', border: 'border-orange-400', pulse: false };
-  return { bg: 'bg-emerald-500', border: 'border-emerald-400', pulse: false };
+  if (mins >= 15) return { bg: 'bg-red-600', border: 'border-red-500', pulse: true };
+  if (mins >= 8) return { bg: 'bg-orange-500', border: 'border-orange-400', pulse: true };
+  return { bg: 'bg-emerald-600', border: 'border-emerald-500', pulse: true };
 };
 
 export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }) => {
@@ -110,8 +110,9 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
   const getTableHistory = (num: string) => safeOrders.filter(o => o.tableNumber === num && o.status === 'completed').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   const globalHistoryOrders = safeOrders.filter(o => o.status === 'completed').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
-  const activeTablesCount = new Set(safeOrders.filter(o => o.status === 'pending').map(o => o.tableNumber)).size;
-  const totalPendingItems = safeOrders.filter(o => o.status === 'pending').reduce((acc, o) => acc + o.items.reduce((sum, item) => sum + item.quantity, 0), 0);
+  const pendingOrders = safeOrders.filter(o => o.status === 'pending');
+  const activeTablesCount = new Set(pendingOrders.map(o => o.tableNumber)).size;
+  const totalPendingItems = pendingOrders.reduce((acc, o) => acc + o.items.reduce((sum, item) => sum + item.quantity, 0), 0);
 
   const handleCompleteRequest = async (orderId: string) => {
     setConfirmDialog({ isOpen: true, orderId });
@@ -152,15 +153,18 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
         {confirmDialog.isOpen && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setConfirmDialog({ isOpen: false, orderId: null })} />
-            <div className="relative bg-white w-full max-w-sm rounded-[32px] p-8 text-center shadow-2xl animate-in zoom-in-95">
-              <div className="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-6 border border-emerald-100">
-                <CheckCircle2 size={40} className="text-emerald-600" />
-              </div>
-              <h3 className="text-xl font-serif font-bold text-gray-900 mb-2">Konfirmasi Pesanan</h3>
-              <p className="text-gray-500 text-sm mb-8">Tandai pesanan ini sudah selesai?</p>
-              <div className="flex gap-3">
-                <button onClick={() => setConfirmDialog({ isOpen: false, orderId: null })} className="flex-1 py-3.5 rounded-2xl text-sm font-bold bg-white border border-gray-200">Batal</button>
-                <button onClick={executeComplete} className="flex-1 py-3.5 rounded-2xl text-sm font-bold text-white bg-emerald-600 shadow-lg shadow-emerald-600/20">Ya, Selesai</button>
+            <div className="relative bg-white overflow-hidden w-full max-w-[340px] rounded-[40px] text-center shadow-[0_20px_50px_rgba(0,0,0,0.3)] animate-in zoom-in-95 duration-300">
+              <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-br from-emerald-500 to-teal-700" />
+              <div className="relative z-10 pt-8 pb-10 px-8">
+                <div className="w-20 h-20 bg-white rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-xl shadow-emerald-900/20 rotate-3">
+                  <CheckCircle2 size={40} className="text-emerald-600" />
+                </div>
+                <h3 className="text-2xl font-serif font-bold text-gray-900 mb-2">Konfirmasi</h3>
+                <p className="text-gray-500 text-sm mb-8 font-medium">Apakah pesanan meja <span className="text-gray-900 font-bold">{selectedTable}</span> sudah benar-benar selesai?</p>
+                <div className="flex flex-col gap-3">
+                  <button onClick={executeComplete} className="w-full py-4 rounded-2xl text-sm font-black text-white bg-emerald-600 shadow-lg shadow-emerald-600/30 active:scale-95 transition-all">YA, SUDAH SELESAI</button>
+                  <button onClick={() => setConfirmDialog({ isOpen: false, orderId: null })} className="w-full py-4 rounded-2xl text-sm font-bold text-gray-400 bg-gray-50 hover:bg-gray-100 transition-all">NANTI DULU</button>
+                </div>
               </div>
             </div>
           </div>
@@ -234,15 +238,18 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
       {confirmDialog.isOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setConfirmDialog({ isOpen: false, orderId: null })} />
-          <div className="relative bg-white w-full max-w-sm rounded-[32px] p-8 text-center shadow-2xl animate-in zoom-in-95">
-            <div className="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-6 border border-emerald-100">
-              <CheckCircle2 size={40} className="text-emerald-600" />
-            </div>
-            <h3 className="text-xl font-serif font-bold text-gray-900 mb-2">Konfirmasi Pesanan</h3>
-            <p className="text-gray-500 text-sm mb-8">Tandai pesanan ini sudah selesai?</p>
-            <div className="flex gap-3">
-              <button onClick={() => setConfirmDialog({ isOpen: false, orderId: null })} className="flex-1 py-3.5 rounded-2xl text-sm font-bold bg-white border border-gray-200">Batal</button>
-              <button onClick={executeComplete} className="flex-1 py-3.5 rounded-2xl text-sm font-bold text-white bg-emerald-600 shadow-lg shadow-emerald-600/20">Ya, Selesai</button>
+          <div className="relative bg-white overflow-hidden w-full max-w-[340px] rounded-[40px] text-center shadow-[0_20px_50px_rgba(0,0,0,0.3)] animate-in zoom-in-95 duration-300">
+            <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-br from-emerald-500 to-teal-700" />
+            <div className="relative z-10 pt-8 pb-10 px-8">
+              <div className="w-20 h-20 bg-white rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-xl shadow-emerald-900/20 rotate-3">
+                <CheckCircle2 size={40} className="text-emerald-600" />
+              </div>
+              <h3 className="text-2xl font-serif font-bold text-gray-900 mb-2">Konfirmasi</h3>
+              <p className="text-gray-500 text-sm mb-8 font-medium">Apakah pesanan ini sudah benar-benar selesai?</p>
+              <div className="flex flex-col gap-3">
+                <button onClick={executeComplete} className="w-full py-4 rounded-2xl text-sm font-black text-white bg-emerald-600 shadow-lg shadow-emerald-600/30 active:scale-95 transition-all">YA, SUDAH SELESAI</button>
+                <button onClick={() => setConfirmDialog({ isOpen: false, orderId: null })} className="w-full py-4 rounded-2xl text-sm font-bold text-gray-400 bg-gray-50 hover:bg-gray-100 transition-all">NANTI DULU</button>
+              </div>
             </div>
           </div>
         </div>

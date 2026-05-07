@@ -75,9 +75,9 @@ export const OrderDetailView: React.FC<OrderDetailViewProps> = ({
                   <div key={order.id} className={`bg-white border-2 ${urgency.border} rounded-[32px] overflow-hidden shadow-xl`}>
                     <div className={`${urgency.bg} p-4 flex justify-between items-center text-white`}>
                       <div className="flex items-center gap-4">
-                        <div className="flex items-center gap-1.5">
-                          <Timer size={18} className={urgency.pulse ? 'animate-pulse' : ''} />
-                          <span className="text-sm font-bold">{minsAgo}m</span>
+                        <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-white/20 border border-white/30 ${urgency.pulse ? 'animate-blink' : ''}`}>
+                          <Timer size={14} className={urgency.pulse ? 'animate-pulse' : ''} />
+                          <span className="text-[11px] font-black tracking-tighter">{minsAgo}m</span>
                         </div>
                         {/* TANDA DINE IN / TAKE AWAY */}
                         <div className="flex items-center gap-1.5 bg-white/20 px-3 py-1 rounded-full border border-white/30">
@@ -143,5 +143,14 @@ export const OrderDetailView: React.FC<OrderDetailViewProps> = ({
         )}
       </div>
     </div>
+    <style>{`
+      @keyframes blink {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.7; transform: scale(0.95); }
+      }
+      .animate-blink {
+        animation: blink 1s infinite ease-in-out;
+      }
+    `}</style>
   );
 };

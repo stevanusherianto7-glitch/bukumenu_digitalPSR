@@ -26,7 +26,6 @@ export const WaiterDashboardHeader: React.FC<WaiterDashboardHeaderProps> = ({
             <div className="w-2 h-2 bg-violet-400 rounded-full animate-pulse"></div>
             <h2 className="text-xl font-serif font-bold tracking-tight">Waiter Dashboard</h2>
           </div>
-          <p className="text-[10px] text-white/50 font-bold uppercase tracking-[0.2em]">Pawon Salam • Staff Console</p>
         </div>
         <div className="text-right">
           <div className="text-xl font-digital font-bold text-emerald-400 leading-none mb-1 tracking-wider">

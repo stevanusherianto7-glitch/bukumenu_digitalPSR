@@ -54,15 +54,15 @@ export const TableGrid: React.FC<TableGridProps> = ({
                 </div>
               )}
               
-              <div className={`mb-2 p-3 rounded-2xl transition-colors ${
+              <div className={`mb-1 p-2 rounded-xl transition-colors ${
                 hasOrder 
                   ? 'bg-red-600 text-white shadow-md' 
                   : 'bg-gray-50 text-gray-300'
               }`}>
-                <Utensils size={24} />
+                <Utensils size={18} />
               </div>
 
-              <span className={`font-black text-2xl tracking-tighter ${
+              <span className={`font-black text-lg tracking-tighter ${
                 hasOrder ? 'text-red-900' : 'text-gray-400'
               }`}>
                 {tableNum}
