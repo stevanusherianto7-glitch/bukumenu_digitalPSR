@@ -127,11 +127,31 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
     return typeof value === 'string' ? value.trim().toUpperCase() : '';
   };
 
+  const isFreshPendingOrder = (createdAt: unknown, maxAgeMinutes: number = 180): boolean => {
+    const createdTime = (() => {
+      if (typeof createdAt === 'number') {
+        return Number.isFinite(createdAt) ? createdAt : NaN;
+      }
+      if (typeof createdAt === 'string') {
+        return new Date(createdAt).getTime();
+      }
+      return NaN;
+    })();
+
+    if (!Number.isFinite(createdTime)) {
+      return false;
+    }
+
+    const ageMinutes = (Date.now() - createdTime) / 60000;
+    return ageMinutes <= maxAgeMinutes;
+  };
+
   const getTableOrders = (num: string) =>
     safeOrders.filter(
       (order) =>
         normalizeTableNumber(order.tableNumber) === normalizeTableNumber(num) &&
-        order.status === 'pending'
+        order.status === 'pending' &&
+        isFreshPendingOrder(order.createdAt)
     );
 
   const getTableHistory = (num: string) =>
@@ -156,7 +176,7 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
       ? order.items.reduce((sum, item) => sum + (Number(item.quantity) || 0), 0)
       : 0;
 
-    return totalItems > 0;
+    return totalItems > 0 && isFreshPendingOrder(order.createdAt);
   });
 
   const activeTablesCount = new Set(
