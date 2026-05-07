@@ -151,21 +151,39 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
           getUrgencyColor={getUrgencyColor}
         />
         {confirmDialog.isOpen && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
-            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setConfirmDialog({ isOpen: false, orderId: null })} />
-            <div className="relative bg-white overflow-hidden w-full max-w-[340px] rounded-[40px] text-center shadow-[0_20px_50px_rgba(0,0,0,0.3)] animate-in zoom-in-95 duration-300">
-              <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-br from-emerald-500 to-teal-700" />
-              <div className="relative z-10 pt-8 pb-10 px-8">
-                <div className="w-20 h-20 bg-white rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-xl shadow-emerald-900/20 rotate-3">
-                  <CheckCircle2 size={40} className="text-emerald-600" />
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6" style={{animation: 'fadeIn 0.3s ease-out'}}>
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={() => setConfirmDialog({ isOpen: false, orderId: null })} />
+            <div className="relative overflow-hidden w-full max-w-[360px] rounded-[32px] text-center shadow-[0_25px_60px_rgba(0,0,0,0.35)] animate-in zoom-in-95 duration-300" style={{
+              background: 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.85) 100%)',
+              backdropFilter: 'blur(20px)',
+              border: '1px solid rgba(255,255,255,0.3)',
+              boxShadow: '0 8px 32px 0 rgba(31,38,135,0.1)'
+            }}>
+              <div className="absolute top-0 left-0 w-full h-40 bg-gradient-to-r from-emerald-500/80 via-teal-600/80 to-cyan-600/80 rounded-t-[32px]" />
+              <div className="absolute top-0 left-0 w-full h-40 bg-gradient-to-br from-emerald-400/10 via-transparent to-transparent" />
+              <div className="relative z-10 pt-12 pb-8 px-8">
+                <div className="w-24 h-24 bg-white/80 backdrop-blur-md rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-xl shadow-emerald-600/20 border border-white/40" style={{animation: 'floatIcon 3s ease-in-out infinite'}}>
+                  <CheckCircle2 size={48} className="text-emerald-500" strokeWidth={1.5} />
                 </div>
-                <h3 className="text-2xl font-serif font-bold text-gray-900 mb-2">Konfirmasi</h3>
-                <p className="text-gray-500 text-sm mb-8 font-medium">Apakah pesanan meja <span className="text-gray-900 font-bold">{selectedTable}</span> sudah benar-benar selesai?</p>
+                <h3 className="text-3xl font-serif font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent mb-3">Konfirmasi Pesanan</h3>
+                <p className="text-gray-600 text-sm mb-2 font-medium leading-relaxed">Apakah pesanan meja</p>
+                <p className="text-2xl font-black text-emerald-600 mb-6">{selectedTable}</p>
+                <p className="text-gray-600 text-sm mb-8 font-medium">sudah benar-benar selesai?</p>
                 <div className="flex flex-col gap-3">
-                  <button onClick={executeComplete} className="w-full py-4 rounded-2xl text-sm font-black text-white bg-emerald-600 shadow-lg shadow-emerald-600/30 active:scale-95 transition-all">YA, SUDAH SELESAI</button>
-                  <button onClick={() => setConfirmDialog({ isOpen: false, orderId: null })} className="w-full py-4 rounded-2xl text-sm font-bold text-gray-400 bg-gray-50 hover:bg-gray-100 transition-all">NANTI DULU</button>
+                  <button onClick={executeComplete} className="w-full py-4 rounded-2xl text-sm font-black text-white bg-gradient-to-r from-emerald-500 to-teal-600 shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50 active:scale-95 transition-all duration-200 transform hover:translate-y-[-2px]" style={{backdropFilter: 'blur(10px)'}}>YA, SUDAH SELESAI</button>
+                  <button onClick={() => setConfirmDialog({ isOpen: false, orderId: null })} className="w-full py-4 rounded-2xl text-sm font-bold text-gray-600 bg-white/40 backdrop-blur-md hover:bg-white/60 border border-white/40 transition-all duration-200 transform hover:translate-y-[-2px]" style={{backdropFilter: 'blur(10px)'}}>NANTI DULU</button>
                 </div>
               </div>
+              <style>{`
+                @keyframes floatIcon {
+                  0%, 100% { transform: translateY(0px); }
+                  50% { transform: translateY(-8px); }
+                }
+                @keyframes fadeIn {
+                  from { opacity: 0; }
+                  to { opacity: 1; }
+                }
+              `}</style>
             </div>
           </div>
         )}
@@ -234,23 +252,39 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
         </div>
       )}
 
-      {/* Confirmation Dialog */}
+      {/* Confirmation Dialog - Glassmorphism */}
       {confirmDialog.isOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setConfirmDialog({ isOpen: false, orderId: null })} />
-          <div className="relative bg-white overflow-hidden w-full max-w-[340px] rounded-[40px] text-center shadow-[0_20px_50px_rgba(0,0,0,0.3)] animate-in zoom-in-95 duration-300">
-            <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-br from-emerald-500 to-teal-700" />
-            <div className="relative z-10 pt-8 pb-10 px-8">
-              <div className="w-20 h-20 bg-white rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-xl shadow-emerald-900/20 rotate-3">
-                <CheckCircle2 size={40} className="text-emerald-600" />
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6" style={{animation: 'fadeIn 0.3s ease-out'}}>
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={() => setConfirmDialog({ isOpen: false, orderId: null })} />
+          <div className="relative overflow-hidden w-full max-w-[360px] rounded-[32px] text-center shadow-[0_25px_60px_rgba(0,0,0,0.35)] animate-in zoom-in-95 duration-300" style={{
+            background: 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.85) 100%)',
+            backdropFilter: 'blur(20px)',
+            border: '1px solid rgba(255,255,255,0.3)',
+            boxShadow: '0 8px 32px 0 rgba(31,38,135,0.1)'
+          }}>
+            <div className="absolute top-0 left-0 w-full h-40 bg-gradient-to-r from-emerald-500/80 via-teal-600/80 to-cyan-600/80 rounded-t-[32px]" />
+            <div className="absolute top-0 left-0 w-full h-40 bg-gradient-to-br from-emerald-400/10 via-transparent to-transparent" />
+            <div className="relative z-10 pt-12 pb-8 px-8">
+              <div className="w-24 h-24 bg-white/80 backdrop-blur-md rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-xl shadow-emerald-600/20 border border-white/40" style={{animation: 'floatIcon 3s ease-in-out infinite'}}>
+                <CheckCircle2 size={48} className="text-emerald-500" strokeWidth={1.5} />
               </div>
-              <h3 className="text-2xl font-serif font-bold text-gray-900 mb-2">Konfirmasi</h3>
-              <p className="text-gray-500 text-sm mb-8 font-medium">Apakah pesanan ini sudah benar-benar selesai?</p>
+              <h3 className="text-3xl font-serif font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent mb-3">Konfirmasi Pesanan</h3>
+              <p className="text-gray-600 text-sm mb-8 font-medium leading-relaxed">Apakah pesanan ini sudah benar-benar selesai?</p>
               <div className="flex flex-col gap-3">
-                <button onClick={executeComplete} className="w-full py-4 rounded-2xl text-sm font-black text-white bg-emerald-600 shadow-lg shadow-emerald-600/30 active:scale-95 transition-all">YA, SUDAH SELESAI</button>
-                <button onClick={() => setConfirmDialog({ isOpen: false, orderId: null })} className="w-full py-4 rounded-2xl text-sm font-bold text-gray-400 bg-gray-50 hover:bg-gray-100 transition-all">NANTI DULU</button>
+                <button onClick={executeComplete} className="w-full py-4 rounded-2xl text-sm font-black text-white bg-gradient-to-r from-emerald-500 to-teal-600 shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50 active:scale-95 transition-all duration-200 transform hover:translate-y-[-2px]" style={{backdropFilter: 'blur(10px)'}}>YA, SUDAH SELESAI</button>
+                <button onClick={() => setConfirmDialog({ isOpen: false, orderId: null })} className="w-full py-4 rounded-2xl text-sm font-bold text-gray-600 bg-white/40 backdrop-blur-md hover:bg-white/60 border border-white/40 transition-all duration-200 transform hover:translate-y-[-2px]" style={{backdropFilter: 'blur(10px)'}}>NANTI DULU</button>
               </div>
             </div>
+            <style>{`
+              @keyframes floatIcon {
+                0%, 100% { transform: translateY(0px); }
+                50% { transform: translateY(-8px); }
+              }
+              @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+              }
+            `}</style>
           </div>
         </div>
       )}
