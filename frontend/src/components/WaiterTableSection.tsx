@@ -32,7 +32,7 @@ const getUrgencyColor = (mins: number) => {
 
 export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }) => {
   const now = useClock();
-  const { orders, completeOrder, subscribeToOrders, fetchOrders } = useOrderStore();
+  const { orders, completeOrder, subscribeToOrders, fetchOrders, clearStalePendingOrders } = useOrderStore();
   const [selectedTable, setSelectedTable] = useState<string | null>(null);
   const [pingingTables, setPingingTables] = useState<Set<string>>(new Set());
   const [completingOrderIds, setCompletingOrderIds] = useState<Set<string>>(new Set());
@@ -45,7 +45,17 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
   });
 
   useEffect(() => {
-    fetchOrders();
+    let isActive = true;
+
+    const initializeOrders = async () => {
+      // Auto-clean stale pending orders (>3 jam) to keep waiter counters accurate.
+      await clearStalePendingOrders(180);
+      if (isActive) {
+        await fetchOrders();
+      }
+    };
+
+    initializeOrders();
     const unsubscribe = subscribeToOrders();
     
     // Suara Bel & TTS
@@ -97,23 +107,60 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
 
     window.addEventListener('new-order-ping', handlePing);
     return () => {
+      isActive = false;
       unsubscribe();
       window.removeEventListener('new-order-ping', handlePing);
     };
-  }, [subscribeToOrders, fetchOrders]);
+  }, [subscribeToOrders, fetchOrders, clearStalePendingOrders]);
 
   useEffect(() => { if (selectedTable) setTableDetailTab('active'); }, [selectedTable]);
 
   const safeOrders = Array.isArray(orders) ? orders : [];
   const tables = Array.from({ length: 10 }, (_, i) => `A${i + 1}`);
 
-  const getTableOrders = (num: string) => safeOrders.filter(o => o.tableNumber === num && o.status === 'pending');
-  const getTableHistory = (num: string) => safeOrders.filter(o => o.tableNumber === num && o.status === 'completed').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  const normalizeTableNumber = (value: unknown): string => {
+    return typeof value === 'string' ? value.trim().toUpperCase() : '';
+  };
+
+  const getTableOrders = (num: string) =>
+    safeOrders.filter(
+      (order) =>
+        normalizeTableNumber(order.tableNumber) === normalizeTableNumber(num) &&
+        order.status === 'pending'
+    );
+
+  const getTableHistory = (num: string) =>
+    safeOrders
+      .filter(
+        (order) =>
+          normalizeTableNumber(order.tableNumber) === normalizeTableNumber(num) &&
+          order.status === 'completed'
+      )
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   const globalHistoryOrders = safeOrders.filter(o => o.status === 'completed').sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
   const pendingOrders = safeOrders.filter(o => o.status === 'pending');
-  const activeTablesCount = new Set(pendingOrders.map(o => o.tableNumber)).size;
-  const totalPendingItems = pendingOrders.reduce((acc, o) => acc + o.items.reduce((sum, item) => sum + item.quantity, 0), 0);
+  const validTableSet = new Set(tables);
+  const pendingTableOrders = pendingOrders.filter((order) => {
+    const tableNumber = normalizeTableNumber(order.tableNumber);
+    if (!validTableSet.has(tableNumber)) {
+      return false;
+    }
+
+    const totalItems = Array.isArray(order.items)
+      ? order.items.reduce((sum, item) => sum + (Number(item.quantity) || 0), 0)
+      : 0;
+
+    return totalItems > 0;
+  });
+
+  const activeTablesCount = new Set(
+    pendingTableOrders.map((order) => normalizeTableNumber(order.tableNumber))
+  ).size;
+  const totalPendingItems = pendingTableOrders.reduce(
+    (acc, order) => acc + order.items.reduce((sum, item) => sum + (Number(item.quantity) || 0), 0),
+    0
+  );
 
   const handleCompleteRequest = async (orderId: string) => {
     setConfirmDialog({ isOpen: true, orderId });

@@ -10,6 +10,7 @@ interface OrderState {
   fetchOrders: () => Promise<void>;
   addOrder: (tableNumber: string, items: OrderItem[], orderType?: string) => Promise<void>;
   completeOrder: (orderId: string) => Promise<void>;
+  clearStalePendingOrders: (maxAgeMinutes?: number) => Promise<number>;
   subscribeToOrders: () => () => void;
 }
 
@@ -132,6 +133,36 @@ export const useOrderStore = create<OrderState>((set, get) => ({
     } catch (error: any) {
       console.error('❌ CATCH BLOCK ERROR:', error);
       alert(`Terjadi kesalahan sistem: ${error.message || 'Unknown error'}`);
+    }
+  },
+
+  clearStalePendingOrders: async (maxAgeMinutes: number = 180) => {
+    try {
+      const clampedAge = Number.isFinite(maxAgeMinutes) ? Math.max(1, Math.floor(maxAgeMinutes)) : 180;
+      const cutoff = new Date(Date.now() - clampedAge * 60 * 1000).toISOString();
+
+      const { data, error } = await supabase
+        .from('orders')
+        .update({ status: 'cancelled' })
+        .eq('status', 'pending')
+        .lt('created_at', cutoff)
+        .select('id');
+
+      if (error) {
+        console.error('Error clearing stale pending orders:', error);
+        return 0;
+      }
+
+      const clearedCount = Array.isArray(data) ? data.length : 0;
+      if (clearedCount > 0) {
+        console.log(`🧹 Cleared ${clearedCount} stale pending order(s).`);
+      }
+
+      await get().fetchOrders();
+      return clearedCount;
+    } catch (error) {
+      console.error('Unexpected error clearing stale pending orders:', error);
+      return 0;
     }
   },
 
