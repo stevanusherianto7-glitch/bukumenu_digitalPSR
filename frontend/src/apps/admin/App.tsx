@@ -4,7 +4,7 @@ import { TableMapSection } from '../../components/TableMapSection';
 import { SalesRecapSection } from '../../components/SalesRecapSection';
 import { MarketingSection } from '../../components/MarketingSection';
 import { AdminSection } from '../../components/AdminSection';
-import { BottomNav } from '../../components/BottomNav';
+import { AdminBottomNav } from '../../components/AdminBottomNav';
 import { InstallPWA } from '../../components/InstallPWA';
 import { useMenuStore } from '../../store/menuStore';
 import { useInventoryStore } from '../../store/inventoryStore';
@@ -102,7 +102,7 @@ const AdminApp: React.FC = () => {
             </>
           )}
         </div>
-        <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
+        <AdminBottomNav activeTab={activeTab} onTabChange={setActiveTab} />
       </div>
       <style>{`
         .no-scrollbar::-webkit-scrollbar { display: none; }

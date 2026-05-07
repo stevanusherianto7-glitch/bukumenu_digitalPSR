@@ -27,7 +27,8 @@ export const OrderDetailView: React.FC<OrderDetailViewProps> = ({
   getUrgencyColor
 }) => {
   return (
-    <div className="bg-gray-50 flex flex-col animate-in slide-in-from-right duration-300 min-h-screen">
+    <>
+      <div className="bg-gray-50 flex flex-col animate-in slide-in-from-right duration-300 min-h-screen">
       {/* Navbar Detail Meja */}
       <div className="bg-violet-950 text-white p-6 pb-8 rounded-b-[40px] shadow-xl sticky top-0 z-30">
         <div className="flex items-center justify-between mb-6">
@@ -152,5 +153,6 @@ export const OrderDetailView: React.FC<OrderDetailViewProps> = ({
         animation: blink 1s infinite ease-in-out;
       }
     `}</style>
+    </>
   );
 };
