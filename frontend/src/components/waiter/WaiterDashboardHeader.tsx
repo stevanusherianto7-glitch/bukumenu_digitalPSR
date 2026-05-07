@@ -16,6 +16,7 @@ export const WaiterDashboardHeader: React.FC<WaiterDashboardHeaderProps> = ({
   activeTab,
   setActiveTab
 }) => {
+  // Waiter Dashboard Header - Clean UI without unnecessary labels
   return (
     <div className="bg-violet-950 text-white p-6 pb-12 rounded-b-[40px] shadow-2xl shadow-violet-900/30 mb-4 relative overflow-hidden mx-0 -mt-2">
       <div className="absolute top-0 right-0 w-48 h-48 bg-violet-500/20 rounded-full -mr-16 -mt-16 blur-3xl"></div>
