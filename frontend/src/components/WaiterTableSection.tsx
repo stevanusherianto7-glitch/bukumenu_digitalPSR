@@ -91,15 +91,20 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
     const handlePing = (e: any) => {
       const newOrder = e.detail;
       if (newOrder.tableNumber) {
-        playNotification(newOrder.tableNumber);
+        const normalizedTableNumber = normalizeTableNumber(newOrder.tableNumber);
+        if (!normalizedTableNumber) {
+          return;
+        }
+
+        playNotification(normalizedTableNumber);
         
         // INSTANT REFRESH: Update data immediately when ping occurs
         fetchOrders(); 
 
-        setPingingTables(prev => new Set([...prev, newOrder.tableNumber]));
+        setPingingTables(prev => new Set([...prev, normalizedTableNumber]));
         setTimeout(() => setPingingTables(prev => {
           const next = new Set(prev);
-          next.delete(newOrder.tableNumber);
+          next.delete(normalizedTableNumber);
           return next;
         }), 10000); 
       }
