@@ -57,8 +57,10 @@ app.use(cors({
 // 2. Security Verification
 if (!process.env.JWT_SECRET) {
   console.error("FATAL ERROR: JWT_SECRET is not defined in environment variables.");
-  if (process.env.NODE_ENV === 'production') {
-    process.exit(1); 
+  // Do not hard-exit in serverless environments (e.g., Vercel),
+  // because killing the process can fail deployment bootstrapping.
+  if (process.env.NODE_ENV === 'production' && process.env.VERCEL !== '1') {
+    process.exit(1);
   }
 }
 
