@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useOrderStore } from '../store/orderStore';
 import { CheckCircle2, Clock, ShoppingBag, History } from 'lucide-react';
 
+// Waiter module with glassmorphism modal, blinking timer, and clean header
 // New Waiter Sub-components
 import { WaiterDashboardHeader } from './waiter/WaiterDashboardHeader';
 import { TableGrid } from './waiter/TableGrid';
