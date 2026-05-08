@@ -40,61 +40,75 @@ export const useMenuStore = create<MenuState>((set, get) => ({
       set({ isLoading: true });
     }
 
-    try {
-      // 1. Fetch Categories (Need both ID and Name)
-      const { data: catData, error: catError } = await supabase
-        .from('categories')
-        .select('id, name')
-        .order('sort_order', { ascending: true });
+    const executeLoad = async (retryCount = 0): Promise<void> => {
+      try {
+        // 1. Fetch Categories (Need both ID and Name)
+        const { data: catData, error: catError } = await supabase
+          .from('categories')
+          .select('id, name')
+          .order('sort_order', { ascending: true });
 
-      if (catError) throw catError;
-      
-      const categories = catData.map(c => c.name);
-      const categoryMap = new Map(catData.map(c => [c.id, c.name]));
+        if (catError) throw catError;
+        
+        const categories = catData.map(c => c.name);
+        const categoryMap = new Map(catData.map(c => [c.id, c.name]));
 
-      // 2. Fetch Menu Items
-      const { data: menuData, error: menuError } = await supabase
-        .from('menu_items')
-        .select('*')
-        .order('name', { ascending: true });
+        // 2. Fetch Menu Items
+        const { data: menuData, error: menuError } = await supabase
+          .from('menu_items')
+          .select('*')
+          .order('name', { ascending: true });
 
-      if (menuError) throw menuError;
+        if (menuError) throw menuError;
 
-      const mappedItems: MenuItem[] = menuData.map(item => ({
-        id: item.id,
-        name: item.name || 'Menu Tanpa Nama',
-        description: item.description || '',
-        price: Number(item.price) || 0,
-        imageUrl: item.image_url || 'https://placehold.co/400x400/f3f4f6/9ca3af?text=No+Image',
-        category: categoryMap.get(item.category) || item.category || 'Lainnya',
-        isFavorite: !!item.is_favorite,
-        isNew: !!item.is_new,
-        rating: Number(item.rating) || 0,
-        prepTime: Number(item.prep_time) || 15,
-        calories: Number(item.calories) || 0,
-        addons: item.addons || [] // Ensure addons are mapped if present
-      }));
+        const mappedItems: MenuItem[] = menuData.map(item => ({
+          id: item.id,
+          name: item.name || 'Menu Tanpa Nama',
+          description: item.description || '',
+          price: Number(item.price) || 0,
+          imageUrl: item.image_url || 'https://placehold.co/400x400/f3f4f6/9ca3af?text=No+Image',
+          category: categoryMap.get(item.category) || item.category || 'Lainnya',
+          isFavorite: !!item.is_favorite,
+          isNew: !!item.is_new,
+          rating: Number(item.rating) || 0,
+          prepTime: Number(item.prep_time) || 15,
+          calories: Number(item.calories) || 0,
+          addons: item.addons || [] // Ensure addons are mapped if present
+        }));
 
-      const finalCategories = categories.length > 0 ? categories : ['Makanan', 'Minuman', 'Snack'];
-      
-      // Update State
-      set({ 
-        items: mappedItems, 
-        categories: finalCategories,
-        isLoading: false 
-      });
+        const finalCategories = categories.length > 0 ? categories : ['Makanan', 'Minuman', 'Snack'];
+        
+        // Update State
+        set({ 
+          items: mappedItems, 
+          categories: finalCategories,
+          isLoading: false 
+        });
 
-      // Update Cache
-      localStorage.setItem('pawon_menu_cache', JSON.stringify({
-        items: mappedItems,
-        categories: finalCategories,
-        timestamp: Date.now()
-      }));
+        // Update Cache
+        localStorage.setItem('pawon_menu_cache', JSON.stringify({
+          items: mappedItems,
+          categories: finalCategories,
+          timestamp: Date.now()
+        }));
 
-    } catch (error) {
-      console.error("Failed to load menu data from Supabase:", error);
-      set({ isLoading: false });
-    }
+      } catch (error) {
+        console.error(`Failed to load menu data from Supabase (Attempt ${retryCount + 1}):`, error);
+        
+        if (retryCount < 3) {
+          const delay = Math.pow(2, retryCount) * 1000; // 1s, 2s, 4s
+          console.log(`🔄 Retrying in ${delay / 1000}s...`);
+          await new Promise(resolve => setTimeout(resolve, delay));
+          return executeLoad(retryCount + 1);
+        } else {
+          console.error("❌ Max retries reached. Failing with cache if available.");
+          set({ isLoading: false });
+          alert('Gagal memuat data menu terbaru. Menampilkan data cache jika ada.');
+        }
+      }
+    };
+
+    await executeLoad();
   },
 
   addCategory: async (name) => {

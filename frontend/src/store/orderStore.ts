@@ -35,21 +35,35 @@ export const useOrderStore = create<OrderState>((set, get) => ({
 
   fetchOrders: async () => {
     set({ isLoading: true });
-    try {
-      const { data, error } = await supabase
-        .from('orders')
-        .select('*, items:order_items(*)')
-        .in('status', ['pending', 'completed'])
-        .gte('created_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString())
-        .order('created_at', { ascending: true }); // Assume created_at is snake_case
+    
+    const executeFetch = async (retryCount = 0): Promise<void> => {
+      try {
+        const { data, error } = await supabase
+          .from('orders')
+          .select('*, items:order_items(*)')
+          .in('status', ['pending', 'completed'])
+          .gte('created_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString())
+          .order('created_at', { ascending: true });
 
-      if (error) throw error;
-      set({ orders: (data || []).map(mapOrderFromDB) });
-    } catch (error) {
-      console.error('Error fetching orders:', error);
-    } finally {
-      set({ isLoading: false });
-    }
+        if (error) throw error;
+        set({ orders: (data || []).map(mapOrderFromDB) });
+      } catch (error) {
+        console.error(`Error fetching orders (Attempt ${retryCount + 1}):`, error);
+        
+        if (retryCount < 3) {
+          const delay = Math.pow(2, retryCount) * 1000; // 1s, 2s, 4s
+          console.log(`🔄 Retrying fetchOrders in ${delay / 1000}s...`);
+          await new Promise(resolve => setTimeout(resolve, delay));
+          return executeFetch(retryCount + 1);
+        } else {
+          console.error("❌ Max retries reached for fetchOrders.");
+          alert('Gagal mengambil data pesanan terbaru dari server.');
+        }
+      }
+    };
+
+    await executeFetch();
+    set({ isLoading: false });
   },
 
   addOrder: async (tableNumber: string, items: OrderItem[], orderType: string = 'dine-in') => {
@@ -94,46 +108,59 @@ export const useOrderStore = create<OrderState>((set, get) => ({
 
   completeOrder: async (orderId: string) => {
     console.log('🔄 START: Attempting to complete order ID:', orderId);
-    try {
-      console.log('📡 Calling Supabase update for order:', orderId);
-      const { data, error, status, statusText } = await supabase
-        .from('orders')
-        .update({ status: 'completed' })
-        .eq('id', orderId)
-        .select();
+    
+    const executeComplete = async (retryCount = 0): Promise<void> => {
+      try {
+        console.log(`📡 Calling Supabase update for order: ${orderId} (Attempt ${retryCount + 1})`);
+        const { data, error, status, statusText } = await supabase
+          .from('orders')
+          .update({ status: 'completed' })
+          .eq('id', orderId)
+          .select();
 
-      if (error) {
-        console.error('❌ Supabase ERROR:', error.message, 'Code:', error.code, 'Details:', error.details);
-        alert(`Gagal menyelesaikan pesanan: ${error.message}`);
-        throw error;
+        if (error) {
+          console.error('❌ Supabase ERROR:', error.message);
+          throw error;
+        }
+
+        console.log('✅ Supabase SUCCESS:', data);
+        console.log('📊 HTTP Status:', status, statusText);
+
+        if (!data || data.length === 0) {
+          console.warn('⚠️ Order ID not found or no rows updated.');
+          alert('Peringatan: Pesanan tidak ditemukan atau tidak ada data yang berubah.');
+        }
+
+        set((state) => ({
+          orders: state.orders.map(order =>
+            String(order.id) === String(orderId) ? { ...order, status: 'completed' } : order
+          ),
+        }));
+
+        // AUTO-DEDUCT STOCK (ERP Engine)
+        const completedOrder = get().orders.find(o => String(o.id) === String(orderId));
+        if (completedOrder) {
+            const menuItems = useMenuStore.getState().items;
+            useInventoryStore.getState().deductStockFromOrder(menuItems, completedOrder);
+        }
+
+        console.log('✨ Local state & inventory updated for order:', orderId);
+      } catch (error: any) {
+        console.error(`❌ Error completing order (Attempt ${retryCount + 1}):`, error);
+        
+        if (retryCount < 3) {
+          const delay = Math.pow(2, retryCount) * 1000; // 1s, 2s, 4s
+          console.log(`🔄 Retrying completeOrder in ${delay / 1000}s...`);
+          await new Promise(resolve => setTimeout(resolve, delay));
+          return executeComplete(retryCount + 1);
+        } else {
+          console.error("❌ Max retries reached for completeOrder.");
+          alert(`Gagal menyelesaikan pesanan setelah beberapa kali mencoba: ${error.message || 'Unknown error'}`);
+        }
       }
+    };
 
-      console.log('✅ Supabase SUCCESS:', data);
-      console.log('📊 HTTP Status:', status, statusText);
-
-      if (!data || data.length === 0) {
-        console.warn('⚠️ Order ID not found or no rows updated.');
-        alert('Peringatan: Pesanan tidak ditemukan atau tidak ada data yang berubah.');
-      }
-
-      set((state) => ({
-        orders: state.orders.map(order =>
-          String(order.id) === String(orderId) ? { ...order, status: 'completed' } : order
-        ),
-      }));
-
-      // AUTO-DEDUCT STOCK (ERP Engine)
-      const completedOrder = get().orders.find(o => String(o.id) === String(orderId));
-      if (completedOrder) {
-          const menuItems = useMenuStore.getState().items;
-          useInventoryStore.getState().deductStockFromOrder(menuItems, completedOrder);
-      }
-
-      console.log('✨ Local state & inventory updated for order:', orderId);
-    } catch (error: any) {
-      console.error('❌ CATCH BLOCK ERROR:', error);
-      alert(`Terjadi kesalahan sistem: ${error.message || 'Unknown error'}`);
-    }
+    await executeComplete();
   },
 
   clearStalePendingOrders: async (maxAgeMinutes: number = 180) => {
@@ -223,11 +250,11 @@ export const useOrderStore = create<OrderState>((set, get) => ({
         }
       });
 
-    // FALLBACK POLLING: Sync every 30s in case real-time fails
+    // FALLBACK POLLING: Sync every 15s in case real-time fails (Optimized for busy restaurant)
     const pollInterval = setInterval(() => {
       console.log('🔄 Running background sync (Polling)...');
       get().fetchOrders();
-    }, 30000);
+    }, 15000);
 
     return () => {
       console.log('🔕 Unsubscribing from orders...');
