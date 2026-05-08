@@ -45,7 +45,7 @@ export const TableGrid: React.FC<TableGridProps> = ({
               className={`relative aspect-square rounded-[32px] flex flex-col items-center justify-center border-2 transition-all duration-300 group active:scale-95 ${
                 hasOrder 
                   ? 'bg-red-50 border-red-500 shadow-lg shadow-red-200/50' 
-                  : 'bg-white border-gray-100 hover:border-pawon-accent/30'
+                  : 'bg-white border-emerald-500 shadow-sm shadow-emerald-100/50 hover:border-emerald-600'
               } ${pingingTables.has(tableNum) ? 'animate-pulse bg-orange-50 !border-orange-500 shadow-[0_0_20px_rgba(249,115,22,0.6)]' : ''}`}
             >
               {hasOrder && (
@@ -57,13 +57,13 @@ export const TableGrid: React.FC<TableGridProps> = ({
               <div className={`mb-1 p-1.5 rounded-xl transition-colors ${
                 hasOrder 
                   ? 'bg-red-600 text-white shadow-md' 
-                  : 'bg-gray-50 text-gray-300'
+                  : 'bg-emerald-50 text-emerald-600'
               }`}>
                 <Utensils size={14} />
               </div>
 
               <span className={`font-black text-base tracking-tight ${
-                hasOrder ? 'text-red-900' : 'text-gray-400'
+                hasOrder ? 'text-red-900' : 'text-emerald-700'
               }`}>
                 {tableNum}
               </span>
