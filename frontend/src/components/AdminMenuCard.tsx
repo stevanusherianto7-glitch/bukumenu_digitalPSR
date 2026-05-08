@@ -404,28 +404,33 @@ export const AdminMenuCard: React.FC<AdminMenuCardProps> = ({ item, onUpdate, on
 
 
 
-               <div className="pt-2 flex items-center gap-2">
-                 <button 
-                   onClick={handleDelete}
-                   className="p-3 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
-                   title="Hapus Menu"
-                 >
-                   <Trash2 size={16} />
-                 </button>
-                 <button 
-                   onClick={() => {
-                     setIsEditing(false);
-                     const cleanUrl = item.imageUrl.split('#')[0];
-                     const match = objectPosition.match(/([\d.]+)% ([\d.]+)%/);
-                     if (match) {
-                       const newUrl = `${cleanUrl}#pos=${match[1]},${match[2]}`;
-                       onUpdate(item.id, { imageUrl: newUrl });
-                     }
-                   }}
-                   className="w-full py-3 rounded-lg bg-pawon-dark text-white text-xs font-bold hover:bg-black transition-colors flex items-center justify-center gap-1.5 shadow-md"
-                 >
-                   <Check size={14} /> Selesai
-                 </button>
+               <div className="pt-2 flex flex-col gap-2">
+                 <div className="flex items-center gap-2">
+                   <button 
+                     onClick={handleDelete}
+                     className="p-3 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
+                     title="Hapus Menu"
+                   >
+                     <Trash2 size={16} />
+                   </button>
+                   <button 
+                     onClick={() => {
+                       setIsEditing(false);
+                       const cleanUrl = item.imageUrl.split('#')[0];
+                       const match = objectPosition.match(/([\d.]+)% ([\d.]+)%/);
+                       if (match) {
+                         const newUrl = `${cleanUrl}#pos=${match[1]},${match[2]}`;
+                         onUpdate(item.id, { imageUrl: newUrl });
+                       }
+                     }}
+                     className="w-full py-3 rounded-lg bg-pawon-dark text-white text-xs font-bold hover:bg-black transition-colors flex items-center justify-center gap-1.5 shadow-md"
+                   >
+                     <Check size={14} /> Terapkan
+                   </button>
+                 </div>
+                 <p className="text-[9px] text-gray-400 text-center font-medium">
+                   *Perubahan disimpan sebagai draft. Klik "Simpan" di bagian atas untuk menyimpan permanen.
+                 </p>
                </div>
             </div>
           )}

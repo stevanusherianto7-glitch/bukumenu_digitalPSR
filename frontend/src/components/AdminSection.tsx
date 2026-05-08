@@ -36,9 +36,11 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
   // Local Draft State
   const [draftItems, setDraftItems] = useState<MenuItem[]>(items);
   const [draftHeaderImage, setDraftHeaderImage] = useState<string | null>(null);
+  const [isDirty, setIsDirty] = useState(false);
 
   useEffect(() => {
     setDraftItems(items);
+    setIsDirty(false); // Reset dirty state when source items change
   }, [items]);
   
   useEffect(() => {
@@ -46,10 +48,8 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
   }, [headerImage]);
 
   const hasUnsavedChanges = useMemo(() => {
-    const itemsChanged = JSON.stringify(items) !== JSON.stringify(draftItems);
-    const headerChanged = draftHeaderImage !== null;
-    return itemsChanged || headerChanged;
-  }, [items, draftItems, draftHeaderImage]);
+    return isDirty || draftHeaderImage !== null;
+  }, [isDirty, draftHeaderImage]);
 
   const SHORTCUT_CATEGORIES = ['Terlaris', 'Makanan', 'Minuman'];
 
@@ -57,6 +57,7 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
     setDraftItems(prev => prev.map(item => 
       item.id === id ? { ...item, ...updates } : item
     ));
+    setIsDirty(true);
   };
 
   const handleAddDraftItem = () => {
@@ -76,12 +77,14 @@ export const AdminSection: React.FC<AdminSectionProps> = ({
       isAvailable: true,
     };
     setDraftItems(prev => [newItem, ...prev]);
+    setIsDirty(true);
   };
 
   const handleDiscard = () => {
     if (window.confirm('Batalkan semua perubahan yang belum disimpan?')) {
       setDraftItems(items);
       setDraftHeaderImage(null);
+      setIsDirty(false);
     }
   };
 
