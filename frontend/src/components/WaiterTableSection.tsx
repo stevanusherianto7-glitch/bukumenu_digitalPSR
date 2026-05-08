@@ -78,22 +78,22 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
 
         // 2. Suara Orang (TTS via Capacitor Plugin)
         setTimeout(async () => {
-          try {
-            let textToSpeak = `Ada pesanan baru dari meja ${tableNum}. `;
-            
-            if (order && Array.isArray(order.items)) {
-              order.items.forEach((item: any) => {
-                textToSpeak += `${item.quantity} porsi ${item.menuName}. `;
-                if (item.notes) {
-                  textToSpeak += `Catatan: ${item.notes}. `;
-                }
-              });
-            }
-            
-            if (order && order.orderType) {
-              textToSpeak += `Tipe pesanan: ${order.orderType === 'dine_in' ? 'Makan di tempat' : 'Bawa pulang'}.`;
-            }
+          let textToSpeak = `Ada pesanan baru dari meja ${tableNum}. `;
+          
+          if (order && Array.isArray(order.items)) {
+            order.items.forEach((item: any) => {
+              textToSpeak += `${item.quantity} porsi ${item.menuName}. `;
+              if (item.notes) {
+                textToSpeak += `Catatan: ${item.notes}. `;
+              }
+            });
+          }
+          
+          if (order && order.orderType) {
+            textToSpeak += `Tipe pesanan: ${order.orderType === 'dine_in' ? 'Makan di tempat' : 'Bawa pulang'}.`;
+          }
 
+          try {
             await TextToSpeech.speak({
               text: textToSpeak,
               lang: 'id-ID',
