@@ -13,6 +13,10 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onClick }) => 
   
   const isAvailable = item.isAvailable !== false;
 
+  // Parse position from URL (e.g., #pos=50,50)
+  const match = item.imageUrl.match(/#pos=([\d.]+),([\d.]+)/);
+  const objectPosition = match ? `${match[1]}% ${match[2]}%` : 'center';
+
   return (
     <div 
       onClick={() => isAvailable && onClick && onClick(item)}
@@ -39,12 +43,13 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onClick }) => 
         {/* Premium Image Frame */}
         <div className="relative aspect-[4/5] overflow-hidden rounded-[20px] bg-gray-50 mb-3 isolate">
           <img
-            src={item.imageUrl}
+            src={item.imageUrl.split('#')[0]}
             alt={item.name}
             onError={(e) => {
                (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80';
             }}
             className={`w-full h-full object-cover transition-all duration-700 ${isAvailable ? 'group-hover:scale-110' : 'grayscale'}`}
+            style={{ objectPosition }}
             loading="lazy"
           />
 

@@ -165,7 +165,12 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose, tableNumber }) => {
 
               return (
                 <div key={item.cartId} className="flex gap-4 bg-white p-3 rounded-xl border border-gray-100 shadow-sm relative overflow-hidden group">
-                  <img src={item.imageUrl} alt={item.name} className="w-16 h-16 object-cover rounded-lg" />
+                  <img 
+                    src={item.imageUrl.split('#')[0]} 
+                    alt={item.name} 
+                    className="w-16 h-16 object-cover rounded-lg" 
+                    style={{ objectPosition: item.imageUrl.match(/#pos=([\d.]+),([\d.]+)/) ? `${item.imageUrl.match(/#pos=([\d.]+),([\d.]+)/)![1]}% ${item.imageUrl.match(/#pos=([\d.]+),([\d.]+)/)![2]}%` : 'center' }}
+                  />
                   <div className="flex-1 flex flex-col">
                     <p className="font-bold text-sm text-pawon-dark line-clamp-1">{item.name}</p>
                     
@@ -230,7 +235,12 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose, tableNumber }) => {
                 <div className="flex gap-3 overflow-x-auto pb-2 no-scrollbar">
                    {MENU_ITEMS.filter(i => (i.category === 'Minuman' || i.category === 'Snack') && !items.find(ci => ci.id === i.id)).slice(0, 3).map(rec => (
                      <div key={rec.id} className="min-w-[140px] bg-white rounded-xl border border-gray-100 p-2 shadow-sm flex flex-col gap-2">
-                        <img src={rec.imageUrl} alt={rec.name} className="w-full h-20 object-cover rounded-lg" />
+                        <img 
+                          src={rec.imageUrl.split('#')[0]} 
+                          alt={rec.name} 
+                          className="w-full h-20 object-cover rounded-lg" 
+                          style={{ objectPosition: rec.imageUrl.match(/#pos=([\d.]+),([\d.]+)/) ? `${rec.imageUrl.match(/#pos=([\d.]+),([\d.]+)/)![1]}% ${rec.imageUrl.match(/#pos=([\d.]+),([\d.]+)/)![2]}%` : 'center' }}
+                        />
                         <div className="px-1">
                            <p className="text-[10px] font-bold text-pawon-dark line-clamp-1">{rec.name}</p>
                            <p className="text-[9px] font-bold text-pawon-accent">Rp {(Number(rec.price) || 0).toLocaleString('id-ID')}</p>

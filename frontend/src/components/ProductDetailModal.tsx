@@ -23,6 +23,10 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ item, on
   
   const safePrice = Number(item.price) || 0;
 
+  // Parse position from URL (e.g., #pos=50,50)
+  const match = item.imageUrl.match(/#pos=([\d.]+),([\d.]+)/);
+  const objectPosition = match ? `${match[1]}% ${match[2]}%` : 'center';
+
   // Prevent body scroll when modal is open
   useEffect(() => {
     document.body.style.overflow = 'hidden';
@@ -104,9 +108,10 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ item, on
       {/* 2. Full Image Header */}
       <div className="relative h-[45vh] w-full bg-gray-100">
         <img 
-          src={item.imageUrl} 
+          src={item.imageUrl.split('#')[0]} 
           alt={item.name} 
           className={`w-full h-full object-cover ${!isAvailable ? 'grayscale' : ''}`}
+          style={{ objectPosition }}
         />
         {/* Gradient Overlay for text readability if needed */}
         <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-black/50 to-transparent opacity-60"></div>

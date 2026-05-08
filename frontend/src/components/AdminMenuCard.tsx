@@ -20,9 +20,27 @@ export const AdminMenuCard: React.FC<AdminMenuCardProps> = ({ item, onUpdate, on
   const [isUploading, setIsUploading] = useState(false);
   const [zoom, setZoom] = useState(1);
 
-  // Reset zoom when exiting edit mode
+  // Parse position from URL (e.g., #pos=50,50)
+  const getInitialPosition = () => {
+    const match = item.imageUrl.match(/#pos=([\d.]+),([\d.]+)/);
+    return match ? `${match[1]}% ${match[2]}%` : 'center';
+  };
+
+  const [objectPosition, setObjectPosition] = useState(getInitialPosition);
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [initialPos, setInitialPos] = useState({ x: 50, y: 50 });
+
   useEffect(() => {
-    if (!isEditing) setZoom(1);
+    setObjectPosition(getInitialPosition());
+  }, [item.imageUrl]);
+
+  // Reset zoom and position when exiting edit mode
+  useEffect(() => {
+    if (!isEditing) {
+      setZoom(1);
+      setObjectPosition(getInitialPosition());
+    }
   }, [isEditing]);
 
   const assignableCategories = availableCategories.filter(c => c !== 'Semua' && c !== 'Terlaris');
@@ -60,6 +78,33 @@ export const AdminMenuCard: React.FC<AdminMenuCardProps> = ({ item, onUpdate, on
     }
   };
 
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!isEditing) return;
+    setIsDragging(true);
+    setDragStart({ x: e.clientX, y: e.clientY });
+    const match = objectPosition.match(/([\d.]+)% ([\d.]+)%/);
+    setInitialPos(match ? { x: parseFloat(match[1]), y: parseFloat(match[2]) } : { x: 50, y: 50 });
+  };
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!isDragging || !isEditing) return;
+    const deltaX = e.clientX - dragStart.x;
+    const deltaY = e.clientY - dragStart.y;
+    
+    // Convert pixels to percentage (assuming card width is roughly 200px)
+    const percentX = initialPos.x - (deltaX / 2);
+    const percentY = initialPos.y - (deltaY / 2);
+    
+    const boundedX = Math.max(0, Math.min(100, percentX));
+    const boundedY = Math.max(0, Math.min(100, percentY));
+    
+    setObjectPosition(`${boundedX.toFixed(2)}% ${boundedY.toFixed(2)}%`);
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
   const handleDelete = () => {
     onDelete(item.id);
   };
@@ -71,21 +116,30 @@ export const AdminMenuCard: React.FC<AdminMenuCardProps> = ({ item, onUpdate, on
       <div className={`bg-white rounded-[28px] p-4 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_50px_rgba(0,0,0,0.1)] transition-all duration-500 flex flex-col h-full border hover:-translate-y-2 group/card ${isEditing ? 'border-pawon-accent ring-1 ring-pawon-accent relative z-10' : 'border-gray-50/50'}`}>
         
         {/* Foto Preview */}
-        <div className={`relative aspect-square rounded-[16px] overflow-hidden mb-3 bg-gray-100 group transition-all`}>
+        <div 
+          className={`relative aspect-square rounded-[16px] overflow-hidden mb-3 bg-gray-100 group transition-all ${isEditing ? 'cursor-move' : ''}`}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseUp}
+        >
           <img 
-            src={item.imageUrl} 
+            src={item.imageUrl.split('#')[0]} 
             alt={item.name}
             onError={(e) => {
               (e.target as HTMLImageElement).src = 'https://placehold.co/400x400/f3f4f6/9ca3af?text=No+Image';
             }}
             className={`w-full h-full object-cover transition-all duration-300 ${isEditing ? 'opacity-70' : ''} ${!isAvailable && !isEditing ? 'grayscale' : ''}`}
-            style={{ transform: `scale(${zoom})` }}
+            style={{ 
+              transform: `scale(${zoom})`,
+              objectPosition: objectPosition
+            }}
           />
           
           {isEditing && (
             <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/20 z-50 animate-in fade-in slide-in-from-bottom-2 duration-300">
                 <button 
-                  onClick={() => setZoom(prev => Math.max(1, prev - 0.2))}
+                  onClick={(e) => { e.stopPropagation(); setZoom(prev => Math.max(1, prev - 0.2)); }}
                   className="text-white hover:text-pawon-accent transition-colors"
                   title="Zoom Out"
                 >
@@ -93,7 +147,7 @@ export const AdminMenuCard: React.FC<AdminMenuCardProps> = ({ item, onUpdate, on
                 </button>
                 <div className="w-[1px] h-3 bg-white/20 mx-1"></div>
                 <button 
-                  onClick={() => setZoom(1)}
+                  onClick={(e) => { e.stopPropagation(); setZoom(1); }}
                   className="text-[10px] font-black text-white hover:text-pawon-accent transition-colors"
                   title="Reset Zoom"
                 >
@@ -101,7 +155,7 @@ export const AdminMenuCard: React.FC<AdminMenuCardProps> = ({ item, onUpdate, on
                 </button>
                 <div className="w-[1px] h-3 bg-white/20 mx-1"></div>
                 <button 
-                  onClick={() => setZoom(prev => Math.min(3, prev + 0.2))}
+                  onClick={(e) => { e.stopPropagation(); setZoom(prev => Math.min(3, prev + 0.2)); }}
                   className="text-white hover:text-pawon-accent transition-colors"
                   title="Zoom In"
                 >
@@ -357,7 +411,15 @@ export const AdminMenuCard: React.FC<AdminMenuCardProps> = ({ item, onUpdate, on
                    <Trash2 size={16} />
                  </button>
                  <button 
-                   onClick={() => setIsEditing(false)}
+                   onClick={() => {
+                     setIsEditing(false);
+                     const cleanUrl = item.imageUrl.split('#')[0];
+                     const match = objectPosition.match(/([\d.]+)% ([\d.]+)%/);
+                     if (match) {
+                       const newUrl = `${cleanUrl}#pos=${match[1]},${match[2]}`;
+                       onUpdate(item.id, { imageUrl: newUrl });
+                     }
+                   }}
                    className="w-full py-3 rounded-lg bg-pawon-dark text-white text-xs font-bold hover:bg-black transition-colors flex items-center justify-center gap-1.5 shadow-md"
                  >
                    <Check size={14} /> Selesai
