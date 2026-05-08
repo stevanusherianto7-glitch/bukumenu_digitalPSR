@@ -1,5 +1,4 @@
-import React from 'react';
-import { Users, ShoppingBag } from 'lucide-react';
+import { Users, ShoppingBag, Volume2 } from 'lucide-react';
 
 interface WaiterDashboardHeaderProps {
   now: Date;
@@ -16,6 +15,42 @@ export const WaiterDashboardHeader: React.FC<WaiterDashboardHeaderProps> = ({
   activeTab,
   setActiveTab
 }) => {
+  
+  const handleTestAudio = () => {
+    try {
+      // 1. Unlock Audio Context (Beep)
+      const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const oscillator = audioCtx.createOscillator();
+      const gainNode = audioCtx.createGain();
+      oscillator.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+      oscillator.type = 'sine';
+      oscillator.frequency.setValueAtTime(440, audioCtx.currentTime); // A4
+      gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+      gainNode.gain.linearRampToValueAtTime(0.2, audioCtx.currentTime + 0.1);
+      gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.4);
+      oscillator.start();
+      oscillator.stop(audioCtx.currentTime + 0.5);
+
+      // 2. Unlock & Test TTS
+      const msg = new SpeechSynthesisUtterance("Sistem suara aktif");
+      msg.lang = 'id-ID';
+      const voices = window.speechSynthesis.getVoices();
+      const premiumVoice = voices.find(v => 
+        v.lang.includes('id') && 
+        (v.name.includes('Google') || v.name.includes('Neural') || v.name.includes('Natural'))
+      ) || voices.find(v => v.lang.includes('id'));
+      
+      if (premiumVoice) {
+        msg.voice = premiumVoice;
+      }
+      msg.rate = 0.9;
+      window.speechSynthesis.speak(msg);
+    } catch (err) {
+      console.error("Failed to unlock audio:", err);
+    }
+  };
+
   // Waiter Dashboard Header - Clean UI without unnecessary labels
   return (
     <div className="bg-violet-950 text-white p-6 pb-12 rounded-b-[40px] shadow-2xl shadow-violet-900/30 mb-4 relative overflow-hidden mx-0 -mt-2">
@@ -23,9 +58,16 @@ export const WaiterDashboardHeader: React.FC<WaiterDashboardHeaderProps> = ({
       
       <div className="relative z-10 flex justify-between items-center mb-8">
         <div>
-          <div className="flex items-center gap-2 mb-1">
+          <div className="flex items-center gap-3 mb-1">
             <div className="w-2 h-2 bg-violet-400 rounded-full animate-pulse"></div>
             <h2 className="text-xl font-serif font-bold tracking-tight">Waiter Dashboard</h2>
+            <button 
+              onClick={handleTestAudio}
+              className="p-1.5 bg-white/10 rounded-lg hover:bg-white/20 active:scale-95 transition-all flex items-center justify-center"
+              title="Aktifkan / Tes Suara"
+            >
+              <Volume2 size={16} className="text-violet-300" />
+            </button>
           </div>
         </div>
         <div className="text-right">
