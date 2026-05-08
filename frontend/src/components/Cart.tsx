@@ -77,7 +77,7 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose, tableNumber }) => {
       />
 
       {/* Cart Panel */}
-      <div className={`absolute top-0 right-0 bottom-0 z-[80] w-full max-w-md bg-pawon-bg flex flex-col shadow-2xl transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+      <div data-testid="cart-panel" className={`absolute top-0 right-0 bottom-0 z-[80] w-full max-w-md bg-pawon-bg flex flex-col shadow-2xl transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}>
         
         {/* Header */}
         <div className="flex-none flex items-center justify-between p-5 border-b border-gray-200">
@@ -164,7 +164,7 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose, tableNumber }) => {
               const unitPriceTotal = item.price + itemAddonPrice;
 
               return (
-                <div key={item.cartId} className="flex gap-4 bg-white p-3 rounded-xl border border-gray-100 shadow-sm relative overflow-hidden group">
+                <div key={item.cartId} data-testid={`cart-item-${item.cartId}`} className="flex gap-4 bg-white p-3 rounded-xl border border-gray-100 shadow-sm relative overflow-hidden group">
                   <style>{`
                     .cart-pos-${item.cartId} {
                       object-position: ${item.imageUrl.match(/#pos=([\d.]+),([\d.]+)/) ? `${item.imageUrl.match(/#pos=([\d.]+),([\d.]+)/)![1]}% ${item.imageUrl.match(/#pos=([\d.]+),([\d.]+)/)![2]}%` : 'center'};
@@ -204,7 +204,7 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose, tableNumber }) => {
                           title="Kurangi"
                           aria-label="Kurangi Jumlah"
                         >-</button>
-                        <span className="w-8 text-center text-sm font-bold">{item.quantity}</span>
+                        <span data-testid="item-quantity" className="w-8 text-center text-sm font-bold">{item.quantity}</span>
                         <button 
                           onClick={() => updateQuantity(item.cartId, item.quantity + 1)} 
                           disabled={isSuccess}

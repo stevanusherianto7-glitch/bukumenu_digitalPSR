@@ -13,7 +13,7 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
   onSelect 
 }) => {
   return (
-    <div className="pb-6 pt-2">
+    <div data-testid="category-filter" className="pb-6 pt-2">
       {/* Category Tabs with uniform size, green color, and floating drop-shadow */}
       <div className="grid grid-cols-3 gap-3">
         {categories.map((cat) => {

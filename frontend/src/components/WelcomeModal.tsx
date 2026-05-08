@@ -9,7 +9,7 @@ interface WelcomeModalProps {
 
 export const WelcomeModal: React.FC<WelcomeModalProps> = ({ tableNumber, onDismiss }) => {
   return (
-    <div className="absolute inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-in fade-in duration-500">
+    <div data-testid="welcome-modal" className="absolute inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-in fade-in duration-500">
       
       {/* Main Glass Modal */}
       <div className="relative w-full max-w-sm bg-white/90 backdrop-blur-xl border border-white/40 rounded-[2rem] p-8 text-center shadow-[0_20px_50px_rgba(0,0,0,0.3)] overflow-hidden animate-in zoom-in-95 duration-500 delay-100 slide-in-from-bottom-4">

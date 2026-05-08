@@ -7,7 +7,7 @@ import { Cart } from '../components/Cart';
 import { useCartStore } from '../store/cartStore';
 import { useMenuStore } from '../store/menuStore';
 import { MenuItem } from '../types';
-import { Loader2 } from 'lucide-react';
+import { Loader2, ShoppingBag } from 'lucide-react';
 import { InstallPWA } from '../components/InstallPWA'; 
 import { WelcomeModal } from '../components/WelcomeModal'; 
 
@@ -18,7 +18,7 @@ export const GuestView: React.FC = () => {
   const tableNumber = searchParams.get('meja'); 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-  const { addItem } = useCartStore();
+  const { addItem, totalItems } = useCartStore();
   const { items, categories, isLoading, headerImage, loadData } = useMenuStore();
   
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -126,6 +126,19 @@ export const GuestView: React.FC = () => {
             onCategoryChange={setSelectedCategory}
           />
         </div>
+
+        {/* Floating Cart Button */}
+        <button 
+          onClick={() => setIsCartOpen(true)}
+          className="absolute bottom-6 right-6 w-14 h-14 rounded-full bg-pawon-accent text-white flex items-center justify-center shadow-lg shadow-pawon-accent/30 active:scale-95 transition-all z-40"
+        >
+          <ShoppingBag size={24} />
+          {totalItems > 0 && (
+            <span data-testid="cart-badge" className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
+              {totalItems}
+            </span>
+          )}
+        </button>
       </div>
 
       <style>{`

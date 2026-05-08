@@ -73,7 +73,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ item, on
   };
 
   return (
-    <div className="absolute inset-0 z-[60] bg-pawon-bg flex flex-col animate-in slide-in-from-bottom-4 duration-300">
+    <div data-testid="product-detail-modal" className="absolute inset-0 z-[60] bg-pawon-bg flex flex-col animate-in slide-in-from-bottom-4 duration-300">
       
       {/* 1. New Navigation Header (Updated: Added padding-top for safe area) */}
       <div className="absolute top-0 left-0 right-0 p-4 pt-[calc(1rem+env(safe-area-inset-top))] z-20 flex justify-between items-start">
@@ -238,6 +238,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ item, on
           <button 
             onClick={handleAddToCartClick}
             disabled={!isAvailable}
+            data-testid="add-to-cart-btn"
             className={`w-full h-12 rounded-full font-bold text-xs flex items-center justify-center gap-2 transition-all ${isAvailable ? 'bg-pawon-accent text-white shadow-lg shadow-pawon-accent/30 active:scale-[0.98] hover:bg-orange-700' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}
           >
             {isAvailable ? (
