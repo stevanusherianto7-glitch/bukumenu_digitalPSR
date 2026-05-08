@@ -11,9 +11,9 @@
   "description": "Dashboard manajemen restoran Pawon Salam.",
   "icons": [
     {
-      "src": "./icon-admin.png",
-      "sizes": "512x512",
-      "type": "image/png",
+      "src": "./admin-icon.jpg",
+      "sizes": "1024x1024",
+      "type": "image/jpeg",
       "purpose": "any maskable"
     }
   ]

@@ -10,7 +10,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Pawon Salam" />
     
-    <link rel="apple-touch-icon" href="/icon-guest.png" />
+    <link rel="apple-touch-icon" href="/guest-icon.jpg" />
     <link id="pwa-manifest" rel="manifest" href="/manifest-guest.json" />
     <script>
       (function() {
@@ -21,14 +21,14 @@
           const path = window.location.pathname;
           
           let manifest = '/manifest-guest.json';
-          let icon = '/icon-guest.png';
+          let icon = '/guest-icon.jpg';
 
           if (params.get('mode') === 'admin' || path.includes('/admin')) {
             manifest = '/manifest-admin.json';
-            icon = '/icon-admin.png';
+            icon = '/admin-icon.jpg';
           } else if (params.get('mode') === 'waiter' || path.includes('/waiter')) {
             manifest = '/manifest-waiter.json';
-            icon = '/icon-waiter.png';
+            icon = '/waiter-icon.jpg';
           }
 
           if (manifestLink) manifestLink.href = manifest;

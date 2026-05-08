@@ -11,9 +11,9 @@
   "description": "Dashboard waiter Pawon Salam.",
   "icons": [
     {
-      "src": "./icon-waiter.png",
-      "sizes": "512x512",
-      "type": "image/png",
+      "src": "./waiter-icon.jpg",
+      "sizes": "1024x1024",
+      "type": "image/jpeg",
       "purpose": "any maskable"
     }
   ]

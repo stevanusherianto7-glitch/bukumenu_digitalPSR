@@ -11,9 +11,9 @@
   "description": "Aplikasi buku menu digital resmi Pawon Salam Resto & Catering.",
   "icons": [
     {
-      "src": "./icon-guest.png",
-      "sizes": "512x512",
-      "type": "image/png",
+      "src": "./guest-icon.jpg",
+      "sizes": "1024x1024",
+      "type": "image/jpeg",
       "purpose": "any maskable"
     }
   ],
