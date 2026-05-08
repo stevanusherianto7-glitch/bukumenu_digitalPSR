@@ -58,25 +58,27 @@ export const WaiterDashboardHeader: React.FC<WaiterDashboardHeaderProps> = ({
       
       <div className="relative z-10 flex justify-between items-center mb-8">
         <div>
-          <div className="flex items-center gap-3 mb-1">
+          <div className="flex items-center gap-2 mb-1">
             <div className="w-2 h-2 bg-violet-400 rounded-full animate-pulse"></div>
             <h2 className="text-xl font-serif font-bold tracking-tight">Waiter Dashboard</h2>
-            <button 
-              onClick={handleTestAudio}
-              className="p-1.5 bg-white/10 rounded-lg hover:bg-white/20 active:scale-95 transition-all flex items-center justify-center"
-              title="Aktifkan / Tes Suara"
-            >
-              <Volume2 size={16} className="text-violet-300" />
-            </button>
           </div>
         </div>
-        <div className="text-right">
-          <div className="text-xl font-digital font-bold text-emerald-400 leading-none mb-1 tracking-wider tabular-nums">
-            {now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+        <div className="flex items-center gap-3">
+          <button 
+            onClick={handleTestAudio}
+            className="p-2 bg-white/5 backdrop-blur-md border border-white/10 rounded-xl hover:bg-white/20 active:scale-95 transition-all flex items-center justify-center shadow-inner"
+            title="Aktifkan / Tes Suara"
+          >
+            <Volume2 size={18} className="text-violet-300" />
+          </button>
+          <div className="text-right">
+            <div className="text-xl font-digital font-bold text-emerald-400 leading-none mb-1 tracking-wider tabular-nums">
+              {now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+            </div>
+            <p className="text-[10px] text-white/40 font-bold uppercase tracking-wider">
+              {now.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'short' })}
+            </p>
           </div>
-          <p className="text-[10px] text-white/40 font-bold uppercase tracking-wider">
-            {now.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'short' })}
-          </p>
         </div>
       </div>
 

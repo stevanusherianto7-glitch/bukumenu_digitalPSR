@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useOrderStore } from '../store/orderStore';
 import { CheckCircle2, Clock, ShoppingBag, History } from 'lucide-react';
+import { TextToSpeech } from '@capacitor-community/text-to-speech';
 
 // Waiter module with glassmorphism modal, blinking timer, and clean header
 // New Waiter Sub-components
@@ -59,7 +60,7 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
     const unsubscribe = subscribeToOrders();
     
     // Suara Bel & TTS
-    const playNotification = (tableNum: string) => {
+    const playNotification = (tableNum: string, order?: any) => {
       try {
         // 1. Bunyi Bel (Beep)
         const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
@@ -75,25 +76,35 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
         oscillator.start();
         oscillator.stop(audioCtx.currentTime + 0.6);
 
-        // 2. Suara Orang (TTS)
-        setTimeout(() => {
-          const msg = new SpeechSynthesisUtterance(`Ada pesanan baru dari meja ${tableNum}`);
-          msg.lang = 'id-ID';
-          
-          // Cari suara Bahasa Indonesia yang premium (Google atau Neural)
-          const voices = window.speechSynthesis.getVoices();
-          const premiumVoice = voices.find(v => 
-            v.lang.includes('id') && 
-            (v.name.includes('Google') || v.name.includes('Neural') || v.name.includes('Natural'))
-          ) || voices.find(v => v.lang.includes('id')); // Fallback ke suara ID apa saja
-          
-          if (premiumVoice) {
-            msg.voice = premiumVoice;
+        // 2. Suara Orang (TTS via Capacitor Plugin)
+        setTimeout(async () => {
+          try {
+            let textToSpeak = `Ada pesanan baru dari meja ${tableNum}. `;
+            
+            if (order && Array.isArray(order.items)) {
+              order.items.forEach((item: any) => {
+                textToSpeak += `${item.quantity} porsi ${item.menuName}. `;
+                if (item.notes) {
+                  textToSpeak += `Catatan: ${item.notes}. `;
+                }
+              });
+            }
+            
+            if (order && order.orderType) {
+              textToSpeak += `Tipe pesanan: ${order.orderType === 'dine_in' ? 'Makan di tempat' : 'Bawa pulang'}.`;
+            }
+
+            await TextToSpeech.speak({
+              text: textToSpeak,
+              lang: 'id-ID',
+              rate: 0.9,
+              pitch: 1.0,
+              volume: 1.0,
+              category: 'ambient',
+            });
+          } catch (err) {
+            console.error("Capacitor TTS Error:", err);
           }
-          
-          msg.rate = 0.9; // Sedikit diperlambat agar lebih jelas dan natural
-          msg.pitch = 1.0; // Nada normal
-          window.speechSynthesis.speak(msg);
         }, 600);
       } catch (err) {
         console.error("Audio error:", err);
@@ -108,7 +119,7 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
           return;
         }
 
-        playNotification(normalizedTableNumber);
+        playNotification(normalizedTableNumber, newOrder);
         
         // INSTANT REFRESH: Update data immediately when ping occurs
         fetchOrders(); 

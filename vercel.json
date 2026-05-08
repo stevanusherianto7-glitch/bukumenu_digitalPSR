@@ -13,8 +13,8 @@
   ],
   "cleanUrls": true,
   "rewrites": [
-    { "source": "/api", "destination": "/backend/src/index.ts" },
-    { "source": "/api/(.*)", "destination": "/backend/src/index.ts" },
+    { "source": "/api", "destination": "/backend/src/index.ts/api" },
+    { "source": "/api/(.*)", "destination": "/backend/src/index.ts/api/$1" },
     { "source": "/waiter", "destination": "/waiter.html" },
     { "source": "/admin", "destination": "/admin.html" },
     { "source": "/(.*)", "destination": "/index.html" }
