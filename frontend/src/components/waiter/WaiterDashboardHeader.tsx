@@ -29,7 +29,7 @@ export const WaiterDashboardHeader: React.FC<WaiterDashboardHeaderProps> = ({
           </div>
         </div>
         <div className="text-right">
-          <div className="text-xl font-digital font-bold text-emerald-400 leading-none mb-1 tracking-wider">
+          <div className="text-xl font-digital font-bold text-emerald-400 leading-none mb-1 tracking-wider tabular-nums">
             {now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
           </div>
           <p className="text-[10px] text-white/40 font-bold uppercase tracking-wider">
