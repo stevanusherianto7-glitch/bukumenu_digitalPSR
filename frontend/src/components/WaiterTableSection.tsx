@@ -79,8 +79,20 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
         setTimeout(() => {
           const msg = new SpeechSynthesisUtterance(`Ada pesanan baru dari meja ${tableNum}`);
           msg.lang = 'id-ID';
-          msg.rate = 1.0;
-          msg.pitch = 1.1;
+          
+          // Cari suara Bahasa Indonesia yang premium (Google atau Neural)
+          const voices = window.speechSynthesis.getVoices();
+          const premiumVoice = voices.find(v => 
+            v.lang.includes('id') && 
+            (v.name.includes('Google') || v.name.includes('Neural') || v.name.includes('Natural'))
+          ) || voices.find(v => v.lang.includes('id')); // Fallback ke suara ID apa saja
+          
+          if (premiumVoice) {
+            msg.voice = premiumVoice;
+          }
+          
+          msg.rate = 0.9; // Sedikit diperlambat agar lebih jelas dan natural
+          msg.pitch = 1.0; // Nada normal
           window.speechSynthesis.speak(msg);
         }, 600);
       } catch (err) {
@@ -309,7 +321,7 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
                 <div className="space-y-1 bg-gray-50/50 rounded-xl p-3 border border-gray-100 mb-2">
                    {order.items.map((item, idx) => (
                      <div key={idx} className="flex justify-between text-xs">
-                        <span className="text-gray-700">{item.quantity}x {item.menuName}</span>
+                        <span className="text-gray-700">{item.quantity}x {item.menuName === 'Public-Images' ? 'Menu Terhapus' : item.menuName}</span>
                      </div>
                    ))}
                 </div>
