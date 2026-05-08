@@ -42,14 +42,18 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onClick }) => 
 
         {/* Premium Image Frame */}
         <div className="relative aspect-[4/5] overflow-hidden rounded-[20px] bg-gray-50 mb-3 isolate">
+          <style>{`
+            .menu-pos-${item.id || 'default'} {
+              object-position: ${objectPosition};
+            }
+          `}</style>
           <img
             src={item.imageUrl.split('#')[0]}
             alt={item.name}
             onError={(e) => {
                (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80';
             }}
-            className={`w-full h-full object-cover transition-all duration-700 ${isAvailable ? 'group-hover:scale-110' : 'grayscale'}`}
-            style={{ objectPosition }}
+            className={`w-full h-full object-cover transition-all duration-700 ${isAvailable ? 'group-hover:scale-110' : 'grayscale'} menu-pos-${item.id || 'default'}`}
             loading="lazy"
           />
 

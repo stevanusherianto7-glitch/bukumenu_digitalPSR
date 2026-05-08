@@ -105,13 +105,16 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ item, on
         </div>
       </div>
 
-      {/* 2. Full Image Header */}
       <div className="relative h-[45vh] w-full bg-gray-100">
+        <style>{`
+          .modal-pos-${item.id || 'default'} {
+            object-position: ${objectPosition};
+          }
+        `}</style>
         <img 
           src={item.imageUrl.split('#')[0]} 
           alt={item.name} 
-          className={`w-full h-full object-cover ${!isAvailable ? 'grayscale' : ''}`}
-          style={{ objectPosition }}
+          className={`w-full h-full object-cover ${!isAvailable ? 'grayscale' : ''} modal-pos-${item.id || 'default'}`}
         />
         {/* Gradient Overlay for text readability if needed */}
         <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-black/50 to-transparent opacity-60"></div>

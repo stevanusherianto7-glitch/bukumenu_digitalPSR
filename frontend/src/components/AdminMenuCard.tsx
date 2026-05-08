@@ -123,17 +123,19 @@ export const AdminMenuCard: React.FC<AdminMenuCardProps> = ({ item, onUpdate, on
           onMouseUp={handleMouseUp}
           onMouseLeave={handleMouseUp}
         >
+          <style>{`
+            .img-pos-${item.id} {
+              object-position: ${objectPosition};
+              transform: scale(${zoom});
+            }
+          `}</style>
           <img 
             src={item.imageUrl.split('#')[0]} 
             alt={item.name}
             onError={(e) => {
               (e.target as HTMLImageElement).src = 'https://placehold.co/400x400/f3f4f6/9ca3af?text=No+Image';
             }}
-            className={`w-full h-full object-cover transition-all duration-300 ${isEditing ? 'opacity-70' : ''} ${!isAvailable && !isEditing ? 'grayscale' : ''}`}
-            style={{ 
-              transform: `scale(${zoom})`,
-              objectPosition: objectPosition
-            }}
+            className={`w-full h-full object-cover transition-all duration-300 ${isEditing ? 'opacity-70' : ''} ${!isAvailable && !isEditing ? 'grayscale' : ''} img-pos-${item.id}`}
           />
           
           {isEditing && (
