@@ -40,7 +40,9 @@ const authLimiter = rateLimit({
 });
 
 // 5. Strict CORS Whitelist - Zero Error Tolerance
-const allowedOrigins = [process.env.FRONTEND_URL || 'http://localhost:3000'];
+const allowedOrigins = process.env.FRONTEND_URL 
+  ? [process.env.FRONTEND_URL] 
+  : ['http://localhost:5173', 'http://localhost:3000'];
 app.use(cors({
   origin: (origin, callback) => {
     if (!origin || allowedOrigins.includes(origin)) {

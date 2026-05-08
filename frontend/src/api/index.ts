@@ -11,4 +11,18 @@ const api = axios.create({
   baseURL: isProduction ? '/api' : 'http://localhost:5000/api',
 });
 
+// Interceptor untuk menyisipkan Token JWT secara otomatis
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
 export default api;
