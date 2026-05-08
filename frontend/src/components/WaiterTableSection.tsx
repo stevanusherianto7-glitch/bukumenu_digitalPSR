@@ -103,7 +103,16 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
               category: 'ambient',
             });
           } catch (err) {
-            console.error("Capacitor TTS Error:", err);
+            console.error("Capacitor TTS Error, falling back to Web Speech API:", err);
+            // Fallback ke Web Speech API jika Capacitor gagal (misal di browser)
+            try {
+              const utterance = new SpeechSynthesisUtterance(textToSpeak);
+              utterance.lang = 'id-ID';
+              utterance.rate = 0.9;
+              window.speechSynthesis.speak(utterance);
+            } catch (webErr) {
+              console.error("Web Speech API Error:", webErr);
+            }
           }
         }, 600);
       } catch (err) {

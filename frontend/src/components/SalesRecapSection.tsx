@@ -141,7 +141,7 @@ export const SalesRecapSection: React.FC = () => {
             <button
                 key={range.id}
                 onClick={() => setTimeRange(range.id as TimeRange)}
-                className={`flex-1 py-2 text-[10px] font-bold rounded-lg transition-all ${
+                className={`flex-1 py-3 text-xs font-bold rounded-lg transition-all ${
                     timeRange === range.id 
                     ? 'bg-white text-pawon-dark shadow-md scale-[1.02]'
                     : 'text-gray-400 hover:text-gray-600'

@@ -19,9 +19,13 @@ export const PromoCarousel: React.FC<PromoCarouselProps> = ({ onSecretAdminTrigg
   const CAROUSEL_IMAGES = React.useMemo(() => {
     const imagesFromMenu = menuItems
       .filter(item => item.imageUrl && !item.imageUrl.includes('placehold.co'))
-      .map(item => item.imageUrl);
+      .map(item => ({ url: item.imageUrl, alt: item.name }));
     
-    const combined = [headerImage, ...imagesFromMenu].filter(Boolean) as string[];
+    const combined = [
+      headerImage ? { url: headerImage, alt: 'Banner Utama' } : null,
+      ...imagesFromMenu
+    ].filter(Boolean) as { url: string; alt: string }[];
+    
     return combined.slice(0, 28); // Limit to 28 as requested
   }, [headerImage, menuItems]);
 
@@ -100,7 +104,7 @@ export const PromoCarousel: React.FC<PromoCarouselProps> = ({ onSecretAdminTrigg
       <div className="relative aspect-[4/3] w-full overflow-hidden shadow-xl rounded-b-[32px] md:mx-auto md:w-full group">
         
         <div className="absolute inset-0 transition-transform duration-700 ease-in-out">
-          {CAROUSEL_IMAGES.map((img, index) => (
+          {CAROUSEL_IMAGES.map((item, index) => (
             <div
               key={index}
               className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
@@ -108,8 +112,8 @@ export const PromoCarousel: React.FC<PromoCarouselProps> = ({ onSecretAdminTrigg
               }`}
             >
               <img
-                src={img}
-                alt={`Banner ${index + 1}`}
+                src={item.url}
+                alt={item.alt}
                 className="w-full h-full object-cover"
                 onError={(e) => {
                    (e.target as HTMLImageElement).src = "https://res.cloudinary.com/dwdaydzsh/image/upload/v1768368455/Soto_Pindang_Kudus_orwjnb.jpg";

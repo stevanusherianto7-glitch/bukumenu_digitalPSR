@@ -15,8 +15,9 @@ export const TableMapSection: React.FC = () => {
   // 1. Updated Logo for QR Center (Green gradient style from screenshot)
   const labelUrl = 'https://res.cloudinary.com/dwdaydzsh/image/upload/v1768382524/gemini-2.5-flash-image-preview_nano-banana__a_jadikan_ikon_ukuran__vj1ytb.png';
 
-  // 2. Generate QR Code with QuickChart API
-  const qrImageUrl = `https://quickchart.io/qr?text=${encodeURIComponent(qrData)}&centerImageUrl=${encodeURIComponent(labelUrl)}&centerImageSizeRatio=0.25&ecLevel=H&size=1000&margin=2&dark=000000&light=FFFFFF&format=png`;
+  // 2. Generate QR Code with QuickChart API (Separated for Performance)
+  const qrPreviewUrl = `https://quickchart.io/qr?text=${encodeURIComponent(qrData)}&centerImageUrl=${encodeURIComponent(labelUrl)}&centerImageSizeRatio=0.25&ecLevel=H&size=300&margin=2&dark=000000&light=FFFFFF&format=png`;
+  const qrDownloadUrl = `https://quickchart.io/qr?text=${encodeURIComponent(qrData)}&centerImageUrl=${encodeURIComponent(labelUrl)}&centerImageSizeRatio=0.25&ecLevel=H&size=1000&margin=2&dark=000000&light=FFFFFF&format=png`;
   
   const downloadName = `QR-Meja-${selectedTable}-PawonSalam.png`;
 
@@ -114,7 +115,7 @@ export const TableMapSection: React.FC = () => {
                  {/* QR Code */}
                  <div className="relative w-48 h-48 my-4 bg-white p-1 rounded-lg">
                     <img 
-                        src={qrImageUrl} 
+                        src={qrPreviewUrl} 
                         alt={`QR Code Meja ${selectedTable}`} 
                         className="w-full h-full object-contain"
                         loading="lazy"
@@ -146,7 +147,7 @@ export const TableMapSection: React.FC = () => {
 
               {/* Action Button */}
               <a
-                href={qrImageUrl} 
+                href={qrDownloadUrl} 
                 download={downloadName}
                 target="_blank"
                 rel="noreferrer"

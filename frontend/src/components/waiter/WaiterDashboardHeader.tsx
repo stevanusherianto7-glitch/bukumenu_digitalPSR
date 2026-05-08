@@ -52,31 +52,6 @@ export const WaiterDashboardHeader: React.FC<WaiterDashboardHeaderProps> = ({
     }
   };
 
-  const [ttsStatus, setTtsStatus] = useState<'idle' | 'loading' | 'playing' | 'error'>('idle');
-
-  const handlePlayTTS = async () => {
-    setTtsStatus('loading');
-    try {
-      const response = await fetch('/api/tts?tts_index=0');
-      const data = await response.json();
-      
-      if (data.success && data.audioUrl) {
-        setTtsStatus('playing');
-        const audio = new Audio(data.audioUrl);
-        audio.onended = () => setTtsStatus('idle');
-        audio.onerror = () => setTtsStatus('error');
-        await audio.play();
-      } else {
-        setTtsStatus('error');
-        setTimeout(() => setTtsStatus('idle'), 2000);
-      }
-    } catch (error) {
-      console.error('TTS Error:', error);
-      setTtsStatus('error');
-      setTimeout(() => setTtsStatus('idle'), 2000);
-    }
-  };
-
   // Waiter Dashboard Header - Clean UI without unnecessary labels
   return (
     <div className="bg-violet-950 text-white p-6 pb-12 rounded-b-[40px] shadow-2xl shadow-violet-900/30 mb-4 relative overflow-hidden mx-0 -mt-2">
@@ -98,28 +73,6 @@ export const WaiterDashboardHeader: React.FC<WaiterDashboardHeaderProps> = ({
             <Volume2 size={18} className="text-violet-300" />
           </button>
           
-          <button 
-            onClick={handlePlayTTS}
-            className={`p-2 backdrop-blur-md border rounded-xl active:scale-95 transition-all flex items-center justify-center shadow-inner ${
-              ttsStatus === 'playing' 
-                ? 'bg-emerald-500/20 border-emerald-500/50 hover:bg-emerald-500/30' 
-                : ttsStatus === 'error'
-                ? 'bg-red-500/20 border-red-500/50 hover:bg-red-500/30'
-                : 'bg-white/5 border-white/10 hover:bg-white/20'
-            }`}
-            title="Bacakan Pesanan Terbaru"
-            disabled={ttsStatus === 'loading'}
-          >
-            {ttsStatus === 'loading' ? (
-              <Loader2 size={18} className="text-violet-300 animate-spin" />
-            ) : ttsStatus === 'playing' ? (
-              <Volume2 size={18} className="text-emerald-400 animate-pulse" />
-            ) : ttsStatus === 'error' ? (
-              <Volume2 size={18} className="text-red-400" />
-            ) : (
-              <Volume2 size={18} className="text-violet-300" />
-            )}
-          </button>
           <div className="text-right">
             <div className="text-xl font-digital font-bold text-emerald-400 leading-none mb-1 tracking-wider tabular-nums">
               {now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}

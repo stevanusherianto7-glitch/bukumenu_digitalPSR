@@ -174,6 +174,7 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose, tableNumber }) => {
                     src={item.imageUrl.split('#')[0]} 
                     alt={item.name} 
                     className={`w-16 h-16 object-cover rounded-lg cart-pos-${item.cartId}`} 
+                    loading="lazy"
                   />
                   <div className="flex-1 flex flex-col">
                     <p className="font-bold text-sm text-pawon-dark line-clamp-1">{item.name}</p>
@@ -196,11 +197,11 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose, tableNumber }) => {
                     
                     <div className="mt-auto flex justify-between items-center pt-2">
                       {/* Quantity Stepper */}
-                      <div className="flex items-center bg-gray-100 rounded-full px-1 py-0.5">
+                      <div className="flex items-center bg-gray-100 rounded-full px-1 py-1">
                         <button 
                           onClick={() => updateQuantity(item.cartId, item.quantity - 1)} 
                           disabled={isSuccess}
-                          className="w-6 h-6 rounded-full flex items-center justify-center text-pawon-dark active:bg-gray-200 disabled:opacity-50"
+                          className="w-10 h-10 rounded-full flex items-center justify-center text-pawon-dark active:bg-gray-200 disabled:opacity-50 text-lg font-bold"
                           title="Kurangi"
                           aria-label="Kurangi Jumlah"
                         >-</button>
@@ -208,7 +209,7 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose, tableNumber }) => {
                         <button 
                           onClick={() => updateQuantity(item.cartId, item.quantity + 1)} 
                           disabled={isSuccess}
-                          className="w-6 h-6 rounded-full flex items-center justify-center text-pawon-dark active:bg-gray-200 disabled:opacity-50"
+                          className="w-10 h-10 rounded-full flex items-center justify-center text-pawon-dark active:bg-gray-200 disabled:opacity-50 text-lg font-bold"
                           title="Tambah"
                           aria-label="Tambah Jumlah"
                         >+</button>
@@ -248,6 +249,7 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose, tableNumber }) => {
                           src={rec.imageUrl.split('#')[0]} 
                           alt={rec.name} 
                           className={`w-full h-20 object-cover rounded-lg rec-pos-${rec.id}`} 
+                          loading="lazy"
                         />
                         <div className="px-1">
                            <p className="text-[10px] font-bold text-pawon-dark line-clamp-1">{rec.name}</p>

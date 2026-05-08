@@ -20,8 +20,17 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onClick }) => 
   return (
     <div 
       onClick={() => isAvailable && onClick && onClick(item)}
+      onKeyDown={(e) => {
+        if (isAvailable && onClick && (e.key === 'Enter' || e.key === ' ')) {
+          e.preventDefault();
+          onClick(item);
+        }
+      }}
       data-testid={`menu-item-${item.id}`}
       className={`group relative bg-white rounded-[24px] shadow-[0_12px_40px_rgba(0,0,0,0.12)] border border-[#F2F2F2] transition-all duration-500 flex flex-col h-full overflow-hidden ${isAvailable ? 'hover:shadow-[0_20px_50px_rgba(0,0,0,0.18)] hover:-translate-y-1 cursor-pointer active:scale-[0.98]' : 'opacity-60 cursor-not-allowed'}`}
+      role="button"
+      tabIndex={isAvailable ? 0 : -1}
+      aria-disabled={!isAvailable}
     >
       <div className="p-2.5 flex flex-col h-full">
         {/* Premium "New Menu" Ribbon (Moved to Top-Left) */}
