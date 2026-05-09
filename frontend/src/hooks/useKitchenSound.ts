@@ -18,14 +18,18 @@ export const useKitchenSound = () => {
 
   // Inisialisasi AudioContext dan resume saat user pertama interaksi
   const initAudio = useCallback(() => {
+    console.log('[DEBUG] Memulai inisialisasi audio...');
     if (!audioCtxRef.current) {
       audioCtxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+      console.log('[DEBUG] AudioContext baru dibuat.');
     }
     if (audioCtxRef.current.state === 'suspended') {
       audioCtxRef.current.resume();
+      console.log('[DEBUG] AudioContext di-resume.');
     }
     setHasUserInteracted(true);
     setIsSoundEnabled(true);
+    console.log('[DEBUG] Sound enabled set to true.');
   }, []);
 
   // Dengarkan interaksi pertama user di level document
@@ -49,7 +53,11 @@ export const useKitchenSound = () => {
    */
   const playBeep = useCallback(() => {
     const ctx = audioCtxRef.current;
-    if (!ctx) return;
+    console.log('[DEBUG] Mencoba memainkan beep, ctx state:', ctx?.state);
+    if (!ctx) {
+      console.warn('[DEBUG] AudioContext tidak ada, beep dibatalkan.');
+      return;
+    }
     if (ctx.state === 'suspended') ctx.resume();
 
     const frequencies = [880, 1100]; // A5, C#6 — dua nada naik = "ada yang datang"
@@ -70,6 +78,7 @@ export const useKitchenSound = () => {
       oscillator.start(ctx.currentTime + i * 0.25);
       oscillator.stop(ctx.currentTime + i * 0.25 + 0.4);
     });
+    console.log('[DEBUG] Beep dijadwalkan.');
   }, []);
 
   /**
@@ -86,15 +95,10 @@ export const useKitchenSound = () => {
    */
   const speakOrder = useCallback(async (tableNumber: string, order?: any) => {
     // Bangun teks yang akan dibacakan
-    // Semua field di bawah menggunakan camelCase hasil mapOrderFromDB(),
-    // bukan snake_case dari DB langsung
     let text = `Pesanan baru. Meja ${tableNumber}. `;
 
     if (order && Array.isArray(order.items) && order.items.length > 0) {
       order.items.forEach((item: any) => {
-        // item.menuName  ← dari kolom DB: menu_name
-        // item.quantity  ← dari kolom DB: quantity
-        // item.notes     ← dari kolom DB: notes
         const nama = item.menuName ?? 'menu';
         const qty  = Number(item.quantity) || 1;
         const note = item.notes ?? '';
@@ -103,7 +107,6 @@ export const useKitchenSound = () => {
         if (note.trim()) text += `Catatan, ${note}. `;
       });
     } else {
-      // Guard: jika items kosong atau belum ter-fetch, jangan crash
       text += 'Mohon cek detail pesanan di layar. ';
     }
 
@@ -114,28 +117,34 @@ export const useKitchenSound = () => {
         : 'Bawa pulang.';
     }
 
+    console.log('[DEBUG] Teks TTS yang akan dibacakan:', text);
+
     // Coba Capacitor TTS dulu (berfungsi di Android APK)
     if (Capacitor.isNativePlatform()) {
+      console.log('[DEBUG] Berjalan di platform Native (Android). Mencoba Capacitor TTS...');
       try {
-        // Stop TTS yang sedang berjalan agar tidak tumpang tindih
         await TextToSpeech.stop();
+        console.log('[DEBUG] TTS Stop dipanggil.');
         await TextToSpeech.speak({
           text,
           lang: 'id-ID',
-          rate: 0.85,   // Sedikit lebih lambat agar jelas di dapur yang berisik
+          rate: 0.85,
           pitch: 1.0,
           volume: 1.0,
           category: 'ambient',
         });
-        return; // Berhasil, tidak perlu fallback
+        console.log('[DEBUG] Capacitor TTS berhasil dipanggil.');
+        return; 
       } catch (err) {
-        console.warn('[KitchenSound] Capacitor TTS gagal, coba fallback:', err);
+        console.error('[DEBUG] Capacitor TTS gagal:', err);
       }
+    } else {
+      console.log('[DEBUG] Berjalan di platform Web/Browser.');
     }
 
     // Fallback: Web Speech API (Browser/PWA)
     if ('speechSynthesis' in window) {
-      // Batalkan ucapan sebelumnya agar tidak menumpuk
+      console.log('[DEBUG] Mencoba Web Speech API fallback...');
       window.speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = 'id-ID';
@@ -143,14 +152,19 @@ export const useKitchenSound = () => {
       utterance.volume = 1.0;
       utterance.pitch = 1.0;
 
-      // Cari suara Bahasa Indonesia jika tersedia di device
       const voices = window.speechSynthesis.getVoices();
       const idVoice = voices.find(v => v.lang.startsWith('id'));
-      if (idVoice) utterance.voice = idVoice;
+      if (idVoice) {
+        utterance.voice = idVoice;
+        console.log('[DEBUG] Ditemukan suara Bahasa Indonesia:', idVoice.name);
+      } else {
+        console.log('[DEBUG] Suara Bahasa Indonesia tidak ditemukan, menggunakan default.');
+      }
 
       window.speechSynthesis.speak(utterance);
+      console.log('[DEBUG] Web Speech API speak dipanggil.');
     } else {
-      console.warn('[KitchenSound] Tidak ada TTS yang tersedia di platform ini.');
+      console.warn('[DEBUG] Tidak ada TTS yang tersedia di platform ini.');
     }
   }, []);
 
@@ -159,17 +173,21 @@ export const useKitchenSound = () => {
    * Urutan: beep → (jeda singkat) → TTS
    */
   const notifyNewOrder = useCallback(async (tableNumber: string, order?: any) => {
+    console.log('[DEBUG] notifyNewOrder dipanggil untuk meja:', tableNumber, 'Status suara:', isSoundEnabled);
     if (!isSoundEnabled) {
-      console.log('[KitchenSound] Suara nonaktif, notifikasi dilewati.');
+      console.log('[DEBUG] Suara nonaktif, notifikasi dilewati.');
       return;
     }
     try {
+      console.log('[DEBUG] Memulai beep...');
       playBeep();
-      // Beri jeda agar beep selesai dulu sebelum TTS mulai bicara
+      console.log('[DEBUG] Beep selesai dipanggil, menunggu jeda 700ms...');
       await new Promise(resolve => setTimeout(resolve, 700));
+      console.log('[DEBUG] Memulai TTS...');
       await speakOrder(tableNumber, order);
+      console.log('[DEBUG] TTS selesai dipanggil.');
     } catch (err) {
-      console.error('[KitchenSound] Error saat notifikasi:', err);
+      console.error('[DEBUG] Error fatal saat notifikasi:', err);
     }
   }, [isSoundEnabled, playBeep, speakOrder]);
 

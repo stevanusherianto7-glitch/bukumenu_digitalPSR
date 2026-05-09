@@ -34,8 +34,9 @@ CREATE POLICY "Enable delete for authenticated users only" ON "categories"
 CREATE POLICY "Enable insert for all users" ON "orders"
     FOR INSERT WITH CHECK (true);
 
-CREATE POLICY "Enable read for authenticated users only" ON "orders"
-    FOR SELECT USING (auth.role() = 'authenticated');
+DROP POLICY IF EXISTS "Enable read for authenticated users only" ON "orders";
+CREATE POLICY "Enable read for all users" ON "orders"
+    FOR SELECT USING (true);
 
 CREATE POLICY "Enable update for authenticated users only" ON "orders"
     FOR UPDATE USING (auth.role() = 'authenticated') WITH CHECK (auth.role() = 'authenticated');
