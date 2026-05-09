@@ -150,6 +150,3 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
     </div>
   );
 };
-    </div>
-  );
-};

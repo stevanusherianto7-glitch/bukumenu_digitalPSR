@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head><title>TTS Test</title></head>
+<body>
+<h1>TTS Browser Test</h1>
+<div id="status"></div>
+<div id="voices"></div>
+<script>
+    const status = document.getElementById('status');
+    const voicesDiv = document.getElementById('voices');
+
+    if ('speechSynthesis' in window) {
+        status.innerHTML = '<p style="color:green">Web Speech API Supported</p>';
+        
+        window.speechSynthesis.onvoiceschanged = function() {
+            const voices = window.speechSynthesis.getVoices();
+            const idVoices = voices.filter(v => v.lang.includes('id'));
+            
+            let html = '<h2>All Voices (' + voices.length + '):</h2><ul>';
+            voices.forEach(v => { html += '<li>' + v.name + ' (' + v.lang + ')</li>'; });
+            html += '</ul>';
+            
+            html += '<h2>Indonesian Voices (' + idVoices.length + '):</h2><ul>';
+            if (idVoices.length) {
+                idVoices.forEach(v => { html += '<li style="color:green">' + v.name + ' (' + v.lang + ')</li>'; });
+            } else {
+                html += '<li style="color:red">No Indonesian voices found</li>';
+            }
+            html += '</ul>';
+            
+            html += '<h2>Test TTS:</h2>';
+            html += '<button onclick="testTTS()">Play Test Sound</button>';
+            html += '<p id="result"></p>';
+            
+            voicesDiv.innerHTML = html;
+        };
+        
+        window.speechSynthesis.getVoices();
+    } else {
+        status.innerHTML = '<p style="color:red">Web Speech API Not Supported</p>';
+    }
+    
+    function testTTS() {
+        const utterance = new SpeechSynthesisUtterance('Pesanan baru. Meja 5. 1 Nasi Goreng.');
+        utterance.lang = 'id-ID';
+        window.speechSynthesis.speak(utterance);
+        document.getElementById('result').innerHTML = 'Playing...';
+        utterance.onend = function() {
+            document.getElementById('result').innerHTML = '<span style="color:green">TTS Played Successfully!</span>';
+        };
+        utterance.onerror = function(e) {
+            document.getElementById('result').innerHTML = '<span style="color:red">Error: ' + e.error + '</span>';
+        };
+    }
+</script>
+</body>
+</html>
