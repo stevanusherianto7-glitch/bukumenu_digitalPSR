@@ -41,7 +41,7 @@ export const useOrderStore = create<OrderState>((set, get) => ({
         const { data, error } = await supabase
           .from('orders')
           .select('*, items:order_items(*)')
-          .in('status', ['pending', 'completed'])
+          // .in('status', ['pending', 'completed']) // Sementara di-comment untuk bypass error kolom status
           .gte('created_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString())
           .order('created_at', { ascending: true });
 
@@ -71,6 +71,8 @@ export const useOrderStore = create<OrderState>((set, get) => ({
       const type = orderType === 'take-away' ? 'take-away' : 'dine-in';
       const totalAmount = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
+      console.log('[DEBUG] Memulai proses pemesanan...', { tableNumber, type, totalAmount, itemsCount: items.length });
+
       const { data: orderData, error: orderError } = await supabase
         .from('orders')
         .insert({
@@ -82,7 +84,12 @@ export const useOrderStore = create<OrderState>((set, get) => ({
         .select()
         .single();
 
-      if (orderError) throw orderError;
+      if (orderError) {
+        console.error('[DEBUG] Gagal insert ke tabel orders:', orderError);
+        throw orderError;
+      }
+
+      console.log('[DEBUG] Berhasil insert ke tabel orders:', orderData);
 
       const orderItems = items.map(item => ({
         order_id: orderData.id,
@@ -93,15 +100,21 @@ export const useOrderStore = create<OrderState>((set, get) => ({
         notes: item.notes || ''
       }));
 
+      console.log('[DEBUG] Memulai insert items...', orderItems);
+
       const { error: itemsError } = await supabase
         .from('order_items')
         .insert(orderItems);
 
+      if (itemsError) {
+        console.error('[DEBUG] Gagal insert ke tabel order_items:', itemsError);
+        throw itemsError;
+      }
 
-      if (itemsError) throw itemsError;
+      console.log('[DEBUG] Berhasil insert ke tabel order_items');
       
     } catch (error) {
-      console.error('Error adding order:', error);
+      console.error('[DEBUG] Error fatal di createOrder:', error);
       throw error;
     }
   },

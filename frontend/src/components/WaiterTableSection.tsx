@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useOrderStore } from '../store/orderStore';
 import { CheckCircle2, Clock, ShoppingBag, History } from 'lucide-react';
-import { TextToSpeech } from '@capacitor-community/text-to-speech';
+import { useKitchenSound } from '../hooks/useKitchenSound';
 
 // Waiter module with glassmorphism modal, blinking timer, and clean header
 // New Waiter Sub-components
@@ -34,6 +34,10 @@ const getUrgencyColor = (mins: number) => {
 export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }) => {
   const now = useClock();
   const { orders, completeOrder, subscribeToOrders, fetchOrders, clearStalePendingOrders } = useOrderStore();
+  
+  // Hook suara kitchen
+  const { notifyNewOrder, isSoundEnabled, setIsSoundEnabled, hasUserInteracted, initAudio } = useKitchenSound();
+
   const [selectedTable, setSelectedTable] = useState<string | null>(null);
   const [pingingTables, setPingingTables] = useState<Set<string>>(new Set());
   const [completingOrderIds, setCompletingOrderIds] = useState<Set<string>>(new Set());
@@ -59,86 +63,23 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
     initializeOrders();
     const unsubscribe = subscribeToOrders();
     
-    // Suara Bel & TTS
-    const playNotification = (tableNum: string, order?: any) => {
-      try {
-        // 1. Bunyi Bel (Beep)
-        const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
-        const oscillator = audioCtx.createOscillator();
-        const gainNode = audioCtx.createGain();
-        oscillator.connect(gainNode);
-        gainNode.connect(audioCtx.destination);
-        oscillator.type = 'sine';
-        oscillator.frequency.setValueAtTime(880, audioCtx.currentTime); // A5
-        gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
-        gainNode.gain.linearRampToValueAtTime(0.5, audioCtx.currentTime + 0.1);
-        gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.5);
-        oscillator.start();
-        oscillator.stop(audioCtx.currentTime + 0.6);
-
-        // 2. Suara Orang (TTS via Capacitor Plugin)
-        setTimeout(async () => {
-          let textToSpeak = `Ada pesanan baru dari meja ${tableNum}. `;
-          
-          if (order && Array.isArray(order.items)) {
-            order.items.forEach((item: any) => {
-              textToSpeak += `${item.quantity} porsi ${item.menuName}. `;
-              if (item.notes) {
-                textToSpeak += `Catatan: ${item.notes}. `;
-              }
-            });
-          }
-          
-          if (order && order.orderType) {
-            textToSpeak += `Tipe pesanan: ${order.orderType === 'dine_in' ? 'Makan di tempat' : 'Bawa pulang'}.`;
-          }
-
-          try {
-            await TextToSpeech.speak({
-              text: textToSpeak,
-              lang: 'id-ID',
-              rate: 0.9,
-              pitch: 1.0,
-              volume: 1.0,
-              category: 'ambient',
-            });
-          } catch (err) {
-            console.error("Capacitor TTS Error, falling back to Web Speech API:", err);
-            // Fallback ke Web Speech API jika Capacitor gagal (misal di browser)
-            try {
-              const utterance = new SpeechSynthesisUtterance(textToSpeak);
-              utterance.lang = 'id-ID';
-              utterance.rate = 0.9;
-              window.speechSynthesis.speak(utterance);
-            } catch (webErr) {
-              console.error("Web Speech API Error:", webErr);
-            }
-          }
-        }, 600);
-      } catch (err) {
-        console.error("Audio error:", err);
-      }
-    };
-
     const handlePing = (e: any) => {
       const newOrder = e.detail;
       if (newOrder.tableNumber) {
         const normalizedTableNumber = normalizeTableNumber(newOrder.tableNumber);
-        if (!normalizedTableNumber) {
-          return;
-        }
+        if (!normalizedTableNumber) return;
 
-        playNotification(normalizedTableNumber, newOrder);
-        
-        // INSTANT REFRESH: Update data immediately when ping occurs
-        fetchOrders(); 
+        // Panggil hook — sudah menangani beep + TTS + fallback
+        notifyNewOrder(normalizedTableNumber, newOrder);
+
+        fetchOrders();
 
         setPingingTables(prev => new Set([...prev, normalizedTableNumber]));
         setTimeout(() => setPingingTables(prev => {
           const next = new Set(prev);
           next.delete(normalizedTableNumber);
           return next;
-        }), 10000); 
+        }), 10000);
       }
     };
 
@@ -300,6 +241,34 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
         activeTab={activeTab}
         setActiveTab={setActiveTab}
       />
+
+      {/* Tombol Aktifkan/Matikan Suara Kitchen */}
+      <div className="mx-6 mt-3 mb-1">
+        <button
+          onClick={() => {
+            if (!hasUserInteracted) {
+              // Interaksi pertama — ini sekaligus unlock AudioContext
+              initAudio();
+            } else {
+              setIsSoundEnabled(prev => !prev);
+            }
+          }}
+          className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-2xl text-sm font-bold transition-all duration-200 border ${
+            isSoundEnabled
+              ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+              : 'bg-gray-100 text-gray-400 border-gray-200'
+          }`}
+        >
+          <span>{isSoundEnabled ? '🔔' : '🔕'}</span>
+          <span>
+            {!hasUserInteracted
+              ? 'Tap untuk aktifkan suara notifikasi'
+              : isSoundEnabled
+              ? 'Suara Aktif — Tap untuk matikan'
+              : 'Suara Mati — Tap untuk aktifkan'}
+          </span>
+        </button>
+      </div>
 
       {activeTab === 'monitor' ? (
         <TableGrid 

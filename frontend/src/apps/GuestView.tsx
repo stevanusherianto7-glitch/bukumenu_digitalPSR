@@ -15,7 +15,8 @@ const VALID_TABLES = Array.from({ length: 10 }, (_, i) => `A${i + 1}`);
 
 export const GuestView: React.FC = () => {
   const searchParams = new URLSearchParams(window.location.search);
-  const tableNumber = searchParams.get('meja'); 
+  // Dukung parameter 'meja' (Bawaan) maupun 'table' (Uji coba)
+  const tableNumber = searchParams.get('meja') || searchParams.get('table'); 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const { addItem, totalItems } = useCartStore();
