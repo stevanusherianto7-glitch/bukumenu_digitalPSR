@@ -11,7 +11,7 @@ interface CartState {
   clearCart: () => void;
   totalPrice: number;
   totalItems: number;
-  getDiscountedTotal: (settings: any) => number;
+  getDiscountedTotal: (settings: any, promoDiscountPercent?: number) => number;
   orderType: 'dine-in' | 'take-away';
   setOrderType: (type: 'dine-in' | 'take-away') => void;
 }
@@ -59,7 +59,7 @@ export const useCartStore = create<CartState>()(
           set({ items: updatedItems, totalItems, totalPrice });
         },
 
-        getDiscountedTotal: (settings) => {
+        getDiscountedTotal: (settings, promoDiscountPercent = 0) => {
           const { totalPrice } = get();
           let discount = 0;
           
@@ -69,6 +69,8 @@ export const useCartStore = create<CartState>()(
           if (settings.isBuffetPromoEnabled && totalPrice > 500000) {
             discount += settings.buffetDiscountPercent / 100;
           }
+          
+          discount += promoDiscountPercent / 100;
           
           return Math.round(totalPrice * (1 - Math.min(discount, 1)));
         },

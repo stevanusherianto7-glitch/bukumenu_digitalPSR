@@ -4,6 +4,7 @@ import { X, Trash2, ShoppingBag, CheckCircle, Zap, Gift, Plus, Box, Cake, Utensi
 import { useCartStore } from '../store/cartStore';
 import { useOrderStore } from '../store/orderStore';
 import { useSettingsStore } from '../store/settingsStore';
+import { usePromoStore } from '../store/promoStore';
 import { OrderItem, Addon, MenuItem } from '../types';
 import { MENU_ITEMS } from '../data';
 
@@ -17,6 +18,7 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose, tableNumber }) => {
   const { items, totalItems, totalPrice, updateQuantity, removeItem, clearCart, orderType, setOrderType } = useCartStore();
   const { addOrder } = useOrderStore();
   const marketing = useSettingsStore();
+  const { activePromo } = usePromoStore();
   const [isSuccess, setIsSuccess] = useState(false);
   const progressBarRef = useRef<HTMLDivElement>(null);
 
@@ -54,7 +56,8 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose, tableNumber }) => {
         };
 
     });
-    addOrder(effectiveTable, orderItems, orderType);
+    const finalTotal = useCartStore.getState().getDiscountedTotal(marketing, activePromo?.discount_percent || 0);
+    addOrder(effectiveTable, orderItems, orderType, finalTotal);
     
     // 2. Ubah UI Button menjadi Sukses (Hijau & Teks Berubah)
     setIsSuccess(true);
@@ -310,10 +313,17 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose, tableNumber }) => {
                   </div>
                )}
 
+               {activePromo && (
+                  <div className="flex justify-between items-center text-xs font-bold text-red-600">
+                    <span className="flex items-center gap-1"><Gift size={12} /> {activePromo.name} ({Math.round(activePromo.discount_percent)}%)</span>
+                    <span>- Rp {Math.round(totalPrice * (activePromo.discount_percent/100)).toLocaleString('id-ID')}</span>
+                  </div>
+               )}
+
                <div className="flex justify-between items-center pt-2 border-t border-gray-100">
                  <span className="font-bold text-pawon-dark">Total Akhir</span>
                  <span className="font-bold text-xl text-pawon-dark">
-                   Rp {useCartStore.getState().getDiscountedTotal(marketing).toLocaleString('id-ID')}
+                   Rp {useCartStore.getState().getDiscountedTotal(marketing, activePromo?.discount_percent || 0).toLocaleString('id-ID')}
                  </span>
                </div>
             </div>

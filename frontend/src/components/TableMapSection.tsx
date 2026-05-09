@@ -56,7 +56,7 @@ export const TableMapSection: React.FC = () => {
     try {
       (ctx as any).letterSpacing = '6px';
     } catch (e) {}
-    ctx.fillText('SCAN TO ORDER', canvas.width / 2, 170);
+    ctx.fillText('Pawon Salam Resto', canvas.width / 2, 170);
 
     // Muat dan gambar QR Code
     const img = new Image();
@@ -71,7 +71,7 @@ export const TableMapSection: React.FC = () => {
       try {
         (ctx as any).letterSpacing = '4px';
       } catch (e) {}
-      ctx.fillText(selectedTable, canvas.width / 2, 750);
+      ctx.fillText(`Meja ${selectedTable}`, canvas.width / 2, 750);
 
       // Trigger download
       const link = document.createElement('a');
@@ -164,7 +164,7 @@ export const TableMapSection: React.FC = () => {
                  {/* Sticker Design */}
                  <div className="mt-4 mb-4">
                     <h3 className="font-serif font-bold text-pawon-dark text-2xl leading-none">Buku Menu Digital</h3>
-                    <p className="text-[10px] uppercase tracking-[0.3em] text-gray-400 mt-2 font-medium">Scan to Order</p>
+                    <p className="text-[10px] uppercase tracking-[0.3em] text-gray-400 mt-2 font-medium">Pawon Salam Resto</p>
                  </div>
                  
                  {/* QR Code */}
@@ -177,8 +177,8 @@ export const TableMapSection: React.FC = () => {
                     />
                  </div>
                  
-                 <div className="mt-2 text-xs text-gray-300 font-mono tracking-widest">
-                    {selectedTable}
+                 <div className="mt-2 text-xs text-gray-300 font-mono tracking-widest font-bold">
+                    Meja {selectedTable}
                  </div>
               </div>
               

@@ -6,6 +6,7 @@ import { PromoCarousel } from '../components/PromoCarousel';
 import { Cart } from '../components/Cart';
 import { useCartStore } from '../store/cartStore';
 import { useMenuStore } from '../store/menuStore';
+import { usePromoStore } from '../store/promoStore';
 import { MenuItem } from '../types';
 import { Loader2, ShoppingBag } from 'lucide-react';
 import { InstallPWA } from '../components/InstallPWA'; 
@@ -21,6 +22,7 @@ export const GuestView: React.FC = () => {
 
   const { addItem, totalItems } = useCartStore();
   const { items, categories, isLoading, headerImage, loadData } = useMenuStore();
+  const { activePromo, loadActivePromo } = usePromoStore();
   
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
@@ -33,7 +35,8 @@ export const GuestView: React.FC = () => {
 
   useEffect(() => {
     loadData();
-  }, [loadData]);
+    loadActivePromo();
+  }, [loadData, loadActivePromo]);
 
   useEffect(() => {
     if (scrollContainerRef.current) {
@@ -103,6 +106,19 @@ export const GuestView: React.FC = () => {
               onSecretAdminTrigger={handleSecretTrigger} 
               tableNumber={tableNumber || undefined}
            />
+           
+           {/* Premium Promo Banner */}
+           {activePromo && (
+             <div className="mt-4 bg-gradient-to-r from-[#D32F2F] to-[#EF5350] text-white p-4 rounded-2xl shadow-lg flex justify-between items-center active:scale-[0.98] transition-all border border-white/10">
+               <div>
+                 <p className="text-[10px] uppercase font-bold tracking-wider opacity-90">Promo Spesial Aktif</p>
+                 <h3 className="font-serif font-bold text-lg">{activePromo.name}</h3>
+               </div>
+               <div className="bg-white text-[#D32F2F] font-black text-xl px-3 py-1.5 rounded-xl shadow-inner">
+                 -{Math.round(activePromo.discount_percent)}%
+               </div>
+             </div>
+           )}
         </div>
 
         <div 

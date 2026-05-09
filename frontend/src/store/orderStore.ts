@@ -8,7 +8,7 @@ interface OrderState {
   orders: Order[];
   isLoading: boolean;
   fetchOrders: () => Promise<void>;
-  addOrder: (tableNumber: string, items: OrderItem[], orderType?: string) => Promise<void>;
+  addOrder: (tableNumber: string, items: OrderItem[], orderType?: string, finalTotal?: number) => Promise<void>;
   completeOrder: (orderId: string) => Promise<void>;
   clearStalePendingOrders: (maxAgeMinutes?: number) => Promise<number>;
   subscribeToOrders: () => () => void;
@@ -66,10 +66,10 @@ export const useOrderStore = create<OrderState>((set, get) => ({
     set({ isLoading: false });
   },
 
-  addOrder: async (tableNumber: string, items: OrderItem[], orderType: string = 'dine-in') => {
+  addOrder: async (tableNumber: string, items: OrderItem[], orderType: string = 'dine-in', finalTotal?: number) => {
     try {
       const type = orderType === 'take-away' ? 'take-away' : 'dine-in';
-      const totalAmount = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      const totalAmount = finalTotal !== undefined ? finalTotal : items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
       console.log('[DEBUG] Memulai proses pemesanan...', { tableNumber, type, totalAmount, itemsCount: items.length });
 
