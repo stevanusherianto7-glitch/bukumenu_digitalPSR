@@ -27,6 +27,61 @@ export const TableMapSection: React.FC = () => {
       });
   };
 
+  const downloadSticker = () => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 600; 
+    canvas.height = 900; 
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    // Background Putih
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Border Abu-abu halus
+    ctx.strokeStyle = '#E2E8F0';
+    ctx.lineWidth = 4;
+    ctx.strokeRect(20, 20, canvas.width - 40, canvas.height - 40);
+
+    // Teks "Buku Menu Digital"
+    ctx.fillStyle = '#1A1614'; 
+    ctx.font = 'bold 42px Georgia, serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('Buku Menu Digital', canvas.width / 2, 120);
+
+    // Teks "SCAN TO ORDER"
+    ctx.fillStyle = '#9CA3AF'; 
+    ctx.font = 'bold 16px sans-serif';
+    // Gunakan try-catch karena letterSpacing mungkin tidak didukung di semua browser lama
+    try {
+      (ctx as any).letterSpacing = '6px';
+    } catch (e) {}
+    ctx.fillText('SCAN TO ORDER', canvas.width / 2, 170);
+
+    // Muat dan gambar QR Code
+    const img = new Image();
+    img.crossOrigin = 'Anonymous'; 
+    img.onload = () => {
+      // Gambar QR Code di tengah
+      ctx.drawImage(img, canvas.width / 2 - 200, 230, 400, 400);
+
+      // Teks Nomor Meja di bawah
+      ctx.fillStyle = '#D1D5DB'; 
+      ctx.font = 'bold 24px monospace';
+      try {
+        (ctx as any).letterSpacing = '4px';
+      } catch (e) {}
+      ctx.fillText(selectedTable, canvas.width / 2, 750);
+
+      // Trigger download
+      const link = document.createElement('a');
+      link.download = `Sticker-Barcode-Meja-${selectedTable}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    };
+    img.src = qrDownloadUrl; 
+  };
+
   return (
     <div className="p-6">
         {/* Header */}
@@ -146,15 +201,12 @@ export const TableMapSection: React.FC = () => {
               </div>
 
               {/* Action Button */}
-              <a
-                href={qrDownloadUrl} 
-                download={downloadName}
-                target="_blank"
-                rel="noreferrer"
-                className="w-full bg-[#1A1614] text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-3 hover:bg-black transition-all active:scale-[0.98] shadow-xl shadow-gray-200"
+              <button
+                onClick={downloadSticker}
+                className="w-full bg-[#800000] text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-3 hover:bg-[#600000] transition-all active:scale-[0.98] shadow-xl shadow-gray-200"
               >
-                <Download size={20} /> Download High-Res QR
-              </a>
+                <Download size={20} /> Download Stiker Barcode
+              </button>
 
               <p className="text-[10px] text-gray-400 mt-4 text-center leading-relaxed px-6 opacity-70">
                 *File PNG High-Res termasuk logo Pawon Salam di tengah.
