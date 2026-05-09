@@ -10,6 +10,7 @@ import { useMenuStore } from '../../store/menuStore';
 import { useInventoryStore } from '../../store/inventoryStore';
 import { useOrderStore } from '../../store/orderStore';
 import { Loader2 } from 'lucide-react';
+import { MenuItem } from '../../types';
 
 const AdminApp: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'meja' | 'peta' | 'laporan' | 'marketing' | 'admin'>('laporan');
@@ -40,7 +41,7 @@ const AdminApp: React.FC = () => {
     }
   }, [activeTab]);
 
-  const handleSaveAll = async (draftItems: any[], newHeaderImage: string | null) => {
+  const handleSaveAll = async (draftItems: MenuItem[], newHeaderImage: string | null) => {
     try {
       await saveAllItems(draftItems, newHeaderImage);
       alert('Sukses! Semua perubahan telah disimpan.');

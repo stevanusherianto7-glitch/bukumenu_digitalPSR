@@ -251,6 +251,13 @@ describe('Cart Store - Unit Tests', () => {
         birthdayDiscountPercent: 20,
         isBuffetPromoEnabled: false,
         buffetDiscountPercent: 0,
+        isAddonEnabled: false,
+        isCrossSellEnabled: false,
+        isBundleEnabled: false,
+        isProgressBarEnabled: false,
+        isBestMatchEnabled: false,
+        progressBarTarget: 100000,
+        progressBarReward: '',
       };
 
       const discountedTotal = result.current.getDiscountedTotal(settings);
@@ -272,6 +279,13 @@ describe('Cart Store - Unit Tests', () => {
         birthdayDiscountPercent: 0,
         isBuffetPromoEnabled: true,
         buffetDiscountPercent: 15,
+        isAddonEnabled: false,
+        isCrossSellEnabled: false,
+        isBundleEnabled: false,
+        isProgressBarEnabled: false,
+        isBestMatchEnabled: false,
+        progressBarTarget: 100000,
+        progressBarReward: '',
       };
 
       const discountedTotal = result.current.getDiscountedTotal(settings);
@@ -292,6 +306,13 @@ describe('Cart Store - Unit Tests', () => {
         birthdayDiscountPercent: 0,
         isBuffetPromoEnabled: true,
         buffetDiscountPercent: 15,
+        isAddonEnabled: false,
+        isCrossSellEnabled: false,
+        isBundleEnabled: false,
+        isProgressBarEnabled: false,
+        isBestMatchEnabled: false,
+        progressBarTarget: 100000,
+        progressBarReward: '',
       };
 
       const discountedTotal = result.current.getDiscountedTotal(settings);
@@ -311,6 +332,13 @@ describe('Cart Store - Unit Tests', () => {
         birthdayDiscountPercent: 60,
         isBuffetPromoEnabled: true,
         buffetDiscountPercent: 60,
+        isAddonEnabled: false,
+        isCrossSellEnabled: false,
+        isBundleEnabled: false,
+        isProgressBarEnabled: false,
+        isBestMatchEnabled: false,
+        progressBarTarget: 100000,
+        progressBarReward: '',
       };
 
       const discountedTotal = result.current.getDiscountedTotal(settings);

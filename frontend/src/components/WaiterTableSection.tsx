@@ -62,8 +62,7 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
   const now = useClock();
   const { orders, completeOrder, subscribeToOrders, fetchOrders, clearStalePendingOrders } = useOrderStore();
   
-  // Hook suara kitchen
-  const { notifyNewOrder, isSoundEnabled, setIsSoundEnabled, hasUserInteracted, initAudio } = useKitchenSound();
+  const { notifyNewOrder, isSoundEnabled, setIsSoundEnabled, hasUserInteracted, initAudio, testAudio } = useKitchenSound();
 
   const [selectedTable, setSelectedTable] = useState<string | null>(null);
   const [pingingTables, setPingingTables] = useState<Set<string>>(new Set());
@@ -90,9 +89,9 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
     initializeOrders();
     const unsubscribe = subscribeToOrders();
     
-    const handlePing = (e: any) => {
-      const newOrder = e.detail;
-      if (newOrder.tableNumber) {
+    const handlePing = (e: Event | CustomEvent) => {
+      const newOrder = 'detail' in e ? (e as CustomEvent).detail : null;
+      if (newOrder && newOrder.tableNumber) {
         const normalizedTableNumber = normalizeTableNumber(newOrder.tableNumber);
         if (!normalizedTableNumber) return;
 
@@ -267,11 +266,7 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
         totalPendingItems={totalPendingItems}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
-        onTestAudio={() => unlockAudio(() => {
-          if (!hasUserInteracted) {
-            initAudio();
-          }
-        })}
+        onTestAudio={testAudio}
       />
 
       {activeTab === 'monitor' ? (

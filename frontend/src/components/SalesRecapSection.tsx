@@ -3,7 +3,7 @@ import { BarChart3, TrendingUp, Calendar, Wallet, ShoppingBag, ArrowUpRight, Awa
 import { supabase } from '../lib/supabase';
 import { useInventoryStore } from '../store/inventoryStore';
 import { getAllMenuItems } from '../indexedDB';
-import { MenuItem } from '../types';
+import { MenuItem, Order, OrderItem } from '../types';
 
 
 type TimeRange = 'today' | '7days' | '30days' | 'custom';
@@ -17,8 +17,8 @@ export const SalesRecapSection: React.FC = () => {
     totalProfit: 0,
     totalTransactions: 0,
     avgTransaction: 0,
-    sortedMenu: [] as any[],
-    topItem: null as any
+    sortedMenu: [] as { name: string; qty: number; revenue: number }[],
+    topItem: null as { name: string; qty: number; revenue: number } | null
   });
 
 
@@ -80,7 +80,7 @@ export const SalesRecapSection: React.FC = () => {
         
         validOrders.forEach(order => {
           const items = order.items || [];
-          items.forEach((item: any) => {
+          items.forEach((item: OrderItem) => {
             const name = item.menuName;
             const qty = item.quantity;
             

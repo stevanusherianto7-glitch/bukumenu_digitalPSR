@@ -1,5 +1,6 @@
 import { ReactElement } from 'react';
 import { render, RenderOptions } from '@testing-library/react';
+import { expect } from 'vitest';
 
 /**
  * Custom render function with common providers

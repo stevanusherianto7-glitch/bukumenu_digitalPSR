@@ -52,7 +52,13 @@ export const testData = {
 /**
  * Custom fixtures for E2E tests
  */
-export const test = base.extend({
+type MyFixtures = {
+  guestPageWithTable: Page;
+  guestPageWithCart: Page;
+  mobileViewport: Page;
+};
+
+export const test = base.extend<MyFixtures>({
   /**
    * Fixture: Pre-filled guest page with table number
    */

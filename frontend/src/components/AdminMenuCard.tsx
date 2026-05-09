@@ -45,7 +45,7 @@ export const AdminMenuCard: React.FC<AdminMenuCardProps> = ({ item, onUpdate, on
 
   const assignableCategories = availableCategories.filter(c => c !== 'Semua' && c !== 'Terlaris');
 
-  const handleUpdate = (field: keyof MenuItem, value: any) => {
+  const handleUpdate = <K extends keyof MenuItem>(field: K, value: MenuItem[K]) => {
     onUpdate(item.id, { [field]: value });
   };
 

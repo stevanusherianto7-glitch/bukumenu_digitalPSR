@@ -47,7 +47,7 @@ global.IntersectionObserver = class IntersectionObserver {
 
 // Mock scrollTo function for elements
 if (!Element.prototype.scrollTo) {
-  Element.prototype.scrollTo = vi.fn();
+  Element.prototype.scrollTo = vi.fn() as any;
 }
 
 // Mock HTMLElement scroll properties

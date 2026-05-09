@@ -2,6 +2,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { CartItem, MenuItem, Addon } from '../types';
+import { MarketingSettings } from './settingsStore';
 
 interface CartState {
   items: CartItem[];
@@ -11,7 +12,7 @@ interface CartState {
   clearCart: () => void;
   totalPrice: number;
   totalItems: number;
-  getDiscountedTotal: (settings: any, promoDiscountPercent?: number) => number;
+  getDiscountedTotal: (settings: MarketingSettings, promoDiscountPercent?: number) => number;
   orderType: 'dine-in' | 'take-away';
   setOrderType: (type: 'dine-in' | 'take-away') => void;
 }

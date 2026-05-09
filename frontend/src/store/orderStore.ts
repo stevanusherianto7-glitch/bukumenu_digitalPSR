@@ -2,6 +2,33 @@ import { create } from 'zustand';
 import { supabase } from '../lib/supabase';
 import { Order, OrderItem } from '../types';
 
+/** Raw DB row shape from Supabase `orders` table */
+interface DbOrder {
+  id: string;
+  status: string;
+  order_type?: string;
+  table_number?: string;
+  total?: number;
+  notes?: string;
+  created_at?: string;
+}
+
+/** Raw DB row shape from Supabase `order_items` table */
+interface DbOrderItem {
+  id: string;
+  order_id: string;
+  menu_id?: string;
+  menuId?: string;
+  menu_name?: string;
+  menuName?: string;
+  quantity: number;
+  unit_price?: number;
+  price?: number;
+  notes?: string;
+  created_at?: string;
+  createdAt?: string;
+}
+
 const recentlyNotifiedOrders = new Set<string>();
 const clearNotificationDelayMs = 5000;
 
@@ -9,6 +36,7 @@ const parseOrderMetadata = (notes?: string | null) => {
   const rawNotes = typeof notes === 'string' ? notes : '';
   const orderTypeMatch = rawNotes.match(/\[(DINE IN|TAKE AWAY)\]/i);
   const tableNumberMatch = rawNotes.match(/\[Meja\s*([^\]]+)\]/i);
+  const isCompleted = rawNotes.includes('[COMPLETED]');
 
   const orderType = orderTypeMatch
     ? /take/i.test(orderTypeMatch[1])
@@ -23,9 +51,10 @@ const parseOrderMetadata = (notes?: string | null) => {
   const cleanedNotes = rawNotes
     .replace(/\[(DINE IN|TAKE AWAY)\]/gi, '')
     .replace(/\[Meja\s*[^\]]+\]/gi, '')
+    .replace(/\[COMPLETED\]/gi, '')
     .trim();
 
-  return { orderType, tableNumber, notes: cleanedNotes };
+  return { orderType, tableNumber, notes: cleanedNotes, isCompleted };
 };
 
 interface OrderState {
@@ -59,10 +88,10 @@ export const useOrderStore = create<OrderState>((set, get) => ({
 
       if (orderItemsResult.error) throw orderItemsResult.error;
 
-      // Create a map of order statuses from the orders table
+      // Create a map of order statuses from the orders table (if it exists)
       const orderStatusMap = new Map<string, { status: string; orderType?: string }>();
       if (ordersResult.data) {
-        ordersResult.data.forEach((order: any) => {
+        ordersResult.data.forEach((order: DbOrder) => {
           orderStatusMap.set(order.id, {
             status: order.status || 'pending',
             orderType: order.order_type
@@ -73,29 +102,34 @@ export const useOrderStore = create<OrderState>((set, get) => ({
       // Grouping item berdasarkan order_id
       const ordersMap = new Map<string, Order>();
 
-      orderItemsResult.data.forEach((item: any) => {
+      orderItemsResult.data.forEach((item: DbOrderItem) => {
         const orderId = item.order_id;
+        const parsed = parseOrderMetadata(item.notes);
+
         if (!ordersMap.has(orderId)) {
-          const parsed = parseOrderMetadata(item.notes);
-          const orderData = orderStatusMap.get(orderId) || { status: 'pending' };
+          const orderData = orderStatusMap.get(orderId);
+          
+          // Determine status: if it has [COMPLETED] in notes, it's completed, otherwise fallback to orders table or pending
+          const status = parsed.isCompleted ? 'completed' : (orderData?.status as Order['status'] || 'pending');
 
           ordersMap.set(orderId, {
             id: orderId,
             tableNumber: parsed.tableNumber,
-            orderType: orderData.orderType || parsed.orderType,
-            status: orderData.status,
+            orderType: (orderData?.orderType || parsed.orderType) as Order['orderType'],
+            status: status,
             totalAmount: 0,
             items: [],
             createdAt: item.created_at || item.createdAt || new Date().toISOString()
           });
         }
+
         const order = ordersMap.get(orderId)!;
         order.items.push({
           menuId: item.menu_id || item.menuId,
           menuName: item.menu_name || item.menuName,
           quantity: Number(item.quantity) || 0,
           price: Number(item.unit_price || item.price) || 0,
-          notes: item.notes || undefined
+          notes: parsed.notes || undefined
         });
         order.totalAmount += (Number(item.quantity) || 0) * (Number(item.unit_price || item.price) || 0);
       });
@@ -167,30 +201,40 @@ export const useOrderStore = create<OrderState>((set, get) => ({
       ),
     }));
 
-    // Persist to database - update order status in orders table
+    // Persist to database - karena tabel orders tidak ada, kita update notes di order_items
     try {
-      const { error: orderError } = await supabase
-        .from('orders')
-        .update({
-          status: 'completed',
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', orderId);
+      const { data: items, error: fetchError } = await supabase
+        .from('order_items')
+        .select('id, notes')
+        .eq('order_id', orderId);
 
-      if (orderError) {
-        console.error('Failed to update order status:', orderError);
-        // Revert local state on error
-        set((state) => ({
-          orders: state.orders.map(order =>
-            order.id === orderId ? { ...order, status: 'pending' } : order
-          ),
+      if (fetchError) throw fetchError;
+
+      if (items && items.length > 0) {
+        // Update all items to have [COMPLETED] in their notes
+        await Promise.all(items.map(item => {
+          if (!item.notes?.includes('[COMPLETED]')) {
+            return supabase
+              .from('order_items')
+              .update({ notes: `${item.notes || ''} [COMPLETED]` })
+              .eq('id', item.id);
+          }
+          return Promise.resolve();
         }));
-        throw orderError;
       }
 
-      console.log(`✅ Order ${orderId} marked as completed in database`);
+      console.log(`✅ Order ${orderId} marked as completed in database via order_items notes`);
+      
+      // Paksa sinkronisasi ulang agar semua klien up-to-date
+      await get().fetchOrders();
     } catch (error) {
       console.error('Failed to complete order:', error);
+      // Revert local state on error
+      set((state) => ({
+        orders: state.orders.map(order =>
+          order.id === orderId ? { ...order, status: 'pending' } : order
+        ),
+      }));
       throw error;
     }
   },

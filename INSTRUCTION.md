@@ -15,20 +15,19 @@
 | **Waiter** | Manajemen meja + notifikasi pesanan | Pelayan/waiter |
 | **Admin** | Dashboard stok, menu, laporan, karyawan | Pemilik/admin |
 
-Aplikasi ini dibangun sebagai **Web App (React + Vite + TypeScript)** yang dibungkus menjadi **Android APK** menggunakan **Android WebView** (terdapat konfigurasi Capacitor, namun shell utama menggunakan proyek native Kotlin di folder `app/`). Backend menggunakan **Express.js + Prisma ORM**, database **Supabase (PostgreSQL)**, dan deployment ke **Vercel**.
+Aplikasi ini dibangun sebagai **Web App (React + Vite + TypeScript)** yang dibungkus menjadi **Android APK** menggunakan **Android WebView** (terdapat konfigurasi Capacitor, namun shell utama menggunakan proyek native Kotlin di folder `app/`). Database dan backend menggunakan **Supabase (PostgreSQL + RLS + Realtime)** secara langsung dari frontend, dan deployment ke **Vercel** (static build).
 
 | Atribut | Detail |
 |---|---|
 | **Nama Proyek** | Bukumenu Digital PSR |
-| **Versi** | 1.0 |
+| **Versi** | 1.1 |
 | **Architecture** | MPA (Multi-Page Application) — 3 entry point HTML |
 | **Mobile Wrapper** | **Android WebView** (Kotlin + Jetpack Compose) |
 | **Build Flavor** | `guest` · `waiter` · `admin` (3 APK terpisah) |
 | **Frontend** | React 19 · TypeScript · Vite · Tailwind CSS |
-| **Backend** | Express.js 5 · Prisma ORM · Zod validation |
-| **Database** | Supabase (PostgreSQL) |
+| **Backend/Database** | Supabase (PostgreSQL + RLS + Realtime) — Direct Access via `@supabase/supabase-js` |
 | **State Management** | Zustand |
-| **Deployment** | Vercel (frontend + backend serverless) |
+| **Deployment** | Vercel (frontend static build) |
 | **Bahasa UI** | Bahasa Indonesia |
 
 ---
@@ -567,4 +566,6 @@ const { name, price } = req.body;
 
 *Dokumen ini harus diperbarui setiap kali ada perubahan arsitektur, tabel database baru, atau library baru.*
 
-**Versi dokumen: 1.0.0 | Dibuat: Mei 2026**
+**Versi dokumen: 1.1.0 | Diperbarui: 9 Mei 2026**
+
+> **Changelog v1.1**: Menghapus backend Express.js. Arsitektur resmi menggunakan Supabase Direct Access. Folder `backend/` di-rename menjadi `database/` dan hanya berisi SQL migrations + seeds.

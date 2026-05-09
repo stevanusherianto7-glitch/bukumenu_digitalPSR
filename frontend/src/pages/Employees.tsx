@@ -1,20 +1,38 @@
 
 import React, { useState, useEffect } from 'react';
-import api from '../api';
+import { supabase } from '../lib/supabase';
 import { Plus, Users, Search, MoreVertical, Loader2 } from 'lucide-react';
 
+interface Employee {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  position?: string;
+  department?: string;
+  is_active: boolean;
+  join_date?: string;
+  created_at: string;
+}
+
 export const Employees: React.FC = () => {
-  const [employees, setEmployees] = useState<any[]>([]);
+  const [employees, setEmployees] = useState<Employee[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
     const fetchEmployees = async () => {
       try {
-        const response = await api.get('/employees');
-        setEmployees(response.data);
-      } catch (err: any) {
-        setError(err.response?.data?.message || 'Gagal memuat data karyawan.');
+        const { data, error: fetchError } = await supabase
+          .from('employees')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (fetchError) throw fetchError;
+        setEmployees(data || []);
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : 'Gagal memuat data karyawan.';
+        setError(message);
       } finally {
         setIsLoading(false);
       }
@@ -67,7 +85,7 @@ export const Employees: React.FC = () => {
                 <tr>
                   <th className="px-4 py-3">Nama</th>
                   <th className="px-4 py-3">Jabatan</th>
-                  <th className="px-4 py-3">Cabang</th>
+                  <th className="px-4 py-3">Departemen</th>
                   <th className="px-4 py-3">Status</th>
                   <th className="px-4 py-3">Tgl Bergabung</th>
                   <th className="px-4 py-3 text-center">Aksi</th>
@@ -88,24 +106,26 @@ export const Employees: React.FC = () => {
                       </div>
                     </td>
                     <td className="px-4 py-3">
-                      <p className="font-medium">{emp.employeeProfile?.position}</p>
-                      <p className="text-xs text-gray-500">{emp.employeeProfile?.department}</p>
+                      <p className="font-medium">{emp.position || '-'}</p>
                     </td>
-                    <td className="px-4 py-3">{emp.restaurant?.name || '-'}</td>
+                    <td className="px-4 py-3">{emp.department || '-'}</td>
                     <td className="px-4 py-3">
                       <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                        emp.isActive 
+                        emp.is_active !== false
                         ? 'bg-green-100 text-green-700' 
                         : 'bg-red-100 text-red-700'
                       }`}>
-                        {emp.isActive ? 'Aktif' : 'Non-Aktif'}
+                        {emp.is_active !== false ? 'Aktif' : 'Non-Aktif'}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-gray-500">
-                      {new Date(emp.employeeProfile.joinDate).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}
+                      {emp.join_date 
+                        ? new Date(emp.join_date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })
+                        : '-'
+                      }
                     </td>
                     <td className="px-4 py-3 text-center">
-                      <button className="p-2 rounded-full hover:bg-gray-200">
+                            <button onClick={() => console.log('Hapus', emp.id)} title="Hapus Karyawan" aria-label="Hapus Karyawan" className="p-2 text-red-500 bg-red-50 rounded-lg hover:bg-red-100 transition-colors">
                         <MoreVertical size={16} />
                       </button>
                     </td>

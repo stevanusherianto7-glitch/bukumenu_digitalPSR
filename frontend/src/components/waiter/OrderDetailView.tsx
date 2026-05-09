@@ -1,10 +1,12 @@
 import React from 'react';
 import { ChevronLeft, MapPin, Utensils, FileClock, Timer, Info, CheckCircle2, Clock, Users, ShoppingBag, UtensilsCrossed } from 'lucide-react';
 
+import { Order, OrderItem } from '../../types';
+
 interface OrderDetailViewProps {
   selectedTable: string;
-  activeOrders: any[];
-  tableHistory: any[];
+  activeOrders: Order[];
+  tableHistory: Order[];
   tableDetailTab: 'active' | 'history';
   setTableDetailTab: (tab: 'active' | 'history') => void;
   onBack: () => void;
@@ -92,7 +94,7 @@ export const OrderDetailView: React.FC<OrderDetailViewProps> = ({
                     </div>
                     <div className="p-6">
                       <div className="space-y-5 mb-8">
-                        {order.items.map((item: any, idx: number) => (
+                        {order.items.map((item: OrderItem, idx: number) => (
                           <div key={idx} className="flex gap-4">
                             <div className="w-10 h-10 rounded-2xl bg-gray-100 flex items-center justify-center font-bold text-gray-900 border border-gray-200">
                               {item.quantity}x
@@ -132,7 +134,7 @@ export const OrderDetailView: React.FC<OrderDetailViewProps> = ({
                   <span className="text-xs font-bold text-gray-700">{new Date(order.createdAt).toLocaleTimeString()}</span>
                   <span className="text-[10px] bg-gray-100 px-2 rounded">#{order.id.slice(-4)}</span>
                 </div>
-                {order.items.map((item: any, idx: number) => (
+                {order.items.map((item: OrderItem, idx: number) => (
                   <div key={idx} className="flex justify-between text-xs text-gray-600">
                     <span>{item.quantity}x {item.menuName}</span>
                     <span>{(item.price * item.quantity).toLocaleString()}</span>

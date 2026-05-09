@@ -7,7 +7,6 @@
   "scripts": {
     "build:frontend": "cd frontend && npm install && npm run build",
     "build:android": "cd frontend && npm install && npm run build:android",
-    "build:backend": "cd backend && npm install",
     "build": "npm run build:frontend",
     "guardrail:deploy": "node scripts/deploy-guardrail.js"
   }

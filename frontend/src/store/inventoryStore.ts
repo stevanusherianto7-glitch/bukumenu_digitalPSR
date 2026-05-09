@@ -1,17 +1,24 @@
 import { create } from 'zustand';
-import { Ingredient, RecipeItem, MenuItem } from '../types';
+import { Ingredient, RecipeItem, MenuItem, Order } from '../types';
+
+export interface DbRecipeItem {
+  id: string;
+  menu_id: string;
+  ingredient_id: string;
+  quantity: number;
+}
 import { supabase } from '../lib/supabase';
 
 interface InventoryState {
   ingredients: Ingredient[];
-  recipes: any[]; // Store recipes fetched from DB
+  recipes: DbRecipeItem[]; // Store recipes fetched from DB
   processedOrderIds: string[];
   isLoading: boolean;
   
   // Actions
   fetchInventory: () => Promise<void>;
   updateStock: (ingredientId: string, quantity: number, type: 'IN' | 'OUT', referenceId?: string) => Promise<void>;
-  deductStockFromOrder: (menuItems: MenuItem[], order: any) => Promise<void>;
+  deductStockFromOrder: (menuItems: MenuItem[], order: Order) => Promise<void>;
   getIngredient: (id: string) => Ingredient | undefined;
 }
 
@@ -45,7 +52,8 @@ export const useInventoryStore = create<InventoryState>((set, get) => ({
         unit: ing.unit,
         currentStock: ing.current_stock,
         minStock: ing.min_stock,
-        pricePerUnit: ing.price_per_unit || 0 // Added for HPP
+        safetyStock: ing.min_stock,
+        pricePerUnit: ing.price_per_unit || 0
       }));
 
       set({ 

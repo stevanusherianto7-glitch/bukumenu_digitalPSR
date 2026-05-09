@@ -38,7 +38,7 @@ export const AdminBottomNav: React.FC<AdminBottomNavProps> = ({ activeTab, onTab
               onClick={() => onTabChange(tab.id)}
               className={`relative flex-1 flex flex-col items-center justify-center gap-1 transition-all duration-300 ${isActive ? 'scale-110' : 'opacity-40 grayscale hover:opacity-100 hover:grayscale-0'}`}
             >
-              {tab.badge && (
+              {'badge' in tab && tab.badge && (
                 <span className="absolute top-0.5 right-1/2 translate-x-[12px] w-2 h-2 bg-red-500 rounded-full shadow-[0_0_8px_rgba(239,68,68,0.8)] animate-pulse z-10"></span>
               )}
               <div className={`p-2 rounded-xl transition-colors ${isActive ? 'text-pawon-accent bg-white/5 shadow-inner' : 'text-white'}`}>

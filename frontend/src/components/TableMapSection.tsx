@@ -27,59 +27,82 @@ export const TableMapSection: React.FC = () => {
       });
   };
 
-  const downloadSticker = () => {
-    const canvas = document.createElement('canvas');
-    canvas.width = 600; 
-    canvas.height = 900; 
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+  const [isDownloading, setIsDownloading] = useState(false);
 
-    // Background Putih
-    ctx.fillStyle = '#FFFFFF';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // Border Abu-abu halus
-    ctx.strokeStyle = '#E2E8F0';
-    ctx.lineWidth = 4;
-    ctx.strokeRect(20, 20, canvas.width - 40, canvas.height - 40);
-
-    // Teks "Buku Menu Digital"
-    ctx.fillStyle = '#1A1614'; 
-    ctx.font = 'bold 42px Georgia, serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('Buku Menu Digital', canvas.width / 2, 120);
-
-    // Teks "SCAN TO ORDER"
-    ctx.fillStyle = '#9CA3AF'; 
-    ctx.font = 'bold 16px sans-serif';
-    // Gunakan try-catch karena letterSpacing mungkin tidak didukung di semua browser lama
+  const downloadSticker = async () => {
+    if (isDownloading) return;
+    setIsDownloading(true);
+    
     try {
-      (ctx as any).letterSpacing = '6px';
-    } catch (e) {}
-    ctx.fillText('Pawon Salam Resto', canvas.width / 2, 170);
+      const response = await fetch(qrDownloadUrl);
+      const blob = await response.blob();
 
-    // Muat dan gambar QR Code
-    const img = new Image();
-    img.crossOrigin = 'Anonymous'; 
-    img.onload = () => {
-      // Gambar QR Code di tengah
-      ctx.drawImage(img, canvas.width / 2 - 200, 230, 400, 400);
+      const canvas = document.createElement('canvas');
+      canvas.width = 600; 
+      canvas.height = 900; 
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        setIsDownloading(false);
+        return;
+      }
 
-      // Teks Nomor Meja di bawah
-      ctx.fillStyle = '#D1D5DB'; 
-      ctx.font = 'bold 24px monospace';
+      // Background Putih
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Border Abu-abu halus
+      ctx.strokeStyle = '#E2E8F0';
+      ctx.lineWidth = 4;
+      ctx.strokeRect(20, 20, canvas.width - 40, canvas.height - 40);
+
+      // Teks "Buku Menu Digital"
+      ctx.fillStyle = '#1A1614'; 
+      ctx.font = 'bold 42px Georgia, serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('Buku Menu Digital', canvas.width / 2, 120);
+
+      // Teks "SCAN TO ORDER"
+      ctx.fillStyle = '#9CA3AF'; 
+      ctx.font = 'bold 16px sans-serif';
       try {
-        (ctx as any).letterSpacing = '4px';
+        (ctx as any).letterSpacing = '6px';
       } catch (e) {}
-      ctx.fillText(`Meja ${selectedTable}`, canvas.width / 2, 750);
+      ctx.fillText('Pawon Salam Resto', canvas.width / 2, 170);
 
-      // Trigger download
-      const link = document.createElement('a');
-      link.download = `Sticker-Barcode-Meja-${selectedTable}.png`;
-      link.href = canvas.toDataURL('image/png');
-      link.click();
-    };
-    img.src = qrDownloadUrl; 
+      const img = new Image();
+      img.onload = () => {
+        // Gambar QR Code di tengah
+        ctx.drawImage(img, canvas.width / 2 - 200, 230, 400, 400);
+
+        // Teks Nomor Meja di bawah
+        ctx.fillStyle = '#D1D5DB'; 
+        ctx.font = 'bold 24px monospace';
+        try {
+          (ctx as any).letterSpacing = '4px';
+        } catch (e) {}
+        ctx.fillText(`Meja ${selectedTable}`, canvas.width / 2, 750);
+
+        // Trigger download
+        const link = document.createElement('a');
+        link.download = `Sticker-Barcode-Meja-${selectedTable}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+        
+        URL.revokeObjectURL(img.src);
+        setIsDownloading(false);
+      };
+      
+      img.onerror = () => {
+        setIsDownloading(false);
+        alert('Gagal memproses gambar QR Code.');
+      };
+      
+      img.src = URL.createObjectURL(blob);
+    } catch (error) {
+      console.error('Error downloading sticker:', error);
+      alert('Gagal mendownload stiker. Periksa koneksi internet Anda.');
+      setIsDownloading(false);
+    }
   };
 
   return (
@@ -203,9 +226,21 @@ export const TableMapSection: React.FC = () => {
               {/* Action Button */}
               <button
                 onClick={downloadSticker}
-                className="w-full bg-[#800000] text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-3 hover:bg-[#600000] transition-all active:scale-[0.98] shadow-xl shadow-gray-200"
+                disabled={isDownloading}
+                className={`w-full text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-3 transition-all active:scale-[0.98] shadow-xl shadow-gray-200 ${
+                  isDownloading ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#800000] hover:bg-[#600000]'
+                }`}
               >
-                <Download size={20} /> Download Stiker Barcode
+                {isDownloading ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                    Memproses Stiker...
+                  </>
+                ) : (
+                  <>
+                    <Download size={20} /> Download Stiker Barcode
+                  </>
+                )}
               </button>
 
               <p className="text-[10px] text-gray-400 mt-4 text-center leading-relaxed px-6 opacity-70">

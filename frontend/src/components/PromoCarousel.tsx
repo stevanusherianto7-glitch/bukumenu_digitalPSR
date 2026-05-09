@@ -2,12 +2,13 @@
 import React, { useState, useEffect } from 'react';
 import { MapPin, Phone, Clock, ChevronLeft, ChevronRight, Share2 } from 'lucide-react';
 import { Logo } from './Logo';
+import { MenuItem } from '../types';
 
 interface PromoCarouselProps {
   onSecretAdminTrigger?: () => void;
   tableNumber?: string;
   headerImage?: string;
-  menuItems?: any[];
+  menuItems?: MenuItem[];
 }
 
 export const PromoCarousel: React.FC<PromoCarouselProps> = ({ onSecretAdminTrigger, tableNumber, headerImage, menuItems = [] }) => {

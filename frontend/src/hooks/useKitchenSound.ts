@@ -1,6 +1,14 @@
 import { useRef, useCallback, useState, useEffect } from 'react';
 import { TextToSpeech } from '@capacitor-community/text-to-speech';
 import { Capacitor } from '@capacitor/core';
+import { Order, OrderItem } from '../types';
+
+declare global {
+  interface Window {
+    _activeUtterances: SpeechSynthesisUtterance[];
+  }
+}
+window._activeUtterances = window._activeUtterances || [];
 
 /**
  * Hook untuk mengelola semua suara notifikasi pesanan baru.
@@ -32,18 +40,32 @@ export const useKitchenSound = () => {
     console.log('[DEBUG] Sound enabled set to true.');
   }, []);
 
-  // Dengarkan interaksi pertama user di level document
+  // Dengarkan interaksi pertama user di level document dan tangani suspend di Android
   useEffect(() => {
     const handleFirstInteraction = () => {
       if (!hasUserInteracted) {
         initAudio();
       }
     };
+    
+    // touchend sangat penting untuk kompatibilitas Android WebView
     document.addEventListener('touchstart', handleFirstInteraction, { once: true });
+    document.addEventListener('touchend', handleFirstInteraction, { once: true });
     document.addEventListener('click', handleFirstInteraction, { once: true });
+
+    // Cegah AudioContext mati saat aplikasi WebView di-minimize
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && audioCtxRef.current?.state === 'suspended') {
+        audioCtxRef.current.resume().catch(err => console.warn('[DEBUG] Gagal resume dari background', err));
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
     return () => {
       document.removeEventListener('touchstart', handleFirstInteraction);
+      document.removeEventListener('touchend', handleFirstInteraction);
       document.removeEventListener('click', handleFirstInteraction);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, [hasUserInteracted, initAudio]);
 
@@ -93,12 +115,12 @@ export const useKitchenSound = () => {
    *   notes       → item.notes      ← gunakan ini
    *   unit_price  → item.price      (tidak dibacakan)
    */
-  const speakOrder = useCallback(async (tableNumber: string, order?: any) => {
+  const speakOrder = useCallback(async (tableNumber: string, order?: Order) => {
     // Bangun teks yang akan dibacakan
     let text = `Pesanan baru. Meja ${tableNumber}. `;
 
     if (order && Array.isArray(order.items) && order.items.length > 0) {
-      order.items.forEach((item: any) => {
+      order.items.forEach((item: OrderItem) => {
         const nama = item.menuName ?? 'menu';
         const qty  = Number(item.quantity) || 1;
         const note = item.notes ?? '';
@@ -152,6 +174,15 @@ export const useKitchenSound = () => {
       utterance.volume = 1.0;
       utterance.pitch = 1.0;
 
+      // Fix Android WebView GC bug
+      window._activeUtterances.push(utterance);
+      utterance.onend = () => {
+        window._activeUtterances = window._activeUtterances.filter(u => u !== utterance);
+      };
+      utterance.onerror = () => {
+        window._activeUtterances = window._activeUtterances.filter(u => u !== utterance);
+      };
+
       const voices = window.speechSynthesis.getVoices();
       const idVoice = voices.find(v => v.lang.startsWith('id'));
       if (idVoice) {
@@ -168,11 +199,7 @@ export const useKitchenSound = () => {
     }
   }, []);
 
-  /**
-   * Fungsi utama yang dipanggil saat pesanan baru masuk.
-   * Urutan: beep → (jeda singkat) → TTS
-   */
-  const notifyNewOrder = useCallback(async (tableNumber: string, order?: any) => {
+  const notifyNewOrder = useCallback(async (tableNumber: string, order?: Order) => {
     console.log('[DEBUG] notifyNewOrder dipanggil untuk meja:', tableNumber, 'Status suara:', isSoundEnabled);
     if (!isSoundEnabled) {
       console.log('[DEBUG] Suara nonaktif, notifikasi dilewati.');
@@ -191,11 +218,54 @@ export const useKitchenSound = () => {
     }
   }, [isSoundEnabled, playBeep, speakOrder]);
 
+  const testAudio = useCallback(async () => {
+    initAudio();
+    try {
+      playBeep();
+      await new Promise(resolve => setTimeout(resolve, 700));
+      
+      const text = "Sistem suara aktif.";
+      if (Capacitor.isNativePlatform()) {
+        await TextToSpeech.stop();
+        await TextToSpeech.speak({
+          text,
+          lang: 'id-ID',
+          rate: 0.85,
+          pitch: 1.0,
+          volume: 1.0,
+          category: 'ambient',
+        });
+      } else if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'id-ID';
+        utterance.rate = 0.85;
+
+        // Fix Android WebView GC bug
+        window._activeUtterances.push(utterance);
+        utterance.onend = () => {
+          window._activeUtterances = window._activeUtterances.filter(u => u !== utterance);
+        };
+        utterance.onerror = () => {
+          window._activeUtterances = window._activeUtterances.filter(u => u !== utterance);
+        };
+
+        const voices = window.speechSynthesis.getVoices();
+        const idVoice = voices.find(v => v.lang.startsWith('id'));
+        if (idVoice) utterance.voice = idVoice;
+        window.speechSynthesis.speak(utterance);
+      }
+    } catch (err) {
+      console.error('Test audio error:', err);
+    }
+  }, [initAudio, playBeep]);
+
   return {
     notifyNewOrder,
     isSoundEnabled,
     setIsSoundEnabled,
     hasUserInteracted,
     initAudio,
+    testAudio,
   };
 };

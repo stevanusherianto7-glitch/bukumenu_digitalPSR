@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-interface MarketingSettings {
+export interface MarketingSettings {
   isAddonEnabled: boolean;
   isCrossSellEnabled: boolean;
   isBundleEnabled: boolean;
@@ -18,7 +18,7 @@ interface MarketingSettings {
 }
 
 interface SettingsState extends MarketingSettings {
-  setMarketingSetting: (key: keyof MarketingSettings, value: any) => void;
+  setMarketingSetting: <K extends keyof MarketingSettings>(key: K, value: MarketingSettings[K]) => void;
   resetSettings: () => void;
 }
 
@@ -49,7 +49,7 @@ export const useSettingsStore = create<SettingsState>()(
         if (key === 'progressBarTarget') {
           validatedValue = Math.max(1000, Number(value));
         }
-        return { ...state, [key]: validatedValue };
+        return { ...state, [key]: validatedValue as MarketingSettings[K] };
       }),
 
       resetSettings: () => set({

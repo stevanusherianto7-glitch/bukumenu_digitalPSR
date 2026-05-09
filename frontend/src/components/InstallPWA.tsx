@@ -2,8 +2,14 @@
 import React, { useEffect, useState } from 'react';
 import { Download, X, Share, PlusSquare } from 'lucide-react';
 
+interface BeforeInstallPromptEvent extends Event {
+  readonly platforms: string[];
+  readonly userChoice: Promise<{ outcome: 'accepted' | 'dismissed', platform: string }>;
+  prompt(): Promise<void>;
+}
+
 export const InstallPWA: React.FC = () => {
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [showInstallBtn, setShowInstallBtn] = useState(false);
   const [showIOSHint, setShowIOSHint] = useState(false);
   const [isDismissed, setIsDismissed] = useState(false);
@@ -14,9 +20,9 @@ export const InstallPWA: React.FC = () => {
     if (isStandalone) return;
 
     // Android / Desktop Chrome 'Add to Home Screen' event
-    const handler = (e: any) => {
+    const handler = (e: Event) => {
       e.preventDefault();
-      setDeferredPrompt(e);
+      setDeferredPrompt(e as BeforeInstallPromptEvent);
       // Tunggu sebentar sebelum menampilkan tombol agar tidak mengganggu loading awal
       setTimeout(() => setShowInstallBtn(true), 3000);
     };
@@ -64,7 +70,7 @@ export const InstallPWA: React.FC = () => {
                  <span className="text-[10px] text-white/70">Akses lebih cepat & hemat kuota</span>
               </div>
               <div className="flex items-center gap-3">
-                 <button onClick={dismiss} className="p-2 text-white/50 hover:text-white transition-colors">
+                 <button onClick={dismiss} title="Tutup" aria-label="Tutup" className="p-2 text-white/50 hover:text-white transition-colors">
                     <X size={18} />
                  </button>
                  <button 
@@ -85,7 +91,7 @@ export const InstallPWA: React.FC = () => {
         <>
             <div className="fixed inset-0 bg-black/40 z-[99] animate-in fade-in" onClick={dismiss} />
             <div className="fixed bottom-0 left-0 right-0 z-[100] bg-white rounded-t-[32px] p-6 pb-[calc(2rem+env(safe-area-inset-bottom))] shadow-[0_-10px_40px_rgba(0,0,0,0.2)] animate-in slide-in-from-bottom-full duration-500">
-                <button onClick={dismiss} className="absolute top-4 right-4 text-gray-400 p-2 bg-gray-50 rounded-full">
+                <button onClick={dismiss} title="Tutup" aria-label="Tutup" className="absolute top-4 right-4 text-gray-400 p-2 bg-gray-50 rounded-full">
                     <X size={20} />
                 </button>
                 
