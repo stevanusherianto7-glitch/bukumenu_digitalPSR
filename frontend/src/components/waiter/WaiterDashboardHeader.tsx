@@ -7,6 +7,7 @@ interface WaiterDashboardHeaderProps {
   totalPendingItems: number;
   activeTab: 'monitor' | 'history';
   setActiveTab: (tab: 'monitor' | 'history') => void;
+  onTestAudio?: () => void;
 }
 
 export const WaiterDashboardHeader: React.FC<WaiterDashboardHeaderProps> = ({
@@ -14,41 +15,46 @@ export const WaiterDashboardHeader: React.FC<WaiterDashboardHeaderProps> = ({
   activeTablesCount,
   totalPendingItems,
   activeTab,
-  setActiveTab
+  setActiveTab,
+  onTestAudio
 }) => {
-  
-  const handleTestAudio = () => {
-    try {
-      // 1. Unlock Audio Context (Beep)
-      const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
-      const oscillator = audioCtx.createOscillator();
-      const gainNode = audioCtx.createGain();
-      oscillator.connect(gainNode);
-      gainNode.connect(audioCtx.destination);
-      oscillator.type = 'sine';
-      oscillator.frequency.setValueAtTime(440, audioCtx.currentTime); // A4
-      gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
-      gainNode.gain.linearRampToValueAtTime(0.2, audioCtx.currentTime + 0.1);
-      gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.4);
-      oscillator.start();
-      oscillator.stop(audioCtx.currentTime + 0.5);
 
-      // 2. Unlock & Test TTS
-      const msg = new SpeechSynthesisUtterance("Sistem suara aktif");
-      msg.lang = 'id-ID';
-      const voices = window.speechSynthesis.getVoices();
-      const premiumVoice = voices.find(v => 
-        v.lang.includes('id') && 
-        (v.name.includes('Google') || v.name.includes('Neural') || v.name.includes('Natural'))
-      ) || voices.find(v => v.lang.includes('id'));
-      
-      if (premiumVoice) {
-        msg.voice = premiumVoice;
+  const handleTestAudio = () => {
+    if (onTestAudio) {
+      onTestAudio();
+    } else {
+      try {
+        // 1. Unlock Audio Context (Beep)
+        const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+        const oscillator = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        oscillator.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(440, audioCtx.currentTime); // A4
+        gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+        gainNode.gain.linearRampToValueAtTime(0.2, audioCtx.currentTime + 0.1);
+        gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.4);
+        oscillator.start();
+        oscillator.stop(audioCtx.currentTime + 0.5);
+
+        // 2. Unlock & Test TTS
+        const msg = new SpeechSynthesisUtterance("Sistem suara aktif");
+        msg.lang = 'id-ID';
+        const voices = window.speechSynthesis.getVoices();
+        const premiumVoice = voices.find(v =>
+          v.lang.includes('id') &&
+          (v.name.includes('Google') || v.name.includes('Neural') || v.name.includes('Natural'))
+        ) || voices.find(v => v.lang.includes('id'));
+
+        if (premiumVoice) {
+          msg.voice = premiumVoice;
+        }
+        msg.rate = 0.9;
+        window.speechSynthesis.speak(msg);
+      } catch (err) {
+        console.error("Failed to unlock audio:", err);
       }
-      msg.rate = 0.9;
-      window.speechSynthesis.speak(msg);
-    } catch (err) {
-      console.error("Failed to unlock audio:", err);
     }
   };
 

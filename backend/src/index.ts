@@ -5,7 +5,6 @@ import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import morgan from 'morgan';
 import apiRoutes from './routes';
-import path from 'path';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -32,12 +31,13 @@ const limiter = rateLimit({
 app.use(limiter);
 
 // 4. Rate Limiting - Auth routes (stricter)
-const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 5, // 5 attempts per 15 minutes
-  skipSuccessfulRequests: true,
-  message: 'Too many login attempts, please try again later.',
-});
+// Note: Currently not used, but kept for future auth routes
+// const authLimiter = rateLimit({
+//   windowMs: 15 * 60 * 1000,
+//   max: 5, // 5 attempts per 15 minutes
+//   skipSuccessfulRequests: true,
+//   message: 'Too many login attempts, please try again later.',
+// });
 
 // 5. Strict CORS Whitelist - Zero Error Tolerance
 const allowedOrigins = process.env.FRONTEND_URL 
@@ -79,7 +79,7 @@ app.use(express.json({ limit: '10mb' }));
 app.use('/api', apiRoutes);
 
 // Health Check
-app.get('/api', (req, res) => {
+app.get('/api', (_req, res) => {
   res.send('RestoHRIS API is running on Vercel!');
 });
 

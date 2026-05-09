@@ -22,6 +22,9 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose, tableNumber }) => {
   const [isSuccess, setIsSuccess] = useState(false);
   const progressBarRef = useRef<HTMLDivElement>(null);
 
+  // Check if promo is applicable for current table
+  const isPromoApplicable = activePromo && tableNumber && activePromo.target_table === tableNumber;
+
   useEffect(() => {
     if (progressBarRef.current && marketing.isProgressBarEnabled) {
       const progress = Math.min((totalPrice / marketing.progressBarTarget) * 100, 100);
@@ -56,7 +59,7 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose, tableNumber }) => {
         };
 
     });
-    const finalTotal = useCartStore.getState().getDiscountedTotal(marketing, activePromo?.discount_percent || 0);
+    const finalTotal = useCartStore.getState().getDiscountedTotal(marketing, isPromoApplicable ? activePromo?.discount_percent || 0 : 0);
     addOrder(effectiveTable, orderItems, orderType, finalTotal);
     
     // 2. Ubah UI Button menjadi Sukses (Hijau & Teks Berubah)
@@ -313,7 +316,7 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose, tableNumber }) => {
                   </div>
                )}
 
-               {activePromo && (
+               {activePromo && isPromoApplicable && (
                   <div className="flex justify-between items-center text-xs font-bold text-red-600">
                     <span className="flex items-center gap-1"><Gift size={12} /> {activePromo.name} ({Math.round(activePromo.discount_percent)}%)</span>
                     <span>- Rp {Math.round(totalPrice * (activePromo.discount_percent/100)).toLocaleString('id-ID')}</span>
@@ -323,7 +326,7 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose, tableNumber }) => {
                <div className="flex justify-between items-center pt-2 border-t border-gray-100">
                  <span className="font-bold text-pawon-dark">Total Akhir</span>
                  <span className="font-bold text-xl text-pawon-dark">
-                   Rp {useCartStore.getState().getDiscountedTotal(marketing, activePromo?.discount_percent || 0).toLocaleString('id-ID')}
+                   Rp {useCartStore.getState().getDiscountedTotal(marketing, isPromoApplicable ? activePromo?.discount_percent || 0 : 0).toLocaleString('id-ID')}
                  </span>
                </div>
             </div>

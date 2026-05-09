@@ -9,6 +9,8 @@ import { WaiterDashboardHeader } from './waiter/WaiterDashboardHeader';
 import { TableGrid } from './waiter/TableGrid';
 import { OrderDetailView } from './waiter/OrderDetailView';
 
+// Helpers
+
 // Live clock hook
 const useClock = () => {
   const [now, setNow] = useState(new Date());
@@ -23,6 +25,31 @@ const useClock = () => {
 const getMinutesAgo = (createdAt: string | number) => {
   const time = typeof createdAt === 'string' ? new Date(createdAt).getTime() : createdAt;
   return Math.floor((Date.now() - time) / 60000);
+};
+
+// Audio unlock helper - safe, no TTS loop
+const unlockAudio = async (onSuccess?: () => void) => {
+  try {
+    const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    if (audioCtx.state === 'suspended') {
+      await audioCtx.resume();
+    }
+    // Optional single beep for immediate feedback
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+    gain.gain.setValueAtTime(0, audioCtx.currentTime);
+    gain.gain.linearRampToValueAtTime(0.15, audioCtx.currentTime + 0.1);
+    gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.3);
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.35);
+    if (onSuccess) onSuccess();
+  } catch (e) {
+    console.error('Audio unlock failed:', e);
+  }
 };
 
 const getUrgencyColor = (mins: number) => {
@@ -89,7 +116,7 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
       unsubscribe();
       window.removeEventListener('new-order-ping', handlePing);
     };
-  }, [subscribeToOrders, fetchOrders, clearStalePendingOrders]);
+  }, []);
 
   useEffect(() => { if (selectedTable) setTableDetailTab('active'); }, [selectedTable]);
 
@@ -234,41 +261,18 @@ export const WaiterTableSection: React.FC<{ onExit?: () => void }> = ({ onExit }
 
   return (
     <div className="pb-20">
-      <WaiterDashboardHeader 
+      <WaiterDashboardHeader
         now={now}
         activeTablesCount={activeTablesCount}
         totalPendingItems={totalPendingItems}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
+        onTestAudio={() => unlockAudio(() => {
+          if (!hasUserInteracted) {
+            initAudio();
+          }
+        })}
       />
-
-      {/* Tombol Aktifkan/Matikan Suara Kitchen */}
-      <div className="mx-6 mt-3 mb-1">
-        <button
-          onClick={() => {
-            if (!hasUserInteracted) {
-              // Interaksi pertama — ini sekaligus unlock AudioContext
-              initAudio();
-            } else {
-              setIsSoundEnabled(prev => !prev);
-            }
-          }}
-          className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-2xl text-sm font-bold transition-all duration-200 border ${
-            isSoundEnabled
-              ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-              : 'bg-gray-100 text-gray-400 border-gray-200'
-          }`}
-        >
-          <span>{isSoundEnabled ? '🔔' : '🔕'}</span>
-          <span>
-            {!hasUserInteracted
-              ? 'Tap untuk aktifkan suara notifikasi'
-              : isSoundEnabled
-              ? 'Suara Aktif — Tap untuk matikan'
-              : 'Suara Mati — Tap untuk aktifkan'}
-          </span>
-        </button>
-      </div>
 
       {activeTab === 'monitor' ? (
         <TableGrid 

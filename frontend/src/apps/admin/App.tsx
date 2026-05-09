@@ -32,7 +32,7 @@ const AdminApp: React.FC = () => {
     loadData();
     useInventoryStore.getState().fetchInventory();
     useOrderStore.getState().fetchOrders();
-  }, [loadData]);
+  }, []);
 
   useEffect(() => {
     if (scrollContainerRef.current) {

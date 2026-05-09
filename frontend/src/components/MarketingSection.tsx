@@ -1,3 +1,4 @@
+import React from 'react';
 import { 
   Zap, 
   ShoppingBag, 
@@ -7,32 +8,16 @@ import {
   Cake, 
   UtensilsCrossed, 
   ChevronRight,
-  Info,
-  Plus,
-  Trash2,
-  Clock,
-  Gift
+  Info
 } from 'lucide-react';
 import { useSettingsStore } from '../store/settingsStore';
-import { usePromoStore } from '../store/promoStore';
 
 export const MarketingSection: React.FC = () => {
   const settings = useSettingsStore();
-  const { allPromos, fetchAllPromos, createPromo, deletePromo } = usePromoStore();
-  
-  const [isAdding, setIsAdding] = React.useState(false);
-  const [newPromo, setNewPromo] = React.useState({
-    name: '',
-    starts_at: '',
-    ends_at: '',
-    discount_percent: 0,
-    status: 'active' as 'draft' | 'active' | 'expired'
-  });
 
   React.useEffect(() => {
     console.log("MarketingSection Mounted. Current Settings:", settings);
-    fetchAllPromos();
-  }, [fetchAllPromos]);
+  }, []);
 
   const programs = [
     {
@@ -208,162 +193,6 @@ export const MarketingSection: React.FC = () => {
             </div>
           );
         })}
-      </div>
-
-      {/* Event Promo Terjadwal Section */}
-      <div className="bg-white rounded-[28px] border border-gray-100 shadow-sm overflow-hidden mt-6 mb-6">
-        <div className="p-5">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-red-50 text-red-500 rounded-[18px] flex items-center justify-center shadow-inner">
-                <Gift size={18} />
-              </div>
-              <div>
-                <h4 className="text-base font-bold text-pawon-dark leading-none mb-1">Event Promo Terjadwal</h4>
-                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Kelola Promo Supabase</p>
-              </div>
-            </div>
-            
-            <button 
-              onClick={() => setIsAdding(!isAdding)}
-              className="p-2 bg-gray-100 hover:bg-gray-200 rounded-xl text-gray-600 transition-all active:scale-90"
-              title="Tambah Promo"
-            >
-              <Plus size={18} />
-            </button>
-          </div>
-
-          {/* Form Tambah Promo */}
-          {isAdding && (
-            <div className="mb-6 p-4 bg-gray-50 rounded-xl space-y-3 animate-in slide-in-from-top-2 duration-300">
-              <div className="space-y-1">
-                <label className="text-[9px] font-black text-gray-400 uppercase ml-1">Nama Promo</label>
-                <input 
-                  type="text"
-                  placeholder="e.g. Promo Ramadan"
-                  value={newPromo.name}
-                  onChange={(e) => setNewPromo({...newPromo, name: e.target.value})}
-                  className="w-full bg-white border border-gray-100 rounded-xl px-3 py-2 text-xs font-bold outline-none focus:ring-1 focus:ring-pawon-accent"
-                />
-              </div>
-              
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1">
-                  <label className="text-[9px] font-black text-gray-400 uppercase ml-1">Mulai</label>
-                  <input 
-                    type="datetime-local"
-                    value={newPromo.starts_at}
-                    onChange={(e) => setNewPromo({...newPromo, starts_at: e.target.value})}
-                    className="w-full bg-white border border-gray-100 rounded-xl px-3 py-2 text-xs font-bold outline-none focus:ring-1 focus:ring-pawon-accent"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-[9px] font-black text-gray-400 uppercase ml-1">Selesai</label>
-                  <input 
-                    type="datetime-local"
-                    value={newPromo.ends_at}
-                    onChange={(e) => setNewPromo({...newPromo, ends_at: e.target.value})}
-                    className="w-full bg-white border border-gray-100 rounded-xl px-3 py-2 text-xs font-bold outline-none focus:ring-1 focus:ring-pawon-accent"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1">
-                  <label className="text-[9px] font-black text-gray-400 uppercase ml-1">Diskon (%)</label>
-                  <input 
-                    type="number"
-                    placeholder="e.g. 10"
-                    value={newPromo.discount_percent}
-                    onChange={(e) => setNewPromo({...newPromo, discount_percent: parseFloat(e.target.value)})}
-                    className="w-full bg-white border border-gray-100 rounded-xl px-3 py-2 text-xs font-bold outline-none focus:ring-1 focus:ring-pawon-accent"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-[9px] font-black text-gray-400 uppercase ml-1">Status</label>
-                  <select 
-                    value={newPromo.status}
-                    onChange={(e) => setNewPromo({...newPromo, status: e.target.value as any})}
-                    className="w-full bg-white border border-gray-100 rounded-xl px-3 py-2 text-xs font-bold outline-none focus:ring-1 focus:ring-pawon-accent"
-                  >
-                    <option value="active">Active</option>
-                    <option value="draft">Draft</option>
-                    <option value="expired">Expired</option>
-                  </select>
-                </div>
-              </div>
-
-              <button 
-                onClick={async () => {
-                  if (!newPromo.name || !newPromo.starts_at || !newPromo.ends_at || !newPromo.discount_percent) {
-                    alert('Mohon isi semua field!');
-                    return;
-                  }
-                  try {
-                    await createPromo({
-                      name: newPromo.name,
-                      starts_at: new Date(newPromo.starts_at).toISOString(),
-                      ends_at: new Date(newPromo.ends_at).toISOString(),
-                      discount_percent: newPromo.discount_percent,
-                      status: newPromo.status
-                    });
-                    setIsAdding(false);
-                    setNewPromo({ name: '', starts_at: '', ends_at: '', discount_percent: 0, status: 'active' });
-                    alert('Promo berhasil ditambahkan!');
-                  } catch (e) {
-                    alert('Gagal menambahkan promo.');
-                  }
-                }}
-                className="w-full bg-red-600 text-white py-2.5 rounded-xl font-bold text-xs hover:bg-red-700 transition-colors"
-              >
-                Simpan Promo
-              </button>
-            </div>
-          )}
-
-          {/* List Promo */}
-          <div className="space-y-3">
-            {allPromos.length === 0 ? (
-              <p className="text-xs text-gray-400 text-center py-4">Belum ada promo yang dibuat.</p>
-            ) : (
-              allPromos.map(promo => (
-                <div key={promo.id} className="p-3 bg-gray-50 rounded-xl flex justify-between items-center border border-gray-100">
-                  <div>
-                    <h5 className="text-sm font-bold text-pawon-dark">{promo.name}</h5>
-                    <div className="flex items-center gap-2 text-[10px] text-gray-400 font-medium mt-1">
-                      <span className="flex items-center gap-0.5"><Clock size={10} /> {new Date(promo.starts_at).toLocaleDateString()}</span>
-                      <span>-</span>
-                      <span>{new Date(promo.ends_at).toLocaleDateString()}</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${
-                      promo.status === 'active' ? 'bg-green-100 text-green-600' :
-                      promo.status === 'draft' ? 'bg-gray-100 text-gray-600' :
-                      'bg-red-100 text-red-600'
-                    }`}>
-                      {promo.status}
-                    </span>
-                    <span className="font-black text-sm text-red-600">
-                      -{Math.round(promo.discount_percent)}%
-                    </span>
-                    <button 
-                      onClick={async () => {
-                        if (window.confirm('Yakin ingin menghapus promo ini?')) {
-                          await deletePromo(promo.id);
-                        }
-                      }}
-                      className="p-1.5 bg-white hover:bg-red-50 rounded-lg text-gray-400 hover:text-red-500 border border-gray-100 transition-colors"
-                      title="Hapus Promo"
-                    >
-                      <Trash2 size={14} />
-                    </button>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
       </div>
 
       <div className="mt-8 p-6 bg-pawon-dark rounded-[32px] border border-white/5 flex gap-4 shadow-2xl relative overflow-hidden">

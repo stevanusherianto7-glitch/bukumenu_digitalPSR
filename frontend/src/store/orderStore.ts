@@ -1,8 +1,32 @@
 import { create } from 'zustand';
-import { Order, OrderItem } from '../types';
 import { supabase } from '../lib/supabase';
-import { useInventoryStore } from './inventoryStore';
-import { useMenuStore } from './menuStore';
+import { Order, OrderItem } from '../types';
+
+const recentlyNotifiedOrders = new Set<string>();
+const clearNotificationDelayMs = 5000;
+
+const parseOrderMetadata = (notes?: string | null) => {
+  const rawNotes = typeof notes === 'string' ? notes : '';
+  const orderTypeMatch = rawNotes.match(/\[(DINE IN|TAKE AWAY)\]/i);
+  const tableNumberMatch = rawNotes.match(/\[Meja\s*([^\]]+)\]/i);
+
+  const orderType = orderTypeMatch
+    ? /take/i.test(orderTypeMatch[1])
+      ? 'take-away'
+      : 'dine-in'
+    : 'dine-in';
+
+  const tableNumber = tableNumberMatch
+    ? tableNumberMatch[1].trim().toUpperCase()
+    : 'A1';
+
+  const cleanedNotes = rawNotes
+    .replace(/\[(DINE IN|TAKE AWAY)\]/gi, '')
+    .replace(/\[Meja\s*[^\]]+\]/gi, '')
+    .trim();
+
+  return { orderType, tableNumber, notes: cleanedNotes };
+};
 
 interface OrderState {
   orders: Order[];
@@ -14,200 +38,177 @@ interface OrderState {
   subscribeToOrders: () => () => void;
 }
 
-const mapOrderFromDB = (dbOrder: any): Order => ({
-  id: dbOrder.id,
-  tableNumber: dbOrder.table_number || dbOrder.tableNumber,
-  status: dbOrder.status,
-  orderType: dbOrder.order_type || dbOrder.orderType || 'DINE_IN',
-  totalAmount: dbOrder.total || dbOrder.totalAmount || 0,
-  createdAt: dbOrder.created_at || dbOrder.createdAt || new Date().toISOString(),
-  items: (dbOrder.items || []).map((item: any) => ({
-    menuName: item.menu_name || item.menuName,
-    quantity: item.quantity,
-    price: item.unit_price || item.price,
-    notes: item.notes
-  }))
-});
-
 export const useOrderStore = create<OrderState>((set, get) => ({
   orders: [],
   isLoading: false,
 
   fetchOrders: async () => {
     set({ isLoading: true });
-    
-    const executeFetch = async (retryCount = 0): Promise<void> => {
-      try {
-        const { data, error } = await supabase
+    try {
+      // Fetch both orders and order_items to get complete order data with status
+      const [orderItemsResult, ordersResult] = await Promise.all([
+        supabase
+          .from('order_items')
+          .select('*')
+          .order('created_at', { ascending: false }),
+        supabase
           .from('orders')
-          .select('*, items:order_items(*)')
-          // .in('status', ['pending', 'completed']) // Sementara di-comment untuk bypass error kolom status
-          .gte('created_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString())
-          .order('created_at', { ascending: true });
+          .select('*')
+          .order('created_at', { ascending: false })
+      ]);
 
-        if (error) throw error;
-        set({ orders: (data || []).map(mapOrderFromDB) });
-      } catch (error) {
-        console.error(`Error fetching orders (Attempt ${retryCount + 1}):`, error);
-        
-        if (retryCount < 3) {
-          const delay = Math.pow(2, retryCount) * 1000; // 1s, 2s, 4s
-          console.log(`🔄 Retrying fetchOrders in ${delay / 1000}s...`);
-          await new Promise(resolve => setTimeout(resolve, delay));
-          return executeFetch(retryCount + 1);
-        } else {
-          console.error("❌ Max retries reached for fetchOrders.");
-          alert('Gagal mengambil data pesanan terbaru dari server.');
-        }
+      if (orderItemsResult.error) throw orderItemsResult.error;
+
+      // Create a map of order statuses from the orders table
+      const orderStatusMap = new Map<string, { status: string; orderType?: string }>();
+      if (ordersResult.data) {
+        ordersResult.data.forEach((order: any) => {
+          orderStatusMap.set(order.id, {
+            status: order.status || 'pending',
+            orderType: order.order_type
+          });
+        });
       }
-    };
 
-    await executeFetch();
-    set({ isLoading: false });
+      // Grouping item berdasarkan order_id
+      const ordersMap = new Map<string, Order>();
+
+      orderItemsResult.data.forEach((item: any) => {
+        const orderId = item.order_id;
+        if (!ordersMap.has(orderId)) {
+          const parsed = parseOrderMetadata(item.notes);
+          const orderData = orderStatusMap.get(orderId) || { status: 'pending' };
+
+          ordersMap.set(orderId, {
+            id: orderId,
+            tableNumber: parsed.tableNumber,
+            orderType: orderData.orderType || parsed.orderType,
+            status: orderData.status,
+            totalAmount: 0,
+            items: [],
+            createdAt: item.created_at || item.createdAt || new Date().toISOString()
+          });
+        }
+        const order = ordersMap.get(orderId)!;
+        order.items.push({
+          menuId: item.menu_id || item.menuId,
+          menuName: item.menu_name || item.menuName,
+          quantity: Number(item.quantity) || 0,
+          price: Number(item.unit_price || item.price) || 0,
+          notes: item.notes || undefined
+        });
+        order.totalAmount += (Number(item.quantity) || 0) * (Number(item.unit_price || item.price) || 0);
+      });
+
+      set({ orders: Array.from(ordersMap.values()), isLoading: false });
+    } catch (error) {
+      console.error("Failed to fetch orders:", error);
+      set({ isLoading: false });
+    }
   },
 
   addOrder: async (tableNumber: string, items: OrderItem[], orderType: string = 'dine-in', finalTotal?: number) => {
     try {
-      const type = orderType === 'take-away' ? 'take-away' : 'dine-in';
-      const totalAmount = finalTotal !== undefined ? finalTotal : items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      // Generate order_id baru (UUID)
+      const orderId = crypto.randomUUID();
+      const typeStr = orderType === 'take-away' ? 'TAKE AWAY' : 'DINE IN';
 
-      console.log('[DEBUG] Memulai proses pemesanan...', { tableNumber, type, totalAmount, itemsCount: items.length });
+      // Calculate total from items
+      const calculatedTotal = finalTotal ?? items.reduce((sum, item) => sum + (item.quantity * item.price), 0);
 
-      const { data: orderData, error: orderError } = await supabase
+      // Insert into orders table first (required for completeOrder to work)
+      const { error: orderError } = await supabase
         .from('orders')
         .insert({
+          id: orderId,
           table_number: tableNumber,
-          order_type: type,
           status: 'pending',
-          total: totalAmount
-        })
-        .select()
-        .single();
+          order_type: orderType,
+          total: calculatedTotal,
+          notes: `[${typeStr}] [Meja ${tableNumber}]`
+        });
 
       if (orderError) {
-        console.error('[DEBUG] Gagal insert ke tabel orders:', orderError);
-        throw orderError;
+        console.warn('Could not insert into orders table (may not exist yet):', orderError);
+        // Continue anyway - order_items is the primary data source
       }
 
-      console.log('[DEBUG] Berhasil insert ke tabel orders:', orderData);
-
       const orderItems = items.map(item => ({
-        order_id: orderData.id,
-        menu_id: item.menuId, // Link to menu for stock deduction
+        order_id: orderId,
+        menu_id: item.menuId,
         menu_name: item.menuName,
         quantity: item.quantity,
         unit_price: item.price,
-        notes: item.notes || ''
+        notes: `[${typeStr}] [Meja ${tableNumber}] ${item.notes || ''}`
       }));
 
-      console.log('[DEBUG] Memulai insert items...', orderItems);
+      console.log('[DEBUG] Menyimpan order_items ke Supabase...', orderItems);
 
-      const { error: itemsError } = await supabase
+      const { error } = await supabase
         .from('order_items')
         .insert(orderItems);
 
-      if (itemsError) {
-        console.error('[DEBUG] Gagal insert ke tabel order_items:', itemsError);
-        throw itemsError;
-      }
+      if (error) throw error;
 
-      console.log('[DEBUG] Berhasil insert ke tabel order_items');
-      
+      await get().fetchOrders();
     } catch (error) {
-      console.error('[DEBUG] Error fatal di createOrder:', error);
+      console.error("Failed to add order:", error);
       throw error;
     }
   },
 
   completeOrder: async (orderId: string) => {
-    console.log('🔄 START: Attempting to complete order ID:', orderId);
-    
-    const executeComplete = async (retryCount = 0): Promise<void> => {
-      try {
-        console.log(`📡 Calling Supabase update for order: ${orderId} (Attempt ${retryCount + 1})`);
-        const { data, error, status, statusText } = await supabase
-          .from('orders')
-          .update({ status: 'completed' })
-          .eq('id', orderId)
-          .select();
+    console.log('🔄 Selesaikan pesanan untuk ID:', orderId);
 
-        if (error) {
-          console.error('❌ Supabase ERROR:', error.message);
-          throw error;
-        }
+    // Update local state optimistically for immediate UI feedback
+    set((state) => ({
+      orders: state.orders.map(order =>
+        order.id === orderId ? { ...order, status: 'completed' } : order
+      ),
+    }));
 
-        console.log('✅ Supabase SUCCESS:', data);
-        console.log('📊 HTTP Status:', status, statusText);
+    // Persist to database - update order status in orders table
+    try {
+      const { error: orderError } = await supabase
+        .from('orders')
+        .update({
+          status: 'completed',
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', orderId);
 
-        if (!data || data.length === 0) {
-          console.warn('⚠️ Order ID not found or no rows updated.');
-          alert('Peringatan: Pesanan tidak ditemukan atau tidak ada data yang berubah.');
-        }
-
+      if (orderError) {
+        console.error('Failed to update order status:', orderError);
+        // Revert local state on error
         set((state) => ({
           orders: state.orders.map(order =>
-            String(order.id) === String(orderId) ? { ...order, status: 'completed' } : order
+            order.id === orderId ? { ...order, status: 'pending' } : order
           ),
         }));
-
-        // AUTO-DEDUCT STOCK (ERP Engine)
-        const completedOrder = get().orders.find(o => String(o.id) === String(orderId));
-        if (completedOrder) {
-            const menuItems = useMenuStore.getState().items;
-            useInventoryStore.getState().deductStockFromOrder(menuItems, completedOrder);
-        }
-
-        console.log('✨ Local state & inventory updated for order:', orderId);
-      } catch (error: any) {
-        console.error(`❌ Error completing order (Attempt ${retryCount + 1}):`, error);
-        
-        if (retryCount < 3) {
-          const delay = Math.pow(2, retryCount) * 1000; // 1s, 2s, 4s
-          console.log(`🔄 Retrying completeOrder in ${delay / 1000}s...`);
-          await new Promise(resolve => setTimeout(resolve, delay));
-          return executeComplete(retryCount + 1);
-        } else {
-          console.error("❌ Max retries reached for completeOrder.");
-          alert(`Gagal menyelesaikan pesanan setelah beberapa kali mencoba: ${error.message || 'Unknown error'}`);
-        }
-      }
-    };
-
-    await executeComplete();
-  },
-
-  clearStalePendingOrders: async (maxAgeMinutes: number = 180) => {
-    try {
-      const clampedAge = Number.isFinite(maxAgeMinutes) ? Math.max(1, Math.floor(maxAgeMinutes)) : 180;
-      const cutoff = new Date(Date.now() - clampedAge * 60 * 1000).toISOString();
-
-      const { data, error } = await supabase
-        .from('orders')
-        .update({ status: 'cancelled' })
-        .eq('status', 'pending')
-        .lt('created_at', cutoff)
-        .select('id');
-
-      if (error) {
-        console.error('Error clearing stale pending orders:', error);
-        return 0;
+        throw orderError;
       }
 
-      const clearedCount = Array.isArray(data) ? data.length : 0;
-      if (clearedCount > 0) {
-        console.log(`🧹 Cleared ${clearedCount} stale pending order(s).`);
-      }
-
-      await get().fetchOrders();
-      return clearedCount;
+      console.log(`✅ Order ${orderId} marked as completed in database`);
     } catch (error) {
-      console.error('Unexpected error clearing stale pending orders:', error);
-      return 0;
+      console.error('Failed to complete order:', error);
+      throw error;
     }
   },
 
+  clearStalePendingOrders: async (maxAgeMinutes: number = 180) => {
+    const threshold = Math.max(1, Math.floor(maxAgeMinutes));
+    const cutoff = Date.now() - threshold * 60000;
+    set((state) => ({
+      orders: state.orders.filter(order => {
+        const createdTime = new Date(order.createdAt).getTime();
+        return order.status !== 'pending' || Number.isNaN(createdTime) || createdTime >= cutoff;
+      })
+    }));
+    return Promise.resolve(0);
+  },
+
   subscribeToOrders: () => {
-    console.log('🔔 Subscribing to Supabase real-time orders...');
+    console.log('🔔 Subscribing to order_items changes...');
     
     const channel = supabase
       .channel('schema-db-changes')
@@ -216,41 +217,21 @@ export const useOrderStore = create<OrderState>((set, get) => ({
         {
           event: '*',
           schema: 'public',
-          table: 'orders'
+          table: 'order_items'
         },
         async (payload) => {
-          console.log('📦 Order Change Detected:', payload);
-          
-          if (payload.eventType === 'INSERT') {
-            // Check if order already exists locally to avoid double alerts
-            const exists = get().orders.some(o => String(o.id) === String(payload.new.id));
-            if (exists) return;
+          console.log('📦 order_items Change Detected:', payload);
+          await get().fetchOrders();
 
-            const { data, error } = await supabase
-              .from('orders')
-              .select('*, items:order_items(*)')
-              .eq('id', payload.new.id)
-              .single();
-              
-            if (!error && data) {
-               const mappedOrder = mapOrderFromDB(data);
-               set({ orders: [mappedOrder, ...get().orders] });
-               window.dispatchEvent(new CustomEvent('new-order-ping', { detail: mappedOrder }));
-            }
-          } else if (payload.eventType === 'UPDATE') {
-            if (payload.new.status === 'cancelled') {
-               set({ orders: get().orders.filter(o => o.id !== payload.new.id) });
-            } else {
-                set({ 
-                  orders: get().orders.map(o => {
-                    if (String(o.id) === String(payload.new.id)) {
-                      const mappedUpdate = mapOrderFromDB(payload.new);
-                      mappedUpdate.items = payload.new.items ? mappedUpdate.items : o.items;
-                      return { ...o, ...mappedUpdate };
-                    }
-                    return o;
-                  }) 
-                });
+          if (payload.eventType === 'INSERT' && payload.new?.order_id) {
+            const orderId = payload.new.order_id;
+            if (!recentlyNotifiedOrders.has(orderId)) {
+              const createdOrder = get().orders.find(order => order.id === orderId);
+              if (createdOrder) {
+                recentlyNotifiedOrders.add(orderId);
+                setTimeout(() => recentlyNotifiedOrders.delete(orderId), clearNotificationDelayMs);
+                window.dispatchEvent(new CustomEvent('new-order-ping', { detail: createdOrder }));
+              }
             }
           }
         }
@@ -258,19 +239,17 @@ export const useOrderStore = create<OrderState>((set, get) => ({
       .subscribe((status) => {
         console.log(`📡 Real-time status: ${status}`);
         if (status === 'CLOSED' || status === 'CHANNEL_ERROR') {
-          console.log('🔄 Attempting re-subscribe...');
           setTimeout(() => get().subscribeToOrders(), 5000);
         }
       });
 
-    // FALLBACK POLLING: Sync every 15s in case real-time fails (Optimized for busy restaurant)
+    // Fallback polling tetap dipertahankan
     const pollInterval = setInterval(() => {
-      console.log('🔄 Running background sync (Polling)...');
       get().fetchOrders();
     }, 15000);
 
     return () => {
-      console.log('🔕 Unsubscribing from orders...');
+      console.log('🔕 Unsubscribing from order_items...');
       clearInterval(pollInterval);
       supabase.removeChannel(channel);
     };
