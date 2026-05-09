@@ -70,7 +70,7 @@ export const TableMapSection: React.FC = () => {
       ctx.fillText('Pawon Salam Resto', canvas.width / 2, 170);
 
       const img = new Image();
-      img.onload = () => {
+      img.onload = async () => {
         // Gambar QR Code di tengah
         ctx.drawImage(img, canvas.width / 2 - 200, 230, 400, 400);
 
@@ -82,11 +82,24 @@ export const TableMapSection: React.FC = () => {
         } catch (e) {}
         ctx.fillText(`Meja ${selectedTable}`, canvas.width / 2, 750);
 
-        // Trigger download
-        const link = document.createElement('a');
-        link.download = `Sticker-Barcode-Meja-${selectedTable}.png`;
-        link.href = canvas.toDataURL('image/png');
-        link.click();
+        // Convert canvas to image data
+        const imgData = canvas.toDataURL('image/png');
+        
+        // Dynamically import jsPDF
+        const { jsPDF } = await import('jspdf');
+        
+        // Create PDF (A6 size is roughly sticker size, 105 x 148 mm)
+        const pdf = new jsPDF({
+          orientation: 'portrait',
+          unit: 'mm',
+          format: 'a6'
+        });
+        
+        // Add image to PDF (fill entire A6 page)
+        pdf.addImage(imgData, 'PNG', 0, 0, 105, 148);
+        
+        // Save PDF
+        pdf.save(`Sticker-Barcode-Meja-${selectedTable}.pdf`);
         
         URL.revokeObjectURL(img.src);
         setIsDownloading(false);
@@ -244,7 +257,7 @@ export const TableMapSection: React.FC = () => {
               </button>
 
               <p className="text-[10px] text-gray-400 mt-4 text-center leading-relaxed px-6 opacity-70">
-                *File PNG High-Res termasuk logo Pawon Salam di tengah.
+                *File PDF Siap Cetak (Ukuran A6) termasuk logo Pawon Salam di tengah.
               </p>
             </div>
         </div>
